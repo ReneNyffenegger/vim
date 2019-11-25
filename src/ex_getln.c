@@ -13,6 +13,9 @@
 
 #include "vim.h"
 
+#define TQ84_DEBUG_ENABLED
+#include "tq84-c-debug/tq84_debug.h"
+
 #ifndef MAX
 # define MAX(x,y) ((x) > (y) ? (x) : (y))
 #endif
@@ -781,6 +784,7 @@ getcmdline(
     int		indent,		// indent for inside conditionals
     int		do_concat UNUSED)
 {
+    TQ84_DEBUG_INDENT_T("getcmdline -> getcmdline_int");
     return getcmdline_int(firstc, count, indent, TRUE);
 }
 
@@ -820,6 +824,7 @@ getcmdline_int(
     int		did_save_ccline = FALSE;
     int		cmdline_type;
 
+    TQ84_DEBUG_INDENT();
     if (ccline.cmdbuff != NULL)
     {
 	// Being called recursively.  Since ccline is global, we need to save
@@ -2666,9 +2671,11 @@ getexline(
     int		indent,		/* indent for inside conditionals */
     int		do_concat)
 {
+    TQ84_DEBUG_INDENT();
     /* When executing a register, remove ':' that's in front of each line. */
     if (exec_from_reg && vpeekc() == ':')
 	(void)vgetc();
+    TQ84_DEBUG("-> getcmdline");
     return getcmdline(c, 1L, indent, do_concat);
 }
 

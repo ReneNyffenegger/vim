@@ -648,6 +648,7 @@ do_cmdline(
 # define cmd_getline fgetline
 # define cmd_cookie cookie
 #endif
+    TQ84_DEBUG_INDENT_T("cmdline = %s", cmdline);
     static int	call_depth = 0;		/* recursiveness */
 
 #ifdef FEAT_EVAL
@@ -690,6 +691,7 @@ do_cmdline(
     cstack.cs_lflags = 0;
     ga_init2(&lines_ga, (int)sizeof(wcmd_T), 10);
 
+    TQ84_DEBUG("-> getline_cookie");
     real_cookie = getline_cookie(fgetline, cookie);
 
     /* Inside a function use a higher nesting level. */
@@ -720,6 +722,7 @@ do_cmdline(
 	force_abort = FALSE;
 	suppress_errthrow = FALSE;
     }
+    TQ84_DEBUG("Checkpoint 500");
 
     /*
      * If requested, store and reset the global values controlling the
@@ -760,6 +763,7 @@ do_cmdline(
      * - when repeating until there are no more lines (for ":source")
      */
     next_cmdline = cmdline;
+    TQ84_DEBUG("Checkpoint 600");
     do
     {
 #ifdef FEAT_EVAL
@@ -852,6 +856,7 @@ do_cmdline(
 # endif
 	}
 
+        TQ84_DEBUG("Checkpoint 700");
 	if (cstack.cs_looplevel > 0)
 	{
 	    /* Inside a while/for loop we need to store the lines and use them
@@ -877,6 +882,7 @@ do_cmdline(
 	/* 2. If no line given, get an allocated line with fgetline(). */
 	if (next_cmdline == NULL)
 	{
+            TQ84_DEBUG("Checkpoint 800");
 	    /*
 	     * Need to set msg_didout for the first line after an ":if",
 	     * otherwise the ":if" will be overwritten.
@@ -917,7 +923,9 @@ do_cmdline(
 	/* 3. Make a copy of the command so we can mess with it. */
 	else if (cmdline_copy == NULL)
 	{
+            TQ84_DEBUG("-> vim_strsave, next_cmdline = %s", next_cmdline);
 	    next_cmdline = vim_strsave(next_cmdline);
+            TQ84_DEBUG("<- vim_strsave, next_cmdline = %s", next_cmdline);
 	    if (next_cmdline == NULL)
 	    {
 		emsg(_(e_outofmem));
@@ -925,6 +933,7 @@ do_cmdline(
 		break;
 	    }
 	}
+	TQ84_DEBUG("Assigning next_cmdline to cmdline_copy (%s)", next_cmdline);
 	cmdline_copy = next_cmdline;
 
 #ifdef FEAT_EVAL
@@ -947,6 +956,7 @@ do_cmdline(
 	did_endif = FALSE;
 #endif
 
+        TQ84_DEBUG("Checkpoint 900");
 	if (count++ == 0)
 	{
 	    /*
@@ -976,6 +986,7 @@ do_cmdline(
 	 *    "cmdline_copy" can change, e.g. for '%' and '#' expansion.
 	 */
 	++recursive;
+        TQ84_DEBUG("-> do_one_cmd, cmdline_copy = %s", cmdline_copy);
 	next_cmdline = do_one_cmd(&cmdline_copy, flags & DOCMD_VERBOSE,
 #ifdef FEAT_EVAL
 				&cstack,
@@ -1652,7 +1663,7 @@ do_one_cmd(
     int			ni;			/* set when Not Implemented */
     char_u		*cmd;
 
-    TQ84_DEBUG_INDENT();
+    TQ84_DEBUG_INDENT_T("do_one_cmd - *cmdlinep = %s", *cmdlinep);
 
     vim_memset(&ea, 0, sizeof(ea));
     ea.line1 = 1;
@@ -1906,7 +1917,7 @@ do_one_cmd(
     {
 	if (!ea.skip)
 	{
-	    TQ84_DEBUG("not an editor command");
+	    TQ84_DEBUG("E492: not an editor command");
 	    STRCPY(IObuff, _("E492: Not an editor command"));
 	    if (!sourcing)
 	    {

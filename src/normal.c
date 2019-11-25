@@ -553,6 +553,7 @@ normal_cmd(
 	oap->prev_count0 = 0;
     }
 
+    TQ84_DEBUG("-> typebuf_maplen()");
     mapped_len = typebuf_maplen();
 
     State = NORMAL_BUSY;
@@ -571,6 +572,7 @@ normal_cmd(
     /*
      * Get the command character from the user.
      */
+    TQ84_DEBUG("-> safe_vgetc");
     c = safe_vgetc();
     LANGMAP_ADJUST(c, get_real_state() != SELECTMODE);
 
@@ -660,7 +662,7 @@ getcount:
 	    need_flushbuf |= add_to_showcmd(c);
 #endif
 	}
-
+        TQ84_DEBUG("checkpoint 1");
 	/*
 	 * If we got CTRL-W there may be a/another count
 	 */
@@ -682,6 +684,7 @@ getcount:
 	}
     }
 
+    TQ84_DEBUG("checkpoint 2");
     if (c == K_CURSORHOLD)
     {
 	/* Save the count values so that ca.opcount and ca.count0 are exactly
@@ -705,6 +708,7 @@ getcount:
 	else
 	    ca.count0 = ca.opcount;
     }
+    TQ84_DEBUG("checkpoint 3");
 
     /*
      * Always remember the count.  It will be set to zero (on the next call,
@@ -728,6 +732,7 @@ getcount:
      * Find the command character in the table of commands.
      * For CTRL-W we already got nchar when looking for a count.
      */
+    TQ84_DEBUG("checkpoint 4");
     if (ctrl_w)
     {
 	ca.nchar = c;
@@ -743,6 +748,7 @@ getcount:
 	goto normal_end;
     }
 
+    TQ84_DEBUG("checkpoint 5");
     if (text_locked() && (nv_cmds[idx].cmd_flags & NV_NCW))
     {
 	/* This command is not allowed while editing a cmdline: beep. */
@@ -756,6 +762,7 @@ getcount:
     /*
      * In Visual/Select mode, a few keys are handled in a special way.
      */
+    TQ84_DEBUG("checkpoint 6");
     if (VIsual_active)
     {
 	/* when 'keymodel' contains "stopsel" may stop Select/Visual mode */
@@ -788,6 +795,7 @@ getcount:
     }
 
 #ifdef FEAT_RIGHTLEFT
+    TQ84_DEBUG("checkpoint 7");
     if (curwin->w_p_rl && KeyTyped && !KeyStuffed
 					  && (nv_cmds[idx].cmd_flags & NV_RL))
     {
@@ -873,6 +881,7 @@ getcount:
 	/*
 	 * Get a second or third character.
 	 */
+        TQ84_DEBUG("checkpoint 8");
 	if (cp != NULL)
 	{
 	    if (repl)
@@ -923,6 +932,7 @@ getcount:
 	    need_flushbuf |= add_to_showcmd(*cp);
 #endif
 
+            TQ84_DEBUG("checkpoint 9");
 	    if (!lit)
 	    {
 #ifdef FEAT_DIGRAPHS
@@ -992,6 +1002,7 @@ getcount:
 		    }
 		}
 	    }
+            TQ84_DEBUG("checkpoint 10");
 
 	    /* When getting a text character and the next character is a
 	     * multi-byte character, it could be a composing character.
@@ -1018,6 +1029,7 @@ getcount:
 	--no_mapping;
 	--allow_keys;
     }
+    TQ84_DEBUG("checkpoint 11");
 
 #ifdef FEAT_CMDL_INFO
     /*
@@ -1042,11 +1054,13 @@ getcount:
 	goto normal_end;
     }
 
+    TQ84_DEBUG("checkpoint 12");
     if (ca.cmdchar != K_IGNORE)
     {
 	msg_didout = FALSE;    /* don't scroll screen up for normal command */
 	msg_col = 0;
     }
+    TQ84_DEBUG("checkpoint 12.1");
 
     old_pos = curwin->w_cursor;		/* remember where cursor was */
 
@@ -1054,8 +1068,10 @@ getcount:
      * mode. */
     if (!VIsual_active && km_startsel)
     {
+        TQ84_DEBUG("checkpoint 12.2");
 	if (nv_cmds[idx].cmd_flags & NV_SS)
 	{
+            TQ84_DEBUG("checkpoint 12.3");
 	    start_selection();
 	    unshift_special(&ca);
 	    idx = find_command(ca.cmdchar);
@@ -1063,6 +1079,8 @@ getcount:
 	else if ((nv_cmds[idx].cmd_flags & NV_SSS)
 					   && (mod_mask & MOD_MASK_SHIFT))
 	{
+
+            TQ84_DEBUG("checkpoint 12.4");
 	    start_selection();
 	    mod_mask &= ~MOD_MASK_SHIFT;
 	}
@@ -1072,9 +1090,11 @@ getcount:
      * Execute the command!
      * Call the command function found in the commands table.
      */
+    TQ84_DEBUG("checkpoint 12.5, idx=%d", idx);
     ca.arg = nv_cmds[idx].cmd_arg;
     (nv_cmds[idx].cmd_func)(&ca);
 
+    TQ84_DEBUG("checkpoint 12.6");
     /*
      * If we didn't start or finish an operator, reset oap->regname, unless we
      * need it later.
@@ -1083,6 +1103,8 @@ getcount:
 	    && !oap->op_type
 	    && (idx < 0 || !(nv_cmds[idx].cmd_flags & NV_KEEPREG)))
     {
+
+        TQ84_DEBUG("checkpoint 12.7");
 	clearop(oap);
 #ifdef FEAT_EVAL
 	{
@@ -1097,6 +1119,7 @@ getcount:
 	}
 #endif
     }
+    TQ84_DEBUG("checkpoint 12.8");
 
     /* Get the length of mapped chars again after typing a count, second
      * character or "z333<cr>". */
@@ -1106,7 +1129,10 @@ getcount:
     /*
      * If an operation is pending, handle it...
      */
+
+    TQ84_DEBUG("checkpoint 12.9");
     do_pending_operator(&ca, old_col, FALSE);
+    TQ84_DEBUG("checkpoint 13");
 
     /*
      * Wait for a moment when a message is displayed that will be overwritten
@@ -1182,6 +1208,7 @@ getcount:
 	emsg_on_display = FALSE;
     }
 
+    TQ84_DEBUG("checkpoint 15");
     /*
      * Finish up after executing a Normal mode command.
      */
@@ -1236,6 +1263,7 @@ normal_end:
 	restart_edit = 0;
 #endif
 
+    TQ84_DEBUG("checkpoint 16");
     /*
      * May restart edit(), if we got here with CTRL-O in Insert mode (but not
      * if still inside a mapping that started in Visual mode).
@@ -3290,37 +3318,52 @@ nv_colon(cmdarg_T *cap)
 {
     int	    old_p_im;
     int	    cmd_result;
+    TQ84_DEBUG_INDENT();
 
     if (VIsual_active)
+    {
+        TQ84_DEBUG("VIsual_active");
 	nv_operator(cap);
+    }
     else
     {
+        TQ84_DEBUG("! VIsual_active");
 	if (cap->oap->op_type != OP_NOP)
 	{
+            TQ84_DEBUG("... is characterwise exclusive");
 	    /* Using ":" as a movement is characterwise exclusive. */
 	    cap->oap->motion_type = MCHAR;
 	    cap->oap->inclusive = FALSE;
 	}
 	else if (cap->count0)
 	{
+            TQ84_DEBUG("... cap->count0");
 	    /* translate "count:" into ":.,.+(count - 1)" */
 	    stuffcharReadbuff('.');
 	    if (cap->count0 > 1)
 	    {
+                TQ84_DEBUG("-> stuffReadbuff");
 		stuffReadbuff((char_u *)",.+");
 		stuffnumReadbuff((long)cap->count0 - 1L);
+                TQ84_DEBUG("<- stuffnumReadbuff");
 	    }
 	}
 
 	/* When typing, don't type below an old message */
 	if (KeyTyped)
+	{
+            TQ84_DEBUG("-> compute_cmdrow");
 	    compute_cmdrow();
+        }
 
 	old_p_im = p_im;
 
 	/* get a command line and execute it */
+	TQ84_DEBUG("->do_cmdline");
 	cmd_result = do_cmdline(NULL, getexline, NULL,
 			    cap->oap->op_type != OP_NOP ? DOCMD_KEEPLINE : 0);
+
+	TQ84_DEBUG("do_cmdline<-");
 
 	/* If 'insertmode' changed, enter or exit Insert mode */
 	if (p_im != old_p_im)
@@ -7182,6 +7225,7 @@ nv_object(
     static void
 nv_record(cmdarg_T *cap)
 {
+    TQ84_DEBUG_INDENT();
     if (cap->oap->op_type == OP_FORMAT)
     {
 	/* "gqq" is the same as "gqgq": format line */
@@ -7194,6 +7238,7 @@ nv_record(cmdarg_T *cap)
 #ifdef FEAT_CMDWIN
 	if (cap->nchar == ':' || cap->nchar == '/' || cap->nchar == '?')
 	{
+	    TQ84_DEBUG(": / or ?");
 	    stuffcharReadbuff(cap->nchar);
 	    stuffcharReadbuff(K_CMDWIN);
 	}
