@@ -15,6 +15,9 @@
 
 #include "vim.h"
 
+#define TQ84_DEBUG_ENABLED
+#include "tq84-c-debug/tq84_debug.h"
+
 #include <sys/types.h>
 #include <signal.h>
 #include <limits.h>
@@ -238,6 +241,7 @@ mch_exit_g(int r)
     void
 mch_early_init(void)
 {
+    TQ84_DEBUG_INDENT();
     int		i;
 
     PlatformId();

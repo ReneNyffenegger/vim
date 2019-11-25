@@ -13,6 +13,9 @@
 
 #include "vim.h"
 
+#define TQ84_DEBUG_ENABLED
+#include "tq84-c-debug/tq84_debug.h"
+
 #if defined(FEAT_EVAL) || defined(PROTO)
 // The names of packages that once were loaded are remembered.
 static garray_T		ga_loaded = {0, 0, sizeof(char_u *), 4, NULL};
@@ -973,6 +976,8 @@ do_source(
     proftime_T		    wait_start;
 #endif
     int			    trigger_source_post = FALSE;
+
+    TQ84_DEBUG_INDENT_T("fname = %s", fname);
 
     p = expand_env_save(fname);
     if (p == NULL)

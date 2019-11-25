@@ -22,6 +22,9 @@
 
 #include "vim.h"
 
+#define TQ84_DEBUG_ENABLED
+#include "tq84-c-debug/tq84_debug.h"
+
 #ifdef FEAT_MZSCHEME
 # include "if_mzsch.h"
 #endif
@@ -500,17 +503,25 @@ vimLoadLib(char *name)
     int
 mch_is_gui_executable(void)
 {
+    TQ84_DEBUG_INDENT();
     PBYTE		pImage = (PBYTE)GetModuleHandle(NULL);
     PIMAGE_DOS_HEADER	pDOS = (PIMAGE_DOS_HEADER)pImage;
     PIMAGE_NT_HEADERS	pPE;
 
-    if (pDOS->e_magic != IMAGE_DOS_SIGNATURE)
+    if (pDOS->e_magic != IMAGE_DOS_SIGNATURE) {
+        TQ84_DEBUG("return != IMAGE_DOS_SIGNATURE -> return false");
 	return FALSE;
+    }
     pPE = (PIMAGE_NT_HEADERS)(pImage + pDOS->e_lfanew);
-    if (pPE->Signature != IMAGE_NT_SIGNATURE)
+    if (pPE->Signature != IMAGE_NT_SIGNATURE) {
+        TQ84_DEBUG("!= IMAGE_NT_SIGNATURE -> return false");
 	return FALSE;
-    if (pPE->OptionalHeader.Subsystem == IMAGE_SUBSYSTEM_WINDOWS_GUI)
+    }
+    if (pPE->OptionalHeader.Subsystem == IMAGE_SUBSYSTEM_WINDOWS_GUI) {
+        TQ84_DEBUG("== IMAGE_SUBSYSTEM_WINDOWS_GUI -> return true");
 	return TRUE;
+    }
+    TQ84_DEBUG("else: return false");
     return FALSE;
 }
 #endif

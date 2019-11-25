@@ -129,6 +129,7 @@ TQ84_DEBUG("PROTO is not defined");
      * Do any system-specific initialisations.  These can NOT use IObuff or
      * NameBuff.  Thus emsg2() cannot be called!
      */
+    TQ84_DEBUG("-> mch_early_init");
     mch_early_init();
 
 #ifdef MSWIN
@@ -193,8 +194,10 @@ TQ84_DEBUG("PROTO is not defined");
 
 #ifdef VIMDLL
     // Check if the current executable file is for the GUI subsystem.
+    TQ84_DEBUG("VIMDLL: gui.starting = mch_is_gui_executable()")
     gui.starting = mch_is_gui_executable();
 #elif defined(FEAT_GUI_MSWIN)
+    TQ84_DEBUG("FEAT_GUI_MSWIN: gui.starting = TRUE");
     gui.starting = TRUE;
 #endif
 
@@ -309,7 +312,7 @@ TQ84_DEBUG("PROTO is not defined");
      * When listing swap file names, don't do cursor positioning et. al.
      */
     if (recoverymode && params.fname == NULL) {
-        TQ84_DEBUG("Setting params.want_full_screen to FALSE");
+        TQ84_DEBUG("Setting params.want_full_screen to FALSE (recoverymode && params.fname == NULL)");
 	params.want_full_screen = FALSE;
     }
 
@@ -327,7 +330,7 @@ TQ84_DEBUG("PROTO is not defined");
 	    )
 	{
 
-        TQ84_DEBUG("Setting params.want_full_screen to FALSE");
+        TQ84_DEBUG("Setting params.want_full_screen to FALSE (gui.starting && !isatty(2)");
 	params.want_full_screen = FALSE;
 	}
 #endif
@@ -338,7 +341,7 @@ TQ84_DEBUG("PROTO is not defined");
      * name to know we're not started from a terminal. */
     if (gui.starting && (!isatty(2) || strcmp("/dev/console", ttyname(2)) == 0))
     {
-        TQ84_DEBUG("Setting params.want_full_screen to FALSE");
+        TQ84_DEBUG("Setting params.want_full_screen to FALSE (gui.starting && (!isatty(2) || strcmp(/dev/console)…");
 	params.want_full_screen = FALSE;
 
 	/* Avoid always using "/" as the current directory.  Note that when
@@ -455,6 +458,9 @@ TQ84_DEBUG("PROTO is not defined");
 	TQ84_DEBUG("params.use_vimrc != NULL but NONE or DEFAULTS");
 	p_lpl = FALSE;
     }
+    else {
+	TQ84_DEBUG("params.use_vimrc == NULL");
+    }
 
     /* Execute --cmd arguments. */
     TQ84_DEBUG("Calling exe_pre_commands");
@@ -492,6 +498,7 @@ vim_main2(void)
 {
 #ifndef NO_VIM_MAIN
 #ifdef FEAT_EVAL
+    TQ84_DEBUG_INDENT();
     /*
      * Read all the plugin files.
      * Only when compiled with +eval, since most plugins need it.
@@ -950,6 +957,7 @@ vim_main2(void)
 common_init(mparm_T *paramp)
 {
     TQ84_DEBUG_INDENT();
+    TQ84_DEBUG("-> cmdline_init()");
     cmdline_init();
 
     (void)mb_init();	/* init mb_bytelen_tab[] to ones */
@@ -2113,6 +2121,7 @@ command_line_scan(mparm_T *parmp)
 		else if (STRNICMP(argv[0] + argv_idx, "clean", 5) == 0)
 		{
 		    parmp->use_vimrc = (char_u *)"DEFAULTS";
+		    TQ84_DEBUG("parmp->use_vimrc set to DEFAULTS");
 #ifdef FEAT_GUI
 		    use_gvimrc = (char_u *)"NONE";
 #endif
@@ -2586,6 +2595,7 @@ scripterror:
 
 		case 'u':	/* "-u {vimrc}" vim inits file */
 		    parmp->use_vimrc = (char_u *)argv[0];
+		    TQ84_DEBUG("parmp->use_vimrc set to %s (-u)", parmp->use_vimrc );
 		    break;
 
 		case 'U':	/* "-U {gvimrc}" gvim inits file */
@@ -3128,9 +3138,12 @@ edit_buffers(
     static void
 exe_pre_commands(mparm_T *parmp)
 {
+    TQ84_DEBUG_INDENT();
     char_u	**cmds = parmp->pre_commands;
     int		cnt = parmp->n_pre_commands;
     int		i;
+
+    TQ84_DEBUG("cnt = %d", cnt);
 
     if (cnt > 0)
     {
@@ -3201,6 +3214,7 @@ exe_commands(mparm_T *parmp)
 source_startup_scripts(mparm_T *parmp)
 {
     int		i;
+    TQ84_DEBUG_INDENT();
 
     /*
      * For "evim" source evim.vim first of all, so that the user can overrule
@@ -3208,6 +3222,7 @@ source_startup_scripts(mparm_T *parmp)
      */
     if (parmp->evim_mode)
     {
+        TQ84_DEBUG("parmp->evim_mode");
 	(void)do_source((char_u *)EVIM_FILE, FALSE, DOSO_NONE);
 	TIME_MSG("source evim file");
     }
@@ -3218,6 +3233,7 @@ source_startup_scripts(mparm_T *parmp)
      */
     if (parmp->use_vimrc != NULL)
     {
+        TQ84_DEBUG("parmp->use_vimrc = %s", parmp->use_vimrc);
 	if (STRCMP(parmp->use_vimrc, "DEFAULTS") == 0)
 	    do_source((char_u *)VIM_DEFAULTS_FILE, FALSE, DOSO_NONE);
 	else if (STRCMP(parmp->use_vimrc, "NONE") == 0

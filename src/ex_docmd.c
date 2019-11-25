@@ -1652,6 +1652,8 @@ do_one_cmd(
     int			ni;			/* set when Not Implemented */
     char_u		*cmd;
 
+    TQ84_DEBUG_INDENT();
+
     vim_memset(&ea, 0, sizeof(ea));
     ea.line1 = 1;
     ea.line2 = 1;
@@ -1904,6 +1906,7 @@ do_one_cmd(
     {
 	if (!ea.skip)
 	{
+	    TQ84_DEBUG("not an editor command");
 	    STRCPY(IObuff, _("E492: Not an editor command"));
 	    if (!sourcing)
 	    {
