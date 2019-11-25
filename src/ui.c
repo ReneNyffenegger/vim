@@ -24,6 +24,9 @@
 # include "winclip.pro"
 #endif
 
+#define TQ84_DEBUG_ENABLED
+#include "tq84-c-debug/tq84_debug.h"
+
     void
 ui_write(char_u *s, int len)
 {
@@ -746,6 +749,7 @@ static int clip_x11_owner_exists(Clipboard_T *cbd);
 clip_init(int can_use)
 {
     Clipboard_T *cb;
+    TQ84_DEBUG_INDENT_T("can_use = %d", can_use);
 
     cb = &clip_star;
     for (;;)

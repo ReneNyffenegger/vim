@@ -13,6 +13,9 @@
 
 #include "vim.h"
 
+#define TQ84_DEBUG_ENABLED
+#include "tq84-c-debug/tq84_debug.h"
+
 #if defined(FEAT_SYN_HL) || defined(PROTO)
 
 #define SYN_NAMELEN	50		/* maximum length of a syntax name */
@@ -3724,6 +3727,7 @@ syn_clear_one(int id, int syncing)
     static void
 syn_cmd_on(exarg_T *eap, int syncing UNUSED)
 {
+    TQ84_DEBUG_INDENT();
     syn_cmd_onoff(eap, "syntax");
 }
 
@@ -3733,6 +3737,7 @@ syn_cmd_on(exarg_T *eap, int syncing UNUSED)
     static void
 syn_cmd_enable(exarg_T *eap, int syncing UNUSED)
 {
+    TQ84_DEBUG_INDENT();
     set_internal_string_var((char_u *)"syntax_cmd", (char_u *)"enable");
     syn_cmd_onoff(eap, "syntax");
     do_unlet((char_u *)"g:syntax_cmd", TRUE);
@@ -3745,6 +3750,7 @@ syn_cmd_enable(exarg_T *eap, int syncing UNUSED)
     static void
 syn_cmd_reset(exarg_T *eap, int syncing UNUSED)
 {
+    TQ84_DEBUG_INDENT();
     eap->nextcmd = check_nextcmd(eap->arg);
     if (!eap->skip)
     {
@@ -3760,6 +3766,7 @@ syn_cmd_reset(exarg_T *eap, int syncing UNUSED)
     static void
 syn_cmd_manual(exarg_T *eap, int syncing UNUSED)
 {
+    TQ84_DEBUG_INDENT();
     syn_cmd_onoff(eap, "manual");
 }
 
@@ -3769,6 +3776,7 @@ syn_cmd_manual(exarg_T *eap, int syncing UNUSED)
     static void
 syn_cmd_off(exarg_T *eap, int syncing UNUSED)
 {
+    TQ84_DEBUG_INDENT();
     syn_cmd_onoff(eap, "nosyntax");
 }
 

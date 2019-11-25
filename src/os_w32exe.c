@@ -15,6 +15,10 @@
  */
 #include "vim.h"
 
+#define TQ84_DEBUG_ENABLED
+#define TQ84_DEBUG_TO_FILE
+#include "tq84-c-debug/tq84_debug.h"
+
 // cproto doesn't create a prototype for VimMain()
 #ifdef VIMDLL
 __declspec(dllimport)
@@ -37,6 +41,8 @@ wWinMain(
 wmain(int argc UNUSED, wchar_t **argv UNUSED)
 # endif
 {
+  TQ84_DEBUG_OPEN("tq84-debug.out", "w");
+  TQ84_DEBUG_INDENT_T("Entered wWinMain");
 # ifndef VIMDLL
 #  ifdef FEAT_GUI
     SaveInst(hInstance);

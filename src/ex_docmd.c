@@ -13,6 +13,9 @@
 
 #include "vim.h"
 
+#define TQ84_DEBUG_ENABLED
+#include "tq84-c-debug/tq84_debug.h"
+
 static int	quitmore = 0;
 static int	ex_pressedreturn = FALSE;
 #ifndef FEAT_PRINTER
@@ -584,6 +587,7 @@ msg_verbose_cmd(linenr_T lnum, char_u *cmd)
     int
 do_cmdline_cmd(char_u *cmd)
 {
+    TQ84_DEBUG_INDENT_T("do_cmdline_cmd, cmd = %s", cmd);
     return do_cmdline(cmd, NULL, NULL,
 				   DOCMD_VERBOSE|DOCMD_NOWAIT|DOCMD_KEYTYPED);
 }

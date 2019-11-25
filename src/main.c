@@ -23,6 +23,11 @@
 # include "iscygpty.h"
 #endif
 
+#define TQ84_DEBUG_ENABLED
+#define TQ84_DEBUG_TO_FILE
+#define TQ84_DEBUG_FUNCNAME_WIDTH "30"
+#include "tq84-c-debug/tq84_debug.c"
+
 /* Values for edit_type. */
 #define EDIT_NONE   0	    /* no edit type yet */
 #define EDIT_FILE   1	    /* file name argument[s] given, use argument list */
@@ -108,6 +113,18 @@ main
     int		i;
 #endif
 
+#ifndef MSWIN
+  TQ84_DEBUG_OPEN("tq84-debug.out", "w");
+#endif
+
+#ifdef PROTO
+TQ84_DEBUG("PROTO is defined");
+#else
+TQ84_DEBUG("PROTO is not defined");
+#endif
+
+    TQ84_DEBUG_INDENT();
+
     /*
      * Do any system-specific initialisations.  These can NOT use IObuff or
      * NameBuff.  Thus emsg2() cannot be called!
@@ -128,6 +145,7 @@ main
     vim_memset(&params, 0, sizeof(params));
     params.argc = argc;
     params.argv = argv;
+    TQ84_DEBUG("Setting params.want_full_screen to TRUE");
     params.want_full_screen = TRUE;
 #ifdef FEAT_EVAL
     params.use_debug_break_level = -1;
@@ -170,6 +188,7 @@ main
 	    break;
 	}
 #endif
+    TQ84_DEBUG("calling common_init");
     common_init(&params);
 
 #ifdef VIMDLL
@@ -289,8 +308,10 @@ main
     /*
      * When listing swap file names, don't do cursor positioning et. al.
      */
-    if (recoverymode && params.fname == NULL)
+    if (recoverymode && params.fname == NULL) {
+        TQ84_DEBUG("Setting params.want_full_screen to FALSE");
 	params.want_full_screen = FALSE;
+    }
 
     /*
      * When certain to start the GUI, don't check capabilities of terminal.
@@ -304,7 +325,11 @@ main
 	    && !isatty(2)
 # endif
 	    )
+	{
+
+        TQ84_DEBUG("Setting params.want_full_screen to FALSE");
 	params.want_full_screen = FALSE;
+	}
 #endif
 
 #if defined(FEAT_GUI_MAC) && defined(MACOS_X_DARWIN)
@@ -313,6 +338,7 @@ main
      * name to know we're not started from a terminal. */
     if (gui.starting && (!isatty(2) || strcmp("/dev/console", ttyname(2)) == 0))
     {
+        TQ84_DEBUG("Setting params.want_full_screen to FALSE");
 	params.want_full_screen = FALSE;
 
 	/* Avoid always using "/" as the current directory.  Note that when
@@ -383,6 +409,7 @@ main
     {
 	termcapinit(params.term);	/* set terminal name and get terminal
 				   capabilities (will set full_screen) */
+        TQ84_DEBUG("Calling screen_start()");
 	screen_start();		/* don't know where cursor is now */
 	TIME_MSG("Termcap init");
     }
@@ -408,8 +435,10 @@ main
     msg_scroll = TRUE;
     no_wait_return = TRUE;
 
+    TQ84_DEBUG("Calling init_mappings");
     init_mappings();		/* set up initial mappings */
 
+    TQ84_DEBUG("Calling init_highlight");
     init_highlight(TRUE, FALSE); /* set the default highlight groups */
     TIME_MSG("init highlight");
 
@@ -422,13 +451,17 @@ main
      * Allows for setting 'loadplugins' there. */
     if (params.use_vimrc != NULL
 	    && (STRCMP(params.use_vimrc, "NONE") == 0
-		|| STRCMP(params.use_vimrc, "DEFAULTS") == 0))
+		|| STRCMP(params.use_vimrc, "DEFAULTS") == 0)) {
+	TQ84_DEBUG("params.use_vimrc != NULL but NONE or DEFAULTS");
 	p_lpl = FALSE;
+    }
 
     /* Execute --cmd arguments. */
+    TQ84_DEBUG("Calling exe_pre_commands");
     exe_pre_commands(&params);
 
     /* Source startup scripts. */
+    TQ84_DEBUG("Calling source_startup_scripts");
     source_startup_scripts(&params);
 
 #ifdef FEAT_MZSCHEME
@@ -439,8 +472,10 @@ main
      * and splitting off remaining Vim main into vim_main2().
      * Do source startup scripts, so that 'mzschemedll' can be set.
      */
+    TQ84_DEBUG("Calling mzscheme_main()");
     return mzscheme_main();
 #else
+    TQ84_DEBUG("vim_main2()");
     return vim_main2();
 #endif
 }
@@ -541,12 +576,12 @@ vim_main2(void)
 #ifdef FEAT_GUI
     if (gui.starting)
     {
-# if defined(UNIX) || defined(VMS)
+#if defined(UNIX) || defined(VMS)
 	/* When something caused a message from a vimrc script, need to output
 	 * an extra newline before the shell prompt. */
 	if (did_emsg || msg_didout)
 	    putchar('\n');
-# endif
+#endif
 
 	gui_start(NULL);		/* will set full_screen to TRUE */
 	TIME_MSG("starting GUI");
@@ -684,7 +719,9 @@ vim_main2(void)
     starttermcap();	    /* start termcap if not done by wait_return() */
     TIME_MSG("start termcap");
 
-    setmouse();				// may start using the mouse
+#ifdef FEAT_MOUSE
+    setmouse();				/* may start using the mouse */
+#endif
     if (scroll_region)
 	scroll_region_reset();		/* In case Rows changed */
     scroll_start();	/* may scroll the screen to the right position */
@@ -898,6 +935,7 @@ vim_main2(void)
     /*
      * Call the main command loop.  This never returns.
      */
+    TQ84_DEBUG("calling main_loop()");
     main_loop(FALSE, FALSE);
 
 #endif /* NO_VIM_MAIN */
@@ -911,6 +949,7 @@ vim_main2(void)
     void
 common_init(mparm_T *paramp)
 {
+    TQ84_DEBUG_INDENT();
     cmdline_init();
 
     (void)mb_init();	/* init mb_bytelen_tab[] to ones */
@@ -923,6 +962,7 @@ common_init(mparm_T *paramp)
 #endif
 
     /* Init the table of Normal mode commands. */
+    TQ84_DEBUG("Calling init_normal_cmds()");
     init_normal_cmds();
 
     /*
@@ -948,6 +988,7 @@ common_init(mparm_T *paramp)
      * NOTE: Translated messages with encodings other than latin1 will not
      * work until set_init_1() has been called!
      */
+    TQ84_DEBUG("Going to call init_locale");
     init_locale();
     TIME_MSG("locale set");
 #endif
@@ -983,6 +1024,7 @@ common_init(mparm_T *paramp)
      * -dev argument.
      */
     stdout_isatty = (mch_check_win(paramp->argc, paramp->argv) != FAIL);
+    TQ84_DEBUG("stdout_isatty = %d", stdout_isatty);
     TIME_MSG("window checked");
 
     /*
@@ -1010,13 +1052,16 @@ common_init(mparm_T *paramp)
 
 #ifdef FEAT_EVAL
     // set v:lang and v:ctype
+    TQ84_DEBUG("calling set_lang_var");
     set_lang_var();
 
     // set v:argv
+    TQ84_DEBUG("calling set_argv_var");
     set_argv_var(paramp->argv, paramp->argc);
 #endif
 
 #ifdef FEAT_SIGNS
+    TQ84_DEBUG("FEAT_SIGNS -> init_signs()");
     init_signs();
 #endif
 }

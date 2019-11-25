@@ -18,6 +18,8 @@
 # include <lm.h>
 #endif
 
+#define TQ84_DEBUG_ENABLED
+#include "tq84-c-debug/tq84_debug.h"
 #define URL_SLASH	1		/* path_is_url() has found "://" */
 #define URL_BACKSLASH	2		/* path_is_url() has found ":\\" */
 
@@ -1131,6 +1133,7 @@ vim_beep(
 init_homedir(void)
 {
     char_u  *var;
+    TQ84_DEBUG_INDENT();
 
     /* In case we are called a second time (when 'encoding' changes). */
     VIM_CLEAR(homedir);
@@ -1140,6 +1143,7 @@ init_homedir(void)
 #else
     var = mch_getenv((char_u *)"HOME");
 #endif
+    TQ84_DEBUG("var (HOME) = %s", var);
 
 #ifdef MSWIN
     /*
@@ -1154,6 +1158,7 @@ init_homedir(void)
 
 	homedrive = mch_getenv((char_u *)"HOMEDRIVE");
 	homepath = mch_getenv((char_u *)"HOMEPATH");
+	TQ84_DEBUG("homedrive = %s, homepath = %s", homedrive, homepath);
 	if (homepath == NULL || *homepath == NUL)
 	    homepath = (char_u *)"\\";
 	if (homedrive != NULL
@@ -1165,8 +1170,10 @@ init_homedir(void)
 	}
     }
 
-    if (var == NULL)
+    if (var == NULL) {
 	var = mch_getenv((char_u *)"USERPROFILE");
+	TQ84_DEBUG("var was NULL, used USERPROFILE. var now is: %s", var);
+    }
 
     /*
      * Weird but true: $HOME may contain an indirect reference to another
@@ -1200,12 +1207,15 @@ init_homedir(void)
 	int	len;
 	char_u  *pp = NULL;
 
+	TQ84_DEBUG("enc_utf8 = %d", enc_utf8);
+
 	/* Convert from active codepage to UTF-8.  Other conversions are
 	 * not done, because they would fail for non-ASCII characters. */
 	acp_to_enc(var, (int)STRLEN(var), &pp, &len);
 	if (pp != NULL)
 	{
 	    homedir = pp;
+	    TQ84_DEBUG("homedir = pp = %s", homedir);
 	    return;
 	}
     }
@@ -1235,6 +1245,7 @@ init_homedir(void)
 	}
 #endif
 	homedir = vim_strsave(var);
+        TQ84_DEBUG("homedir %s", homedir);
     }
 }
 
@@ -1632,6 +1643,8 @@ vim_getenv(char_u *name, int *mustfree)
 #ifdef MSWIN
     WCHAR	*wn, *wp;
 
+    TQ84_DEBUG_INDENT_T("name = %s, mustfree = %d", name, mustfree);
+
     // use "C:/" when $HOME is not set
     if (STRCMP(name, "HOME") == 0)
 	return homedir;
@@ -1649,6 +1662,7 @@ vim_getenv(char_u *name, int *mustfree)
 
     if (wp != NULL)
     {
+	TQ84_DEBUG("Calling utf16_to_enc");
 	p = utf16_to_enc(wp, NULL);
 	if (p == NULL)
 	    return NULL;
@@ -1668,7 +1682,10 @@ vim_getenv(char_u *name, int *mustfree)
     // handling $VIMRUNTIME and $VIM is below, bail out if it's another name.
     vimruntime = (STRCMP(name, "VIMRUNTIME") == 0);
     if (!vimruntime && STRCMP(name, "VIM") != 0)
+    {
+        TQ84_DEBUG("!vimruntime && STRCMP(name, VIM) != 0, return NULL");
 	return NULL;
+    }
 
     /*
      * When expanding $VIMRUNTIME fails, try using $VIM/vim<version> or $VIM.
@@ -1681,22 +1698,27 @@ vim_getenv(char_u *name, int *mustfree)
        )
     {
 #ifdef MSWIN
+        TQ84_DEBUG("MSWIN: vimruntime && default_vimruntime_dir == NUL, calling _wgetenv VIM");
 	// Use Wide function
 	wp = _wgetenv(L"VIM");
 	if (wp != NULL && *wp == NUL)	    // empty is the same as not set
 	    wp = NULL;
 	if (wp != NULL)
 	{
+	    TQ84_DEBUG("Calling utf16_to_enc");
 	    char_u *q = utf16_to_enc(wp, NULL);
 	    if (q != NULL)
 	    {
+	        TQ84_DEBUG("calling vim_version_dir q=%s", q);
 		p = vim_version_dir(q);
+	        TQ84_DEBUG("p = %s", p);
 		*mustfree = TRUE;
 		if (p == NULL)
 		    p = q;
 	    }
 	}
 #else
+        TQ84_DEBUG("UNIX: vimruntime && default_vimruntime_dir == NUL");
 	p = mch_getenv((char_u *)"VIM");
 	if (p != NULL && *p == NUL)	    // empty is the same as not set
 	    p = NULL;
@@ -1864,6 +1886,8 @@ vim_setenv(char_u *name, char_u *val)
     mch_setenv((char *)name, (char *)val, 1);
 #else
     char_u	*envbuf;
+
+    TQ84_DEBUG_INDENT_T("name = %s, val = %s", name, val);
 
     /*
      * Putenv does not copy the string, it has to remain

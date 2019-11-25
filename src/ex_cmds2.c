@@ -14,6 +14,8 @@
 #include "vim.h"
 #include "version.h"
 
+#define TQ84_DEBUG_ENABLED
+#include "tq84-c-debug/tq84_debug.h"
 #if defined(FEAT_EVAL) || defined(PROTO)
 # if defined(FEAT_TIMERS) || defined(PROTO)
 static timer_T	*first_timer = NULL;
@@ -1649,12 +1651,15 @@ get_mess_env(void)
 set_lang_var(void)
 {
     char_u	*loc;
+    TQ84_DEBUG_INDENT();
 
 # ifdef HAVE_GET_LOCALE_VAL
     loc = get_locale_val(LC_CTYPE);
+    TQ84_DEBUG("loc (LC_CTYPE) = %s", loc);
 # else
     /* setlocale() not supported: use the default value */
     loc = (char_u *)"C";
+    TQ84_DEBUG("loc (C) = %s", loc);
 # endif
     set_vim_var_string(VV_CTYPE, loc, -1);
 

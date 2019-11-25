@@ -14,6 +14,9 @@
 
 #include "vim.h"
 
+#define TQ84_DEBUG_ENABLED
+#include "tq84-c-debug/tq84_debug.h"
+
 static int	VIsual_mode_orig = NUL;		// saved Visual mode
 static int	restart_VIsual_select = 0;
 
@@ -413,6 +416,7 @@ nv_compare(const void *s1, const void *s2)
 init_normal_cmds(void)
 {
     int		i;
+    TQ84_DEBUG_INDENT();
 
     /* Fill the index table with a one to one relation. */
     for (i = 0; i < (int)NV_CMDS_SIZE; ++i)
@@ -500,6 +504,7 @@ normal_cmd(
     int		set_prevcount = FALSE;
 #endif
 
+    TQ84_DEBUG_INDENT();
     vim_memset(&ca, 0, sizeof(ca));	/* also resets ca.retval */
     ca.oap = oap;
 

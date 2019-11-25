@@ -44,6 +44,9 @@
 
 #endif /* PROTO */
 
+#define TQ84_DEBUG_ENABLED
+#include "tq84-c-debug/tq84_debug.h"
+
 #ifdef __MINGW32__
 # ifndef FROM_LEFT_1ST_BUTTON_PRESSED
 #  define FROM_LEFT_1ST_BUTTON_PRESSED    0x0001
@@ -182,6 +185,7 @@ int _chdrive(int drive)
     void
 SaveInst(HINSTANCE hInst)
 {
+    TQ84_DEBUG_INDENT_T("Save the instance handle of the exe/dll");
     g_hinst = hInst;
 }
 #endif
