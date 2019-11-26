@@ -18,6 +18,9 @@
 
 #include "vim.h"
 
+#define TQ84_DEBUG_ENABLED
+#include "tq84-c-debug/tq84_debug.h"
+
 /*
  * These buffers are used for storing:
  * - stuffed characters: A command that is translated into another command.
@@ -324,6 +327,8 @@ read_readbuffers(int advance)
 {
     int c;
 
+    TQ84_DEBUG_INDENT();
+
     c = read_readbuf(&readbuf1, advance);
     if (c == NUL)
 	c = read_readbuf(&readbuf2, advance);
@@ -335,6 +340,8 @@ read_readbuf(buffheader_T *buf, int advance)
 {
     char_u	c;
     buffblock_T	*curr;
+
+    TQ84_DEBUG_INDENT();
 
     if (buf->bh_first.b_next == NULL)  /* buffer is empty */
 	return NUL;
@@ -1541,6 +1548,8 @@ vgetc(void)
     char_u	buf[MB_MAXBYTES + 1];
     int		i;
 
+    TQ84_DEBUG_INDENT();
+
 #ifdef FEAT_EVAL
     /* Do garbage collection when garbagecollect() was called previously and
      * we are now at the toplevel. */
@@ -1836,6 +1845,7 @@ vgetc(void)
 safe_vgetc(void)
 {
     int	c;
+    TQ84_DEBUG_INDENT();
 
     c = vgetc();
     if (c == NUL)
@@ -2715,6 +2725,8 @@ vgetorpeek(int advance)
     int		n;
     int		old_wcol, old_wrow;
     int		wait_tb_len;
+
+    TQ84_DEBUG_INDENT();
 
     /*
      * This function doesn't work very well when called recursively.  This may

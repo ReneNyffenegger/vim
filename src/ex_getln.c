@@ -922,6 +922,7 @@ getcmdline_int(
 
     State = CMDLINE;
 
+    TQ84_DEBUG("firstc = %c", firstc);
     if (firstc == '/' || firstc == '?' || firstc == '@')
     {
 	/* Use ":lmap" mappings for search pattern and input(). */
@@ -971,6 +972,7 @@ getcmdline_int(
     /*
      * Collect the command string, handling editing keys.
      */
+    TQ84_DEBUG("Collect the command string, handling editing keys");
     for (;;)
     {
 	redir_off = TRUE;	/* Don't redirect the typed command.
@@ -993,11 +995,16 @@ getcmdline_int(
 	/* Get a character.  Ignore K_IGNORE and K_NOP, they should not do
 	 * anything, such as stop completion. */
 	do
+	{
+	    TQ84_DEBUG("-> safe_vgetc");
 	    c = safe_vgetc();
+	    TQ84_DEBUG("<- safe_vgetc c=%c", c);
+	}
 	while (c == K_IGNORE || c == K_NOP);
 
 	if (KeyTyped)
 	{
+	    TQ84_DEBUG("KeyTyped");
 	    some_key_typed = TRUE;
 #ifdef FEAT_RIGHTLEFT
 	    if (cmd_hkmap)
@@ -2413,6 +2420,7 @@ theend:
 	    restore_cmdline(&save_ccline);
 	else
 	    ccline.cmdbuff = NULL;
+        TQ84_DEBUG("returning %s", p);
 	return p;
     }
 }

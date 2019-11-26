@@ -25,6 +25,9 @@
 
 #include "vim.h"
 
+#define TQ84_DEBUG_ENABLED
+#include "tq84-c-debug/tq84_debug.h"
+
 #if defined(FEAT_DIRECTX)
 # include "gui_dwrite.h"
 #endif
@@ -801,6 +804,8 @@ _OnChar(
 {
     char_u	string[40];
     int		len = 0;
+
+    TQ84_DEBUG_INDENT();
 
     dead_key = 0;
 
@@ -1815,7 +1820,9 @@ process_message(void)
      */
     if (msg.message == WM_KEYDOWN || msg.message == WM_SYSKEYDOWN)
     {
+        TQ84_DEBUG_INDENT_T("process_message message == WM_KEYDOWN | WM_SYSKEYDOWN");
 	vk = (int) msg.wParam;
+	TQ84_DEBUG("vk = %d %X", vk, vk);
 
 	/*
 	 * Handle dead keys in special conditions in other cases we let Windows
@@ -1833,6 +1840,7 @@ process_message(void)
 	 */
 	if (dead_key)
 	{
+	    TQ84_DEBUG("dead_key");
 	    /*
 	     * If a dead key was pressed and the user presses VK_SPACE,
 	     * VK_BACK, or VK_ESCAPE it means that he actually wants to deal
@@ -1859,6 +1867,7 @@ process_message(void)
 		return;
 	    }
 	}
+	TQ84_DEBUG("! dead_key");
 
 	/* Check for CTRL-BREAK */
 	if (vk == VK_CANCEL)
@@ -1867,9 +1876,11 @@ process_message(void)
 	    got_int = TRUE;
 	    ctrl_break_was_pressed = TRUE;
 	    string[0] = Ctrl_C;
+	    TQ84_DEBUG("->add_to_input_buf (1)");
 	    add_to_input_buf(string, 1);
 	}
 
+	TQ84_DEBUG("for loop (special_keys)");
 	for (i = 0; special_keys[i].key_sym != 0; i++)
 	{
 	    /* ignore VK_SPACE when ALT key pressed: system menu */
@@ -1928,6 +1939,7 @@ process_message(void)
 		    string[0] = CSI;
 		    string[1] = KS_MODIFIER;
 		    string[2] = modifiers;
+	            TQ84_DEBUG("->add_to_input_buf (modifiers)");
 		    add_to_input_buf(string, 3);
 		}
 
@@ -1936,6 +1948,7 @@ process_message(void)
 		    string[0] = CSI;
 		    string[1] = K_SECOND(key);
 		    string[2] = K_THIRD(key);
+	            TQ84_DEBUG("->add_to_input_buf (IS_SPECIAL(key))");
 		    add_to_input_buf(string, 3);
 		}
 		else
@@ -1944,13 +1957,16 @@ process_message(void)
 
 		    /* Handle "key" as a Unicode character. */
 		    len = char_to_string(key, string, 40, FALSE);
+	            TQ84_DEBUG("->add_to_input_buf (! IS_SPECIAL(key))");
 		    add_to_input_buf(string, len);
 		}
 		break;
 	    }
 	}
+	TQ84_DEBUG("strawberry");
 	if (special_keys[i].key_sym == 0)
 	{
+	    TQ84_DEBUG("special_keys[i].key_sym == 0");
 	    /* Some keys need C-S- where they should only need C-.
 	     * Ignore 0xff, Windows XP sends it when NUMLOCK has changed since
 	     * system startup (Helmut Stiegler, 2003 Oct 3). */
@@ -1963,25 +1979,34 @@ process_message(void)
 		if (vk == '6' || MapVirtualKey(vk, 2) == (UINT)'^')
 		{
 		    string[0] = Ctrl_HAT;
+
+	            TQ84_DEBUG("add_to_input_buf A");
 		    add_to_input_buf(string, 1);
 		}
 		/* vk == 0xBD AZERTY for CTRL-'-', but CTRL-[ for * QWERTY! */
 		else if (vk == 0xBD)	/* QWERTY for CTRL-'-' */
 		{
 		    string[0] = Ctrl__;
+	            TQ84_DEBUG("add_to_input_buf B");
 		    add_to_input_buf(string, 1);
 		}
 		/* CTRL-2 is '@'; Japanese keyboard maps '@' to vk == 0xC0 */
 		else if (vk == '2' || MapVirtualKey(vk, 2) == (UINT)'@')
 		{
 		    string[0] = Ctrl_AT;
+	            TQ84_DEBUG("add_to_input_buf C");
 		    add_to_input_buf(string, 1);
 		}
 		else
+		{
+	            TQ84_DEBUG("-> MyTranslateMessage (1)");
 		    MyTranslateMessage(&msg);
+	        }
 	    }
-	    else
+	    else {
+	        TQ84_DEBUG("-> MyTranslateMessage (2)");
 		MyTranslateMessage(&msg);
+	    }
 	}
     }
 #ifdef FEAT_MBYTE_IME
@@ -4535,12 +4560,14 @@ _WndProc(
 	break;
 
     case WM_CHAR:
+        TQ84_DEBUG("WM_CHAR");
 	/* Don't use HANDLE_MSG() for WM_CHAR, it truncates wParam to a single
 	 * byte while we want the UTF-16 character value. */
 	_OnChar(hwnd, (UINT)wParam, (int)(short)LOWORD(lParam));
 	return 0L;
 
     case WM_SYSCHAR:
+        TQ84_DEBUG("WM_SYSCHAR");
 	/*
 	 * if 'winaltkeys' is "no", or it's "menu" and it's not a menu
 	 * shortcut key, handle like a typed ALT key, otherwise call Windows
@@ -5100,10 +5127,12 @@ gui_mch_prepare(int *argc, char **argv)
     int
 gui_mch_init(void)
 {
+    TQ84_DEBUG_INDENT();
     const WCHAR szVimWndClassW[] = VIM_CLASSW;
     const WCHAR szTextAreaClassW[] = L"VimTextArea";
     WNDCLASSW wndclassw;
 #ifdef GLOBAL_IME
+    TQ84_DEBUG("GLOBAL_IME is defined");
     ATOM	atom;
 #endif
 

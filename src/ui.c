@@ -18,6 +18,9 @@
 
 #include "vim.h"
 
+#define TQ84_DEBUG_ENABLED
+#include "tq84-c-debug/tq84_debug.h"
+
 #ifdef FEAT_CYGWIN_WIN32_CLIPBOARD
 # define WIN32_LEAN_AND_MEAN
 # include <windows.h>
@@ -2160,6 +2163,7 @@ set_input_buf(char_u *p)
     void
 add_to_input_buf(char_u *s, int len)
 {
+    TQ84_DEBUG_INDENT_T("add_to_input_buf s = %s, len=%d", s, len);
     if (inbufcount + len > INBUFLEN + MAX_KEY_CODE_LEN)
 	return;	    /* Shouldn't ever happen! */
 
