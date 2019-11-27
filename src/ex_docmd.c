@@ -2377,6 +2377,7 @@ do_one_cmd(
 	    case CMD_browse:
 	    case CMD_call:
 	    case CMD_confirm:
+	    case CMD_const:
 	    case CMD_delfunction:
 	    case CMD_djump:
 	    case CMD_dlist:
@@ -2401,6 +2402,7 @@ do_one_cmd(
 	    case CMD_leftabove:
 	    case CMD_let:
 	    case CMD_lockmarks:
+	    case CMD_lockvar:
 	    case CMD_lua:
 	    case CMD_match:
 	    case CMD_mzscheme:
@@ -2425,6 +2427,7 @@ do_one_cmd(
 	    case CMD_tilde:
 	    case CMD_topleft:
 	    case CMD_unlet:
+	    case CMD_unlockvar:
 	    case CMD_verbose:
 	    case CMD_vertical:
 	    case CMD_wincmd:

@@ -1759,6 +1759,7 @@ getcmdline_int(
 #endif
 		putcmdline('"', TRUE);
 		++no_mapping;
+		++allow_keys;
 		i = c = plain_vgetc();	/* CTRL-R <char> */
 		if (i == Ctrl_O)
 		    i = Ctrl_R;		/* CTRL-R CTRL-O == CTRL-R CTRL-R */
@@ -1766,6 +1767,7 @@ getcmdline_int(
 		    c = plain_vgetc();	/* CTRL-R CTRL-R <char> */
 		extra_char = NUL;
 		--no_mapping;
+		--allow_keys;
 #ifdef FEAT_EVAL
 		/*
 		 * Insert the result of an expression.
@@ -2218,18 +2220,31 @@ getcmdline_int(
 
 	case Ctrl_V:
 	case Ctrl_Q:
-		ignore_drag_release = TRUE;
-		putcmdline('^', TRUE);
-		c = get_literal();	    /* get next (two) character(s) */
-		do_abbr = FALSE;	    /* don't do abbreviation now */
-		extra_char = NUL;
-		/* may need to remove ^ when composing char was typed */
-		if (enc_utf8 && utf_iscomposing(c) && !cmd_silent)
 		{
-		    draw_cmdline(ccline.cmdpos, ccline.cmdlen - ccline.cmdpos);
-		    msg_putchar(' ');
-		    cursorcmd();
+		    int	 prev_mod_mask = mod_mask;
+
+		    ignore_drag_release = TRUE;
+		    putcmdline('^', TRUE);
+		    c = get_literal();	    // get next (two) character(s)
+		    do_abbr = FALSE;	    // don't do abbreviation now
+		    extra_char = NUL;
+		    // may need to remove ^ when composing char was typed
+		    if (enc_utf8 && utf_iscomposing(c) && !cmd_silent)
+		    {
+			draw_cmdline(ccline.cmdpos,
+						ccline.cmdlen - ccline.cmdpos);
+			msg_putchar(' ');
+			cursorcmd();
+		    }
+
+		    if ((c == ESC || c == CSI)
+					  && !(prev_mod_mask & MOD_MASK_SHIFT))
+			// Using CTRL-V: Change any modifyOtherKeys ESC
+			// sequence to a normal key.  Don't do this for
+			// CTRL-SHIFT-V.
+			c = decodeModifyOtherKeys(c);
 		}
+
 		break;
 
 #ifdef FEAT_DIGRAPHS
