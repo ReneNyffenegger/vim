@@ -590,6 +590,7 @@ vim_main2(void)
 	    putchar('\n');
 #endif
 
+        TQ84_DEBUG("-> gui_start");
 	gui_start(NULL);		/* will set full_screen to TRUE */
 	TIME_MSG("starting GUI");
 

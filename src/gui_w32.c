@@ -5189,6 +5189,7 @@ gui_mch_init(void)
 	    // Open inside the specified parent window.
 	    // TODO: last argument should point to a CLIENTCREATESTRUCT
 	    // structure.
+	    TQ84_DEBUG("CreateWindowExW (Vim MSWindows GUI, vim_parent_hwnd != NULL)");
 	    s_hwnd = CreateWindowExW(
 		WS_EX_MDICHILD,
 		szVimWndClassW, L"Vim MSWindows GUI",
@@ -5222,6 +5223,7 @@ gui_mch_init(void)
 
 	/* Create a window.  If win_socket_id is not zero without border and
 	 * titlebar, it will be reparented below. */
+	TQ84_DEBUG("CreateWindowExW (Vim MSWindows GUI, vim_parent_hwnd == NULL)");
 	s_hwnd = CreateWindowW(
 		szVimWndClassW, L"Vim MSWindows GUI",
 		(win_socket_id == 0 ? WS_OVERLAPPEDWINDOW : WS_POPUP)
@@ -5266,7 +5268,8 @@ gui_mch_init(void)
 	if (RegisterClassW(&wndclassw) == 0)
 	    return FAIL;
     }
-
+  
+    TQ84_DEBUG("CreateWindowExW (Vim text area)");
     s_textArea = CreateWindowExW(
 	0,
 	szTextAreaClassW, L"Vim text area",

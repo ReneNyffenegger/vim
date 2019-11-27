@@ -10,6 +10,9 @@
 
 #include "vim.h"
 
+#define TQ84_DEBUG_ENABLED
+#include "tq84-c-debug/tq84_debug.h"
+
 /* Structure containing all the GUI information */
 gui_T gui;
 
@@ -76,9 +79,12 @@ gui_start(char_u *arg UNUSED)
     char	*msg = NULL;
 #endif
 
+    TQ84_DEBUG_INDENT();
+
     old_term = vim_strsave(T_NAME);
 
     settmode(TMODE_COOK);		/* stop RAW mode */
+    TQ84_DEBUG("full_screen = %d", full_screen);
     if (full_screen)
 	cursor_on();			/* needed for ":gui" in .vimrc */
     full_screen = FALSE;
@@ -100,6 +106,7 @@ gui_start(char_u *arg UNUSED)
 # endif
 	    )
     {
+        TQ84_DEBUG("->gui_do_fork");
 	gui_do_fork();
     }
     else
@@ -160,7 +167,9 @@ gui_start(char_u *arg UNUSED)
 
     /* If the GUI started successfully, trigger the GUIEnter event, otherwise
      * the GUIFailed event. */
+    TQ84_DEBUG("-> gui_mch_update");
     gui_mch_update();
+    TQ84_DEBUG("-> apply_autocmds");
     apply_autocmds(gui.in_use ? EVENT_GUIENTER : EVENT_GUIFAILED,
 						   NULL, NULL, FALSE, curbuf);
     --recursive;
@@ -646,6 +655,7 @@ gui_init(void)
      * Create the GUI shell.
      */
     gui.in_use = TRUE;		/* Must be set after menus have been set up */
+    TQ84_DEBUG("-> gui_mch_init()");
     if (gui_mch_init() == FAIL)
 	goto error;
 
