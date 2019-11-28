@@ -587,7 +587,7 @@ msg_verbose_cmd(linenr_T lnum, char_u *cmd)
     int
 do_cmdline_cmd(char_u *cmd)
 {
-    TQ84_DEBUG_INDENT_T("do_cmdline_cmd, cmd = %s", cmd);
+//  TQ84_DEBUG_INDENT_T("do_cmdline_cmd, cmd = %s", cmd);
     return do_cmdline(cmd, NULL, NULL,
 				   DOCMD_VERBOSE|DOCMD_NOWAIT|DOCMD_KEYTYPED);
 }
@@ -648,7 +648,8 @@ do_cmdline(
 # define cmd_getline fgetline
 # define cmd_cookie cookie
 #endif
-    TQ84_DEBUG_INDENT_T("cmdline = %s", cmdline);
+    TQ84_DEBUG_INDENT();
+    TQ84_DEBUG("cmdline = %s", cmdline);
     static int	call_depth = 0;		/* recursiveness */
 
 #ifdef FEAT_EVAL

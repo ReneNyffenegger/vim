@@ -14,6 +14,9 @@
 
 #include "vim.h"
 
+#define TQ84_DEBUG_ENABLED
+#include "tq84-c-debug/tq84_debug.h"
+
 #if defined(FEAT_EVAL) || defined(PROTO)
 
 #ifdef VMS
@@ -6501,4 +6504,10 @@ do_string_sub(
 	free_string_option(save_cpo);
 
     return ret;
+}
+
+
+    void
+ex_tqdebug(exarg_T *eap) {
+    TQ84_DEBUG_INDENT();
 }

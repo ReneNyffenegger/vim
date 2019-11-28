@@ -3359,7 +3359,7 @@ nv_colon(cmdarg_T *cap)
 	old_p_im = p_im;
 
 	/* get a command line and execute it */
-	TQ84_DEBUG("->do_cmdline");
+	TQ84_DEBUG("->do_cmdline (to get a command line and execute it)");
 	cmd_result = do_cmdline(NULL, getexline, NULL,
 			    cap->oap->op_type != OP_NOP ? DOCMD_KEEPLINE : 0);
 

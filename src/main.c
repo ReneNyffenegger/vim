@@ -481,7 +481,7 @@ TQ84_DEBUG("PROTO is not defined");
     TQ84_DEBUG("Calling mzscheme_main()");
     return mzscheme_main();
 #else
-    TQ84_DEBUG("vim_main2()");
+    TQ84_DEBUG("-> vim_main2()");
     return vim_main2();
 #endif
 }
@@ -537,6 +537,7 @@ vim_main2(void)
 # ifdef VMS	/* Somehow VMS doesn't handle the "**". */
 	source_runtime((char_u *)"plugin/*.vim", DIP_ALL | DIP_AFTER);
 # else
+        TQ84_DEBUG("-> source_runtime plugin/**/*.vim");
 	source_runtime((char_u *)"plugin/**/*.vim", DIP_ALL | DIP_AFTER);
 # endif
 	TIME_MSG("loading after plugins");
@@ -570,6 +571,7 @@ vim_main2(void)
      * Set a few option defaults after reading .vimrc files:
      * 'title' and 'icon', Unix: 'shellpipe' and 'shellredir'.
      */
+    TQ84_DEBUG("-> set_init_3");
     set_init_3();
     TIME_MSG("inits 3");
 

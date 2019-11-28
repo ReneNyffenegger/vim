@@ -67,6 +67,7 @@ char_u *tv_get_string_buf_chk(typval_T *varp, char_u *buf);
 void copy_tv(typval_T *from, typval_T *to);
 int item_copy(typval_T *from, typval_T *to, int deep, int copyID);
 void ex_echo(exarg_T *eap);
+void ex_tqdebug(exarg_T *eap);
 void ex_echohl(exarg_T *eap);
 int get_echo_attr(void);
 void ex_execute(exarg_T *eap);
