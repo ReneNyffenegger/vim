@@ -6509,5 +6509,15 @@ do_string_sub(
 
     void
 ex_tqdebug(exarg_T *eap) {
-    TQ84_DEBUG_INDENT();
+    TQ84_DEBUG(eap->arg);
+}
+
+    void
+ex_tqdebugindent(exarg_T *eap) {
+    TQ84_DEBUG_INDENT_T(eap->arg);
+}
+
+    void
+ex_tqdebugdedent(exarg_T *eap) {
+    TQ84_DEBUG_DEDENT();
 }

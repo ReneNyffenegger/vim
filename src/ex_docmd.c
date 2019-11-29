@@ -3139,6 +3139,8 @@ find_command(exarg_T *eap, int *full UNUSED)
     char_u	*p;
     int		i;
 
+    TQ84_DEBUG_INDENT_T("find_command %s", eap->cmd);
+
     /*
      * Isolate the command and search for it in the command table.
      * Exceptions:
