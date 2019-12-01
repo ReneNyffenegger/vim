@@ -4280,7 +4280,7 @@ _OnMouseWheel(
 
     wp = gui_mouse_window(FIND_POPUP);
 
-#ifdef FEAT_TEXT_PROP
+#ifdef FEAT_PROP_POPUP
     if (wp != NULL && popup_is_popup(wp))
     {
 	cmdarg_T cap;
@@ -5778,6 +5778,14 @@ im_set_active(int active)
     HIMC	hImc;
     static HIMC	hImcOld = (HIMC)0;
 
+# ifdef VIMDLL
+    if (!gui.in_use && !gui.starting)
+    {
+	mbyte_im_set_active(active);
+	return;
+    }
+# endif
+
     if (pImmGetContext)	    /* if NULL imm32.dll wasn't loaded (yet) */
     {
 	if (p_imdisable)
@@ -5846,6 +5854,11 @@ im_get_status(void)
 {
     int		status = 0;
     HIMC	hImc;
+
+# ifdef VIMDLL
+    if (!gui.in_use && !gui.starting)
+	return mbyte_im_get_status();
+# endif
 
     if (pImmGetContext && (hImc = pImmGetContext(s_hwnd)) != (HIMC)0)
     {

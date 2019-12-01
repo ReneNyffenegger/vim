@@ -226,7 +226,9 @@ static void f_spellsuggest(typval_T *argvars, typval_T *rettv);
 static void f_split(typval_T *argvars, typval_T *rettv);
 #ifdef FEAT_FLOAT
 static void f_sqrt(typval_T *argvars, typval_T *rettv);
+#endif
 static void f_srand(typval_T *argvars, typval_T *rettv);
+#ifdef FEAT_FLOAT
 static void f_str2float(typval_T *argvars, typval_T *rettv);
 #endif
 static void f_str2list(typval_T *argvars, typval_T *rettv);
@@ -582,7 +584,7 @@ static funcentry_T global_functions[] =
 #ifdef FEAT_PERL
     {"perleval",	1, 1, FEARG_1,	  f_perleval},
 #endif
-#ifdef FEAT_TEXT_PROP
+#ifdef FEAT_PROP_POPUP
     {"popup_atcursor",	2, 2, FEARG_1,	  f_popup_atcursor},
     {"popup_beval",	2, 2, FEARG_1,	  f_popup_beval},
     {"popup_clear",	0, 0, 0,	  f_popup_clear},
@@ -614,7 +616,7 @@ static funcentry_T global_functions[] =
     {"prompt_setinterrupt", 2, 2, FEARG_1, f_prompt_setinterrupt},
     {"prompt_setprompt", 2, 2, FEARG_1,	   f_prompt_setprompt},
 #endif
-#ifdef FEAT_TEXT_PROP
+#ifdef FEAT_PROP_POPUP
     {"prop_add",	3, 3, FEARG_1,	  f_prop_add},
     {"prop_clear",	1, 3, FEARG_1,	  f_prop_clear},
     {"prop_list",	1, 2, FEARG_1,	  f_prop_list},
@@ -728,8 +730,8 @@ static funcentry_T global_functions[] =
     {"split",		1, 3, FEARG_1,	  f_split},
 #ifdef FEAT_FLOAT
     {"sqrt",		1, 1, FEARG_1,	  f_sqrt},
-    {"srand",		0, 1, FEARG_1,	  f_srand},
 #endif
+    {"srand",		0, 1, FEARG_1,	  f_srand},
     {"state",		0, 1, FEARG_1,	  f_state},
 #ifdef FEAT_FLOAT
     {"str2float",	1, 1, FEARG_1,	  f_str2float},
@@ -3353,7 +3355,7 @@ f_has(typval_T *argvars, typval_T *rettv)
 #ifdef FEAT_SEARCHPATH
 	"file_in_path",
 #endif
-#ifdef FEAT_FILTERPIPE
+#if defined(FEAT_FILTERPIPE) && !defined(VIMDLL)
 	"filterpipe",
 #endif
 #ifdef FEAT_FIND_ID
@@ -3530,6 +3532,9 @@ f_has(typval_T *argvars, typval_T *rettv)
 	"pythonx",
 # endif
 #endif
+#ifdef FEAT_PROP_POPUP
+	"popupwin",
+#endif
 #ifdef FEAT_POSTSCRIPT
 	"postscript",
 #endif
@@ -3606,7 +3611,7 @@ f_has(typval_T *argvars, typval_T *rettv)
 #ifdef FEAT_TEXTOBJ
 	"textobjects",
 #endif
-#ifdef FEAT_TEXT_PROP
+#ifdef FEAT_PROP_POPUP
 	"textprop",
 #endif
 #ifdef HAVE_TGETENT
@@ -3816,6 +3821,10 @@ f_has(typval_T *argvars, typval_T *rettv)
 #ifdef FEAT_CLIPBOARD
 	else if (STRICMP(name, "clipboard_working") == 0)
 	    n = clip_star.available;
+#endif
+#ifdef VIMDLL
+	else if (STRICMP(name, "filterpipe") == 0)
+	    n = gui.in_use || gui.starting;
 #endif
     }
 
@@ -7092,6 +7101,7 @@ f_sqrt(typval_T *argvars, typval_T *rettv)
     else
 	rettv->vval.v_float = 0.0;
 }
+#endif
 
 /*
  * "srand()" function
@@ -7160,6 +7170,7 @@ f_srand(typval_T *argvars, typval_T *rettv)
     list_append_number(rettv->vval.v_list, (varnumber_T)SPLITMIX32);
 }
 
+#ifdef FEAT_FLOAT
 /*
  * "str2float()" function
  */

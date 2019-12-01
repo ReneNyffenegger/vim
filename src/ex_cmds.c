@@ -1068,6 +1068,9 @@ do_filter(
     pos_T	orig_start = curbuf->b_op_start;
     pos_T	orig_end = curbuf->b_op_end;
     int		save_lockmarks = cmdmod.lockmarks;
+#ifdef FEAT_FILTERPIPE
+    int		stmp = p_stmp;
+#endif
 
     if (*cmd == NUL)	    /* no filter command */
 	return;
@@ -1100,20 +1103,25 @@ do_filter(
 	shell_flags |= SHELL_DOOUT;
 
 #ifdef FEAT_FILTERPIPE
-    if (!do_in && do_out && !p_stmp)
+# ifdef VIMDLL
+    if (!gui.in_use && !gui.starting)
+	stmp = 1;   // Console mode doesn't support filterpipe.
+# endif
+
+    if (!do_in && do_out && !stmp)
     {
 	/* Use a pipe to fetch stdout of the command, do not use a temp file. */
 	shell_flags |= SHELL_READ;
 	curwin->w_cursor.lnum = line2;
     }
-    else if (do_in && !do_out && !p_stmp)
+    else if (do_in && !do_out && !stmp)
     {
 	/* Use a pipe to write stdin of the command, do not use a temp file. */
 	shell_flags |= SHELL_WRITE;
 	curbuf->b_op_start.lnum = line1;
 	curbuf->b_op_end.lnum = line2;
     }
-    else if (do_in && do_out && !p_stmp)
+    else if (do_in && do_out && !stmp)
     {
 	/* Use a pipe to write stdin and fetch stdout of the command, do not
 	 * use a temp file. */
@@ -2945,7 +2953,7 @@ do_ecmd(
 	topline = curwin->w_topline;
 	if (!oldbuf)			    /* need to read the file */
 	{
-#ifdef FEAT_TEXT_PROP
+#ifdef FEAT_PROP_POPUP
 	    // Don't use the swap-exists dialog for a popup window, can't edit
 	    // the buffer.
 	    if (WIN_IS_POPUP(curwin))
@@ -2964,7 +2972,7 @@ do_ecmd(
 	    (void)open_buffer(FALSE, eap, readfile_flags);
 #endif
 
-#ifdef FEAT_TEXT_PROP
+#ifdef FEAT_PROP_POPUP
 	    curbuf->b_flags &= ~BF_NO_SEA;
 #endif
 	    if (swap_exists_action == SEA_QUIT)
@@ -3008,7 +3016,7 @@ do_ecmd(
 #ifdef FEAT_TITLE
 	maketitle();
 #endif
-#ifdef FEAT_TEXT_PROP
+#if defined(FEAT_PROP_POPUP) && defined(FEAT_QUICKFIX)
 	if (WIN_IS_POPUP(curwin) && curwin->w_p_pvw && retval != FAIL)
 	    popup_set_title(curwin);
 #endif
@@ -3892,7 +3900,7 @@ do_sub(exarg_T *eap)
 	    int		do_again;	/* do it again after joining lines */
 	    int		skip_match = FALSE;
 	    linenr_T	sub_firstlnum;	/* nr of first sub line */
-#ifdef FEAT_TEXT_PROP
+#ifdef FEAT_PROP_POPUP
 	    int		apc_flags = APC_SAVE_FOR_UNDO | APC_SUBSTITUTE;
 	    colnr_T	total_added =  0;
 #endif
@@ -4309,7 +4317,7 @@ do_sub(exarg_T *eap)
 		if (nmatch == 1)
 		{
 		    p1 = sub_firstline;
-#ifdef FEAT_TEXT_PROP
+#ifdef FEAT_PROP_POPUP
 		    if (curbuf->b_has_textprop)
 		    {
 			int bytes_added = sublen - 1 - (regmatch.endpos[0].col
@@ -4427,7 +4435,7 @@ do_sub(exarg_T *eap)
 		    if (p1[0] == '\\' && p1[1] != NUL)  /* remove backslash */
 		    {
 			STRMOVE(p1, p1 + 1);
-#ifdef FEAT_TEXT_PROP
+#ifdef FEAT_PROP_POPUP
 			if (curbuf->b_has_textprop)
 			{
 			    // When text properties are changed, need to save
@@ -4456,7 +4464,7 @@ do_sub(exarg_T *eap)
 				    first_line = lnum;
 				last_line = lnum + 1;
 			    }
-#ifdef FEAT_TEXT_PROP
+#ifdef FEAT_PROP_POPUP
 			    adjust_props_for_split(lnum + 1, lnum, plen, 1);
 #endif
 			    // all line numbers increase
@@ -4985,7 +4993,7 @@ prepare_tagpreview(
      */
     if (!curwin->w_p_pvw)
     {
-# ifdef FEAT_TEXT_PROP
+# ifdef FEAT_PROP_POPUP
 	if (use_previewpopup && *p_pvp != NUL)
 	{
 	    wp = popup_find_preview_window();
@@ -5020,7 +5028,7 @@ prepare_tagpreview(
 	    /*
 	     * There is no preview window open yet.  Create one.
 	     */
-# ifdef FEAT_TEXT_PROP
+# ifdef FEAT_PROP_POPUP
 	    if ((use_previewpopup && *p_pvp != NUL)
 						 || use_popup != USEPOPUP_NONE)
 		return popup_create_preview_window(use_popup != USEPOPUP_NONE);
