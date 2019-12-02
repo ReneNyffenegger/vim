@@ -190,17 +190,17 @@ gui_mch_set_rendering_options(char_u *s)
 /* cproto fails on missing include files */
 #ifndef PROTO
 
-#ifndef __MINGW32__
-# include <shellapi.h>
-#endif
-#if defined(FEAT_TOOLBAR) || defined(FEAT_BEVAL_GUI) || defined(FEAT_GUI_TABLINE)
-# include <commctrl.h>
-#endif
-#include <windowsx.h>
+# ifndef __MINGW32__
+#  include <shellapi.h>
+# endif
+# if defined(FEAT_TOOLBAR) || defined(FEAT_BEVAL_GUI) || defined(FEAT_GUI_TABLINE)
+#  include <commctrl.h>
+# endif
+# include <windowsx.h>
 
-#ifdef GLOBAL_IME
-# include "glbl_ime.h"
-#endif
+# ifdef GLOBAL_IME
+#  include "glbl_ime.h"
+# endif
 
 #endif /* PROTO */
 
@@ -2131,10 +2131,10 @@ gui_mch_wait_for_chars(int wtime)
 	    MSG msg;
 
 	    parse_queued_messages();
-#ifdef FEAT_TIMERS
+# ifdef FEAT_TIMERS
 	    if (did_add_timer)
 		break;
-#endif
+# endif
 	    if (pPeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE))
 	    {
 		process_message();
@@ -2417,7 +2417,7 @@ gui_mch_show_toolbar(int showit)
 }
 
 /* The number of bitmaps is fixed.  Exit is missing! */
-#define TOOLBAR_BITMAP_COUNT 31
+# define TOOLBAR_BITMAP_COUNT 31
 
 #endif
 
@@ -2540,10 +2540,10 @@ gui_mch_update_tabline(void)
     if (s_tabhwnd == NULL)
 	return;
 
-#ifndef CCM_SETUNICODEFORMAT
+# ifndef CCM_SETUNICODEFORMAT
     /* For older compilers.  We assume this never changes. */
-# define CCM_SETUNICODEFORMAT 0x2005
-#endif
+#  define CCM_SETUNICODEFORMAT 0x2005
+# endif
     // Enable unicode support
     SendMessage(s_tabhwnd, CCM_SETUNICODEFORMAT, (WPARAM)TRUE, (LPARAM)0);
 
@@ -3527,12 +3527,12 @@ gui_mch_browse(
     filterp = convert_filterW(filter);
 
     vim_memset(&fileStruct, 0, sizeof(OPENFILENAMEW));
-#  ifdef OPENFILENAME_SIZE_VERSION_400W
+# ifdef OPENFILENAME_SIZE_VERSION_400W
     /* be compatible with Windows NT 4.0 */
     fileStruct.lStructSize = OPENFILENAME_SIZE_VERSION_400W;
-#  else
+# else
     fileStruct.lStructSize = sizeof(fileStruct);
-#  endif
+# endif
 
     if (title != NULL)
 	titlep = enc_to_utf16(title, NULL);
@@ -3569,10 +3569,10 @@ gui_mch_browse(
      * Don't use OFN_OVERWRITEPROMPT, Vim has its own ":confirm" dialog.
      */
     fileStruct.Flags = (OFN_NOCHANGEDIR | OFN_PATHMUSTEXIST | OFN_HIDEREADONLY);
-#  ifdef FEAT_SHORTCUT
+# ifdef FEAT_SHORTCUT
     if (curbuf->b_p_bin)
 	fileStruct.Flags |= OFN_NODEREFERENCELINKS;
-#  endif
+# endif
     if (saving)
     {
 	if (!GetSaveFileNameW(&fileStruct))
@@ -3940,7 +3940,7 @@ _OnScroll(
 
 /* For the Intellimouse: */
 #ifndef WM_MOUSEWHEEL
-#define WM_MOUSEWHEEL	0x20a
+# define WM_MOUSEWHEEL	0x20a
 #endif
 
 
@@ -3948,12 +3948,12 @@ _OnScroll(
 # define ID_BEVAL_TOOLTIP   200
 # define BEVAL_TEXT_LEN	    MAXPATHL
 
-#if (defined(_MSC_VER) && _MSC_VER < 1300) || !defined(MAXULONG_PTR)
+# if (defined(_MSC_VER) && _MSC_VER < 1300) || !defined(MAXULONG_PTR)
 /* Work around old versions of basetsd.h which wrongly declares
  * UINT_PTR as unsigned long. */
-# undef  UINT_PTR
-# define UINT_PTR UINT
-#endif
+#  undef  UINT_PTR
+#  define UINT_PTR UINT
+# endif
 
 static BalloonEval  *cur_beval = NULL;
 static UINT_PTR	    BevalTimerId = 0;
@@ -3961,15 +3961,15 @@ static DWORD	    LastActivity = 0;
 
 
 /* cproto fails on missing include files */
-#ifndef PROTO
+# ifndef PROTO
 
 /*
  * excerpts from headers since this may not be presented
  * in the extremely old compilers
  */
-# include <pshpack1.h>
+#  include <pshpack1.h>
 
-#endif
+# endif
 
 typedef struct _DllVersionInfo
 {
@@ -3980,9 +3980,9 @@ typedef struct _DllVersionInfo
     DWORD dwPlatformID;
 } DLLVERSIONINFO;
 
-#ifndef PROTO
-# include <poppack.h>
-#endif
+# ifndef PROTO
+#  include <poppack.h>
+# endif
 
 typedef struct tagTOOLINFOA_NEW
 {
@@ -4031,17 +4031,17 @@ typedef struct tagNMTTDISPINFOW_NEW
 
 
 typedef HRESULT (WINAPI* DLLGETVERSIONPROC)(DLLVERSIONINFO *);
-#ifndef TTM_SETMAXTIPWIDTH
-# define TTM_SETMAXTIPWIDTH	(WM_USER+24)
-#endif
+# ifndef TTM_SETMAXTIPWIDTH
+#  define TTM_SETMAXTIPWIDTH	(WM_USER+24)
+# endif
 
-#ifndef TTF_DI_SETITEM
-# define TTF_DI_SETITEM		0x8000
-#endif
+# ifndef TTF_DI_SETITEM
+#  define TTF_DI_SETITEM		0x8000
+# endif
 
-#ifndef TTN_GETDISPINFO
-# define TTN_GETDISPINFO	(TTN_FIRST - 0)
-#endif
+# ifndef TTN_GETDISPINFO
+#  define TTN_GETDISPINFO	(TTN_FIRST - 0)
+# endif
 
 #endif /* defined(FEAT_BEVAL_GUI) */
 
@@ -5602,7 +5602,7 @@ _OnImeNotify(HWND hWnd, DWORD dwCommand, DWORD dwData UNUSED)
 		State &= ~LANGMAP;
 		if (State & INSERT)
 		{
-#if defined(FEAT_KEYMAP)
+# if defined(FEAT_KEYMAP)
 		    /* Unshown 'keymap' in status lines */
 		    if (curbuf->b_p_iminsert == B_IMODE_LMAP)
 		    {
@@ -5620,7 +5620,7 @@ _OnImeNotify(HWND hWnd, DWORD dwCommand, DWORD dwData UNUSED)
 			gui.row = old_row;
 			gui.col = old_col;
 		    }
-#endif
+# endif
 		}
 	    }
 	    gui_update_cursor(TRUE, FALSE);
@@ -6420,10 +6420,10 @@ gui_mch_add_menu(
     /* Fix window size if menu may have wrapped */
     if (parent == NULL)
 	gui_mswin_get_menu_height(!gui.starting);
-#ifdef FEAT_TEAROFF
+# ifdef FEAT_TEAROFF
     else if (IsWindow(parent->tearoff_handle))
 	rebuild_tearoff(parent);
-#endif
+# endif
 }
 
     void
@@ -6464,7 +6464,7 @@ gui_make_popup(char_u *path_name, int mouse_pos)
     }
 }
 
-#if defined(FEAT_TEAROFF) || defined(PROTO)
+# if defined(FEAT_TEAROFF) || defined(PROTO)
 /*
  * Given a menu descriptor, e.g. "File.New", find it in the menu hierarchy and
  * create it as a pseudo-"tearoff menu".
@@ -6478,7 +6478,7 @@ gui_make_tearoff(char_u *path_name)
     if (menu != NULL)
 	gui_mch_tearoff(menu->dname, menu, 0xffffL, 0xffffL);
 }
-#endif
+# endif
 
 /*
  * Add a menu item to a menu
@@ -6493,15 +6493,15 @@ gui_mch_add_menu_item(
     menu->id = s_menu_id++;
     menu->submenu_id = NULL;
 
-#ifdef FEAT_TEAROFF
+# ifdef FEAT_TEAROFF
     if (STRNCMP(menu->name, TEAR_STRING, TEAR_LEN) == 0)
     {
 	InsertMenu(parent->submenu_id, (UINT)idx, MF_BITMAP|MF_BYPOSITION,
 		(UINT)menu->id, (LPCTSTR) s_htearbitmap);
     }
     else
-#endif
-#ifdef FEAT_TOOLBAR
+# endif
+# ifdef FEAT_TOOLBAR
     if (menu_is_toolbar(parent->name))
     {
 	TBBUTTON newtb;
@@ -6525,7 +6525,7 @@ gui_mch_add_menu_item(
 	menu->submenu_id = (HMENU)-1;
     }
     else
-#endif
+# endif
     {
 	WCHAR	*wn;
 
@@ -6538,10 +6538,10 @@ gui_mch_add_menu_item(
 		    (UINT)menu->id, wn);
 	    vim_free(wn);
 	}
-#ifdef FEAT_TEAROFF
+# ifdef FEAT_TEAROFF
 	if (IsWindow(parent->tearoff_handle))
 	    rebuild_tearoff(parent);
-#endif
+# endif
     }
 }
 
@@ -6551,7 +6551,7 @@ gui_mch_add_menu_item(
     void
 gui_mch_destroy_menu(vimmenu_T *menu)
 {
-#ifdef FEAT_TOOLBAR
+# ifdef FEAT_TOOLBAR
     /*
      * is this a toolbar button?
      */
@@ -6564,7 +6564,7 @@ gui_mch_destroy_menu(vimmenu_T *menu)
 	SendMessage(s_toolbarhwnd, TB_DELETEBUTTON, (WPARAM)iButton, 0);
     }
     else
-#endif
+# endif
     {
 	if (menu->parent != NULL
 		&& menu_is_popup(menu->parent->dname)
@@ -6574,7 +6574,7 @@ gui_mch_destroy_menu(vimmenu_T *menu)
 	    RemoveMenu(s_menuBar, menu->id, MF_BYCOMMAND);
 	if (menu->submenu_id != NULL)
 	    DestroyMenu(menu->submenu_id);
-#ifdef FEAT_TEAROFF
+# ifdef FEAT_TEAROFF
 	if (IsWindow(menu->tearoff_handle))
 	    DestroyWindow(menu->tearoff_handle);
 	if (menu->parent != NULL
@@ -6585,11 +6585,11 @@ gui_mch_destroy_menu(vimmenu_T *menu)
 	    menu->modes = 0;
 	    rebuild_tearoff(menu->parent);
 	}
-#endif
+# endif
     }
 }
 
-#ifdef FEAT_TEAROFF
+# ifdef FEAT_TEAROFF
     static void
 rebuild_tearoff(vimmenu_T *menu)
 {
@@ -6627,7 +6627,7 @@ rebuild_tearoff(vimmenu_T *menu)
 				SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE);
     }
 }
-#endif /* FEAT_TEAROFF */
+# endif /* FEAT_TEAROFF */
 
 /*
  * Make a menu either grey or not grey.
@@ -6637,7 +6637,7 @@ gui_mch_menu_grey(
     vimmenu_T	*menu,
     int	    grey)
 {
-#ifdef FEAT_TOOLBAR
+# ifdef FEAT_TOOLBAR
     /*
      * is this a toolbar button?
      */
@@ -6647,11 +6647,11 @@ gui_mch_menu_grey(
 	    (WPARAM)menu->id, (LPARAM) MAKELONG((grey ? FALSE : TRUE), 0) );
     }
     else
-#endif
+# endif
     (void)EnableMenuItem(menu->parent ? menu->parent->submenu_id : s_menuBar,
 		    menu->id, MF_BYCOMMAND | (grey ? MF_GRAYED : MF_ENABLED));
 
-#ifdef FEAT_TEAROFF
+# ifdef FEAT_TEAROFF
     if ((menu->parent != NULL) && (IsWindow(menu->parent->tearoff_handle)))
     {
 	WORD menuID;
@@ -6669,7 +6669,7 @@ gui_mch_menu_grey(
 	    EnableWindow(menuHandle, !grey);
 
     }
-#endif
+# endif
 }
 
 #endif /* FEAT_MENU */
@@ -6824,21 +6824,21 @@ gui_mch_dialog(
     int		vertical;
     int		dlgPaddingX;
     int		dlgPaddingY;
-#ifdef USE_SYSMENU_FONT
+# ifdef USE_SYSMENU_FONT
     LOGFONTW	lfSysmenu;
     int		use_lfSysmenu = FALSE;
-#endif
+# endif
     garray_T	ga;
     int		l;
 
-#ifndef NO_CONSOLE
+# ifndef NO_CONSOLE
     /* Don't output anything in silent mode ("ex -s") */
-# ifdef VIMDLL
+#  ifdef VIMDLL
     if (!(gui.in_use || gui.starting))
-# endif
+#  endif
 	if (silent_mode)
 	    return dfltbutton;   /* return default option */
-#endif
+# endif
 
     if (s_hwnd == NULL)
 	get_dialog_font_metrics();
@@ -6890,14 +6890,14 @@ gui_mch_dialog(
      */
     hwnd = GetDesktopWindow();
     hdc = GetWindowDC(hwnd);
-#ifdef USE_SYSMENU_FONT
+# ifdef USE_SYSMENU_FONT
     if (gui_w32_get_menu_font(&lfSysmenu) == OK)
     {
 	font = CreateFontIndirectW(&lfSysmenu);
 	use_lfSysmenu = TRUE;
     }
     else
-#endif
+# endif
     font = CreateFont(-DLG_FONT_POINT_SIZE, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 		      VARIABLE_PITCH , DLG_FONT_NAME);
     if (s_usenewlook)
@@ -7116,7 +7116,7 @@ gui_mch_dialog(
     if (s_usenewlook)
     {
 	/* do the font, since DS_3DLOOK doesn't work properly */
-#ifdef USE_SYSMENU_FONT
+# ifdef USE_SYSMENU_FONT
 	if (use_lfSysmenu)
 	{
 	    /* point size */
@@ -7126,7 +7126,7 @@ gui_mch_dialog(
 	    nchar = (int)wcslen(lfSysmenu.lfFaceName) + 1;
 	}
 	else
-#endif
+# endif
 	{
 	    *p++ = DLG_FONT_POINT_SIZE;		// point size
 	    nchar = nCopyAnsiToWideChar(p, DLG_FONT_NAME, FALSE);
@@ -7562,10 +7562,10 @@ gui_mch_tearoff(
     int		sepPadding=0;
     int		x;
     int		y;
-#ifdef USE_SYSMENU_FONT
+# ifdef USE_SYSMENU_FONT
     LOGFONTW	lfSysmenu;
     int		use_lfSysmenu = FALSE;
-#endif
+# endif
 
     /*
      * If this menu is already torn off, move it to the mouse position.
@@ -7596,14 +7596,14 @@ gui_mch_tearoff(
 
     hwnd = GetDesktopWindow();
     hdc = GetWindowDC(hwnd);
-#ifdef USE_SYSMENU_FONT
+# ifdef USE_SYSMENU_FONT
     if (gui_w32_get_menu_font(&lfSysmenu) == OK)
     {
 	font = CreateFontIndirectW(&lfSysmenu);
 	use_lfSysmenu = TRUE;
     }
     else
-#endif
+# endif
     font = CreateFont(-DLG_FONT_POINT_SIZE, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 		      VARIABLE_PITCH , DLG_FONT_NAME);
     if (s_usenewlook)
@@ -7702,7 +7702,7 @@ gui_mch_tearoff(
     if (s_usenewlook)
     {
 	/* do the font, since DS_3DLOOK doesn't work properly */
-#ifdef USE_SYSMENU_FONT
+# ifdef USE_SYSMENU_FONT
 	if (use_lfSysmenu)
 	{
 	    /* point size */
@@ -7712,7 +7712,7 @@ gui_mch_tearoff(
 	    nchar = (int)wcslen(lfSysmenu.lfFaceName) + 1;
 	}
 	else
-#endif
+# endif
 	{
 	    *p++ = DLG_FONT_POINT_SIZE;		// point size
 	    nchar = nCopyAnsiToWideChar(p, DLG_FONT_NAME, FALSE);
@@ -7864,7 +7864,7 @@ gui_mch_tearoff(
 #endif
 
 #if defined(FEAT_TOOLBAR) || defined(PROTO)
-#include "gui_w32_rc.h"
+# include "gui_w32_rc.h"
 
 /* This not defined in older SDKs */
 # ifndef TBSTYLE_FLAT
@@ -7950,9 +7950,9 @@ get_toolbar_bitmap(vimmenu_T *menu)
 	 */
 	if (hbitmap == NULL
 		&& (gui_find_bitmap(
-#ifdef FEAT_MULTI_LANG
+# ifdef FEAT_MULTI_LANG
 			    menu->en_dname != NULL ? menu->en_dname :
-#endif
+# endif
 					menu->dname, fname, "bmp") == OK))
 	    hbitmap = LoadImage(
 		    NULL,
@@ -8188,9 +8188,9 @@ typedef struct _signicon_t
 {
     HANDLE	hImage;
     UINT	uType;
-#ifdef FEAT_XPM_W32
+# ifdef FEAT_XPM_W32
     HANDLE	hShape;	/* Mask bitmap handle */
-#endif
+# endif
 } signicon_t;
 
     void
@@ -8202,10 +8202,10 @@ gui_mch_drawsign(int row, int col, int typenr)
     if (!gui.in_use || (sign = (signicon_t *)sign_get_image(typenr)) == NULL)
 	return;
 
-#if defined(FEAT_DIRECTX)
+# if defined(FEAT_DIRECTX)
     if (IS_ENABLE_DIRECTX())
 	DWriteContext_Flush(s_dwc);
-#endif
+# endif
 
     x = TEXT_X(col);
     y = TEXT_Y(row);
@@ -8229,7 +8229,7 @@ gui_mch_drawsign(int row, int col, int typenr)
 	case IMAGE_CURSOR:
 	    DrawIconEx(s_hdc, x, y, (HICON)sign->hImage, w, h, 0, NULL, DI_NORMAL);
 	    break;
-#ifdef FEAT_XPM_W32
+# ifdef FEAT_XPM_W32
 	case IMAGE_XPM:
 	    {
 		HDC hdcMem;
@@ -8247,7 +8247,7 @@ gui_mch_drawsign(int row, int col, int typenr)
 		DeleteDC(hdcMem);
 	    }
 	    break;
-#endif
+# endif
     }
 }
 
@@ -8266,12 +8266,12 @@ close_signicon_image(signicon_t *sign)
 	    case IMAGE_ICON:
 		DestroyIcon((HICON)sign->hImage);
 		break;
-#ifdef FEAT_XPM_W32
+# ifdef FEAT_XPM_W32
 	    case IMAGE_XPM:
 		DeleteObject((HBITMAP)sign->hImage);
 		DeleteObject((HBITMAP)sign->hShape);
 		break;
-#endif
+# endif
 	}
 }
 
@@ -8300,14 +8300,14 @@ gui_mch_register_sign(char_u *signfile)
 	    sign.hImage = (HANDLE)LoadImage(NULL, (LPCSTR)signfile, sign.uType,
 		    gui.char_width * 2, gui.char_height,
 		    LR_LOADFROMFILE | LR_CREATEDIBSECTION);
-#ifdef FEAT_XPM_W32
+# ifdef FEAT_XPM_W32
 	if (!STRICMP(ext, ".xpm"))
 	{
 	    sign.uType = IMAGE_XPM;
 	    LoadXpmImage((char *)signfile, (HBITMAP *)&sign.hImage,
 		    (HBITMAP *)&sign.hShape);
 	}
-#endif
+# endif
     }
 
     psign = NULL;
@@ -8682,9 +8682,9 @@ TrackUserActivity(UINT uMsg)
     void
 gui_mch_destroy_beval_area(BalloonEval *beval)
 {
-#ifdef FEAT_VARTABS
+# ifdef FEAT_VARTABS
     vim_free(beval->vts);
-#endif
+# endif
     vim_free(beval->tofree);
     vim_free(beval);
 }
@@ -8708,10 +8708,10 @@ netbeans_draw_multisign_indicator(int row)
     x = 0;
     y = TEXT_Y(row);
 
-#if defined(FEAT_DIRECTX)
+# if defined(FEAT_DIRECTX)
     if (IS_ENABLE_DIRECTX())
 	DWriteContext_Flush(s_dwc);
-#endif
+# endif
 
     for (i = 0; i < gui.char_height - 3; i++)
 	SetPixel(s_hdc, x+2, y++, gui.currFgColor);
