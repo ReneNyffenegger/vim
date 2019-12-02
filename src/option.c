@@ -33,6 +33,10 @@
 
 #define IN_OPTION_C
 #include "vim.h"
+
+#define TQ84_DEBUG_ENABLED
+#include "tq84-c-debug/tq84_debug.h"
+
 #include "optiondefs.h"
 
 static void set_options_default(int opt_flags);
@@ -76,6 +80,8 @@ set_init_1(int clean_arg)
     char_u	*p;
     int		opt_idx;
     long_u	n;
+
+    TQ84_DEBUG_INDENT();
 
 #ifdef FEAT_LANGMAP
     langmap_init();
@@ -616,6 +622,8 @@ set_options_default(
     win_T	*wp;
     tabpage_T	*tp;
 
+    TQ84_DEBUG_INDENT();
+
     for (i = 0; !istermoption_idx(i); i++)
 	if (!(options[i].flags & P_NODEFAULT)
 		&& (opt_flags == 0
@@ -751,6 +759,7 @@ free_all_options(void)
 set_init_2(void)
 {
     int		idx;
+    TQ84_DEBUG_INDENT();
 
     /*
      * 'scroll' defaults to half the window height. The stored default is zero,
@@ -1108,6 +1117,8 @@ do_set(
     int		cp_val = 0;
     char_u	key_name[2];
 
+    TQ84_DEBUG_INDENT_T("do_set, arg = %s, opt_flags = %d", arg, opt_flags);
+
     if (*arg == NUL)
     {
 	showoptions(0, opt_flags);
@@ -1410,6 +1421,7 @@ do_set(
 
 		if (flags & P_BOOL)		    /* boolean */
 		{
+		    TQ84_DEBUG ("flags & P_BOOL");
 		    if (nextchar == '=' || nextchar == ':')
 		    {
 			errmsg = e_invarg;
@@ -1454,6 +1466,7 @@ do_set(
 			    value = prefix;
 		    }
 
+                    TQ84_DEBUG("-> set_bool_option, opt_idx = %d", opt_idx);
 		    errmsg = set_bool_option(opt_idx, varp, (int)value,
 								   opt_flags);
 		}
@@ -2494,6 +2507,8 @@ set_bool_option(
 #if defined(FEAT_EVAL)
     int		old_global_value = 0;
 #endif
+
+    TQ84_DEBUG_INDENT();
 
     /* Disallow changing some options from secure mode */
     if ((secure
@@ -6685,9 +6700,11 @@ vimrc_found(char_u *fname, char_u *envname)
     int		opt_idx;
     int		dofree = FALSE;
     char_u	*p;
+    TQ84_DEBUG_INDENT_T("vimrc_found, fname = %s, envname = %s", fname, envname);
 
     if (!option_was_set((char_u *)"cp"))
     {
+        TQ84_DEBUG("! option_was_set cp, setting p_cp to FALSE");
 	p_cp = FALSE;
 	for (opt_idx = 0; !istermoption_idx(opt_idx); opt_idx++)
 	    if (!(options[opt_idx].flags & (P_WAS_SET|P_VI_DEF)))
@@ -6721,6 +6738,7 @@ vimrc_found(char_u *fname, char_u *envname)
 change_compatible(int on)
 {
     int	    opt_idx;
+    TQ84_DEBUG_INDENT();
 
     if (p_cp != on)
     {
@@ -6777,6 +6795,7 @@ reset_option_was_set(char_u *name)
 compatible_set(void)
 {
     int	    opt_idx;
+    TQ84_DEBUG_INDENT();
 
     for (opt_idx = 0; !istermoption_idx(opt_idx); opt_idx++)
 	if (	   ((options[opt_idx].flags & P_VIM) && p_cp)

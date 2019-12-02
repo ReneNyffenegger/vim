@@ -3244,6 +3244,7 @@ find_command(exarg_T *eap, int *full UNUSED)
 	    eap->cmdidx = CMD_SIZE;
     }
 
+    TQ84_DEBUG("return %s", p);
     return p;
 }
 

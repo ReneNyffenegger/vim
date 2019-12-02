@@ -9,6 +9,9 @@
 
 #include "vim.h"
 
+#define TQ84_DEBUG_ENABLED
+#include "tq84-c-debug/tq84_debug.h"
+
 static void cmd_with_count(char *cmd, char_u *bufp, size_t bufsize, long Prenum);
 static void win_init(win_T *newp, win_T *oldp, int flags);
 static void win_init_some(win_T *newp, win_T *oldp);
@@ -3608,6 +3611,7 @@ curwin_init(void)
     int
 win_alloc_first(void)
 {
+    TQ84_DEBUG_INDENT();
     if (win_alloc_firstwin(NULL) == FAIL)
 	return FAIL;
 
@@ -3667,6 +3671,7 @@ win_init_popup_win(win_T *wp, buf_T *buf)
     static int
 win_alloc_firstwin(win_T *oldwin)
 {
+    TQ84_DEBUG_INDENT();
     curwin = win_alloc(NULL, FALSE);
     if (oldwin == NULL)
     {
@@ -4766,6 +4771,7 @@ static int last_win_id = LOWEST_WIN_ID - 1;
 win_alloc(win_T *after UNUSED, int hidden UNUSED)
 {
     win_T	*new_wp;
+    TQ84_DEBUG_INDENT_T("win_alloc, hidden = %d", hidden);
 
     /*
      * allocate window structure and linesizes arrays

@@ -999,7 +999,7 @@ common_init(mparm_T *paramp)
      * NOTE: Translated messages with encodings other than latin1 will not
      * work until set_init_1() has been called!
      */
-    TQ84_DEBUG("Going to call init_locale");
+    TQ84_DEBUG("->init_locale");
     init_locale();
     TIME_MSG("locale set");
 #endif
@@ -1015,6 +1015,7 @@ common_init(mparm_T *paramp)
      *   --socketid
      *   --windowid
      */
+    TQ84_DEBUG("-> early_arg_scan");
     early_arg_scan(paramp);
 
 #if defined(FEAT_GUI)
@@ -1042,6 +1043,7 @@ common_init(mparm_T *paramp)
      * Allocate the first window and buffer.
      * Can't do anything without it, exit when it fails.
      */
+    TQ84_DEBUG("->win_alloc_first");
     if (win_alloc_first() == FAIL)
 	mch_exit(0);
 
@@ -1058,6 +1060,7 @@ common_init(mparm_T *paramp)
      * First find out the home directory, needed to expand "~" in options.
      */
     init_homedir();		/* find real value of $HOME */
+    TQ84_DEBUG("->set_init_1");
     set_init_1(paramp->clean);
     TIME_MSG("inits 1");
 
@@ -1827,6 +1830,8 @@ early_arg_scan(mparm_T *parmp UNUSED)
     int		argc = parmp->argc;
     char	**argv = parmp->argv;
     int		i;
+
+    TQ84_DEBUG_INDENT();
 
     for (i = 1; i < argc; i++)
     {
