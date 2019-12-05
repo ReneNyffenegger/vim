@@ -1614,6 +1614,8 @@ vim_version_dir(char_u *vimdir)
 {
     char_u	*p;
 
+    TQ84_DEBUG_INDENT_T("vim_version_dir, vimdir = %s", vimdir);
+
     if (vimdir == NULL || *vimdir == NUL)
 	return NULL;
     p = concat_fnames(vimdir, (char_u *)VIM_VERSION_NODOT, TRUE);
@@ -1643,11 +1645,14 @@ vim_getenv(char_u *name, int *mustfree)
 #ifdef MSWIN
     WCHAR	*wn, *wp;
 
-    TQ84_DEBUG_INDENT_T("name = %s, mustfree = %d", name, mustfree);
+    TQ84_DEBUG_INDENT_T("MSWIN: vim_getenv, name = %s", name);
 
     // use "C:/" when $HOME is not set
     if (STRCMP(name, "HOME") == 0)
+    {
+        TQ84_DEBUG("HOME, return homedir = %s", homedir);
 	return homedir;
+    }
 
     // Use Wide function
     wn = enc_to_utf16(name, NULL);
@@ -1658,16 +1663,22 @@ vim_getenv(char_u *name, int *mustfree)
     vim_free(wn);
 
     if (wp != NULL && *wp == NUL)   // empty is the same as not set
+    {
+        TQ84_DEBUG("wp != NULL && *wp == NUL");
 	wp = NULL;
+    }
 
     if (wp != NULL)
     {
-	TQ84_DEBUG("Calling utf16_to_enc");
+	TQ84_DEBUG("wp != NULL");
 	p = utf16_to_enc(wp, NULL);
-	if (p == NULL)
+	if (p == NULL) {
+	    TQ84_DEBUG("p == NULL, return NULL");
 	    return NULL;
+        }
 
 	*mustfree = TRUE;
+	TQ84_DEBUG("Return p = %s", p);
 	return p;
     }
 #else
@@ -1691,6 +1702,12 @@ vim_getenv(char_u *name, int *mustfree)
      * When expanding $VIMRUNTIME fails, try using $VIM/vim<version> or $VIM.
      * Don't do this when default_vimruntime_dir is non-empty.
      */
+#ifdef HAVE_PATHDEF
+       TQ84_DEBUG("HAVE_PATHDEF");
+#else
+       TQ84_DEBUG("Don't HAVE_PATHDEF");
+#endif
+
     if (vimruntime
 #ifdef HAVE_PATHDEF
 	    && *default_vimruntime_dir == NUL
@@ -1705,13 +1722,12 @@ vim_getenv(char_u *name, int *mustfree)
 	    wp = NULL;
 	if (wp != NULL)
 	{
-	    TQ84_DEBUG("Calling utf16_to_enc");
 	    char_u *q = utf16_to_enc(wp, NULL);
 	    if (q != NULL)
 	    {
 	        TQ84_DEBUG("calling vim_version_dir q=%s", q);
 		p = vim_version_dir(q);
-	        TQ84_DEBUG("p = %s", p);
+	        TQ84_DEBUG("p (vim_version_dir) = %s", p);
 		*mustfree = TRUE;
 		if (p == NULL)
 		    p = q;

@@ -981,11 +981,18 @@ do_source(
 
     p = expand_env_save(fname);
     if (p == NULL)
+    {
+        TQ84_DEBUG("p == NULL, return %d", retval);
 	return retval;
+    }
     fname_exp = fix_fname(p);
+    TQ84_DEBUG("fname_exp = %s", fname_exp);
     vim_free(p);
     if (fname_exp == NULL)
+    {
+        TQ84_DEBUG("fname_exp == NULL, return %d", retval);
 	return retval;
+    }
     if (mch_isdir(fname_exp))
     {
 	smsg(_("Cannot source a directory: \"%s\""), fname);
@@ -997,6 +1004,7 @@ do_source(
 	    && apply_autocmds(EVENT_SOURCECMD, fname_exp, fname_exp,
 							       FALSE, curbuf))
     {
+        TQ84_DEBUG("Apply autocommands");
 #ifdef FEAT_EVAL
 	retval = aborting() ? FAIL : OK;
 #else
@@ -1010,11 +1018,14 @@ do_source(
     }
 
     // Apply SourcePre autocommands, they may get the file.
+    TQ84_DEBUG("Apply pre-autocommands");
     apply_autocmds(EVENT_SOURCEPRE, fname_exp, fname_exp, FALSE, curbuf);
 
 #ifdef USE_FOPEN_NOINH
+    TQ84_DEBUG("USE_FOPEN_NOINH");
     cookie.fp = fopen_noinh_readbin((char *)fname_exp);
 #else
+    TQ84_DEBUG("! USE_FOPEN_NOINH");
     cookie.fp = mch_fopen((char *)fname_exp, READBIN);
 #endif
     if (cookie.fp == NULL && check_other)
@@ -1057,6 +1068,7 @@ do_source(
     // The file exists.
     // - In verbose mode, give a message.
     // - For a vimrc file, may want to set 'compatible', call vimrc_found().
+    TQ84_DEBUG("file exists");
     if (p_verbose > 1)
     {
 	verbose_enter();

@@ -467,7 +467,7 @@ TQ84_DEBUG("PROTO is not defined");
     exe_pre_commands(&params);
 
     /* Source startup scripts. */
-    TQ84_DEBUG("Calling source_startup_scripts");
+    TQ84_DEBUG("-> source_startup_scripts");
     source_startup_scripts(&params);
 
 #ifdef FEAT_MZSCHEME
@@ -3228,6 +3228,7 @@ source_startup_scripts(mparm_T *parmp)
      * For "evim" source evim.vim first of all, so that the user can overrule
      * any things he doesn't like.
      */
+    TQ84_DEBUG("evim_mode?");
     if (parmp->evim_mode)
     {
         TQ84_DEBUG("parmp->evim_mode");
@@ -3239,6 +3240,7 @@ source_startup_scripts(mparm_T *parmp)
      * If -u argument given, use only the initializations from that file and
      * nothing else.
      */
+    TQ84_DEBUG("use_vimrc?");
     if (parmp->use_vimrc != NULL)
     {
         TQ84_DEBUG("parmp->use_vimrc = %s", parmp->use_vimrc);
@@ -3249,7 +3251,10 @@ source_startup_scripts(mparm_T *parmp)
 	{
 #ifdef FEAT_GUI
 	    if (use_gvimrc == NULL)	    /* don't load gvimrc either */
+	    {
+	        TQ84_DEBUG("use_gvimrc == NULL, setting use_gvimrc to parmp->use_vimrc (%s)", parmp->use_vimrc);
 		use_gvimrc = parmp->use_vimrc;
+	    }
 #endif
 	}
 	else
@@ -3260,6 +3265,7 @@ source_startup_scripts(mparm_T *parmp)
     }
     else if (!silent_mode)
     {
+        TQ84_DEBUG("! silent_mode?");
 #ifdef AMIGA
 	struct Process	*proc = (struct Process *)FindTask(0L);
 	APTR		save_winptr = proc->pr_WindowPtr;
@@ -3272,6 +3278,7 @@ source_startup_scripts(mparm_T *parmp)
 	 * Get system wide defaults, if the file name is defined.
 	 */
 #ifdef SYS_VIMRC_FILE
+        TQ84_DEBUG("SRC_VIMRC_FILE is defined (%s), sourcing it", SYS_VIMRC_FILE);
 	(void)do_source((char_u *)SYS_VIMRC_FILE, FALSE, DOSO_NONE);
 #endif
 #ifdef MACOS_X
@@ -3290,6 +3297,7 @@ source_startup_scripts(mparm_T *parmp)
 	 */
 	if (process_env((char_u *)"VIMINIT", TRUE) != OK)
 	{
+	    TQ84_DEBUG("process_env VIMINIT != OK");
 	    if (do_source((char_u *)USR_VIMRC_FILE, TRUE, DOSO_VIMRC) == FAIL
 #ifdef USR_VIMRC_FILE2
 		&& do_source((char_u *)USR_VIMRC_FILE2, TRUE,
