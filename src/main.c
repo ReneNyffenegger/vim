@@ -409,6 +409,7 @@ TQ84_DEBUG("PROTO is not defined");
 
     if (params.want_full_screen && !silent_mode)
     {
+        TQ84_DEBUG("want_full_screen and !silent_mode -> termcapinit");
 	termcapinit(params.term);	// set terminal name and get terminal
 				   // capabilities (will set full_screen)
         TQ84_DEBUG("Calling screen_start()");
@@ -2766,6 +2767,7 @@ scripterror:
 check_tty(mparm_T *parmp)
 {
     int		input_isatty;		// is active input a terminal?
+    TQ84_DEBUG_INDENT();
 
     input_isatty = mch_input_isatty();
     if (exmode_active)

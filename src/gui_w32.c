@@ -5238,6 +5238,7 @@ gui_mch_init(void)
 		g_hinst, NULL);
 	if (s_hwnd != NULL && win_socket_id != 0)
 	{
+	    TQ84_DEBUG("s_hwnd != NULL && win_socket_id != 0 -> SetParent() / ShowWindow()");
 	    SetParent(s_hwnd, (HWND)win_socket_id);
 	    ShowWindow(s_hwnd, SW_SHOWMAXIMIZED);
 	}
@@ -5288,6 +5289,7 @@ gui_mch_init(void)
     // Try loading an icon from $RUNTIMEPATH/bitmaps/vim.ico.
     {
 	HANDLE	hIcon = NULL;
+	TQ84_DEBUG("-> mch_icon_load");
 
 	if (mch_icon_load(&hIcon) == OK && hIcon != NULL)
 	    SendMessage(s_hwnd, WM_SETICON, ICON_SMALL, (LPARAM)hIcon);
