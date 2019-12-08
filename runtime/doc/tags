@@ -4867,6 +4867,7 @@ InsertChange	autocmd.txt	/*InsertChange*
 InsertCharPre	autocmd.txt	/*InsertCharPre*
 InsertEnter	autocmd.txt	/*InsertEnter*
 InsertLeave	autocmd.txt	/*InsertLeave*
+Integer	eval.txt	/*Integer*
 J	change.txt	/*J*
 Japanese	mbyte.txt	/*Japanese*
 Job	eval.txt	/*Job*
@@ -6464,6 +6465,7 @@ ft-man-plugin	filetype.txt	/*ft-man-plugin*
 ft-maple-syntax	syntax.txt	/*ft-maple-syntax*
 ft-masm-syntax	syntax.txt	/*ft-masm-syntax*
 ft-mathematica-syntax	syntax.txt	/*ft-mathematica-syntax*
+ft-matlab-indent	indent.txt	/*ft-matlab-indent*
 ft-mma-syntax	syntax.txt	/*ft-mma-syntax*
 ft-moo-syntax	syntax.txt	/*ft-moo-syntax*
 ft-msql-syntax	syntax.txt	/*ft-msql-syntax*
@@ -7674,6 +7676,8 @@ matchlist()	eval.txt	/*matchlist()*
 matchparen	pi_paren.txt	/*matchparen*
 matchstr()	eval.txt	/*matchstr()*
 matchstrpos()	eval.txt	/*matchstrpos()*
+matlab-indent	indent.txt	/*matlab-indent*
+matlab-indenting	indent.txt	/*matlab-indenting*
 max()	eval.txt	/*max()*
 mbyte-IME	mbyte.txt	/*mbyte-IME*
 mbyte-XIM	mbyte.txt	/*mbyte-XIM*
