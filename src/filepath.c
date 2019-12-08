@@ -13,6 +13,9 @@
 
 #include "vim.h"
 
+#define TQ84_DEBUG_ENABLED
+#include "tq84-c-debug/tq84_debug.h"
+
 #ifdef MSWIN
 /*
  * Functions for ":8" filename modifier: get 8.3 version of a filename.
@@ -3536,6 +3539,8 @@ gen_expand_wildcards(
 #if defined(FEAT_SEARCHPATH)
     int			did_expand_in_path = FALSE;
 #endif
+
+    TQ84_DEBUG_INDENT_T("gen_expand_wildcards, num_pat=%d", num_pat);
 
     /*
      * expand_env() is called to expand things like "~user".  If this fails,

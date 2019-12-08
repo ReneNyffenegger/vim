@@ -125,6 +125,33 @@ TQ84_DEBUG("PROTO is not defined");
 
     TQ84_DEBUG_INDENT();
 
+    TQ84_DEBUG("DFLT_RUNTIMEPATH = %s", DFLT_RUNTIMEPATH);
+
+    #ifdef FEAT_DIRECTX
+           TQ84_DEBUG("FEAT_DIRECTX yes");
+    #else
+           TQ84_DEBUG("FEAT_DIRECTX no");
+    #endif
+    #ifdef FEAT_MENU
+           TQ84_DEBUG("FEAT_MENU yes");
+    #else
+           TQ84_DEBUG("FEAT_MENU no");
+    #endif
+    #ifdef FEAT_PROFILE
+           TQ84_DEBUG("FEAT_PROFILE yes");
+    #else
+           TQ84_DEBUG("FEAT_PROFILE no");
+    #endif
+    #ifdef FEAT_TERMINAL
+           TQ84_DEBUG("FEAT_TERMINAL yes");
+    #else
+           TQ84_DEBUG("FEAT_TERMINAL no");
+    #endif
+    #ifdef NO_CONSOLE_INPUT
+           TQ84_DEBUG("NO_CONSOLE_INPUT yes");
+    #else
+           TQ84_DEBUG("NO_CONSOLE_INPUT no");
+    #endif
     /*
      * Do any system-specific initialisations.  These can NOT use IObuff or
      * NameBuff.  Thus emsg2() cannot be called!
@@ -1226,6 +1253,8 @@ main_loop(
     static int		conceal_update_lines = FALSE;
 #endif
 
+    TQ84_DEBUG_INDENT();
+
     prev_oap = current_oap;
     current_oap = &oa;
 
@@ -1259,12 +1288,14 @@ main_loop(
 #endif
 
     clear_oparg(&oa);
+    TQ84_DEBUG("Entering loop?");
     while (!cmdwin
 #ifdef FEAT_CMDWIN
 	    || cmdwin_result == 0
 #endif
 	    )
     {
+        TQ84_DEBUG("-> stuff_empty");
 	if (stuff_empty())
 	{
 	    did_check_timestamps = FALSE;
@@ -1287,8 +1318,10 @@ main_loop(
 	// the ":g" command.
 	// For ":g/pat/vi" we reset "got_int" when used once.  When used
 	// a second time we go back to Ex mode and abort the ":g" command.
+	TQ84_DEBUG("if got_int");
 	if (got_int)
 	{
+	    TQ84_DEBUG("yes: got_int");
 	    if (noexmode && global_busy && !exmode_active && previous_got_int)
 	    {
 		// Typed two CTRL-C in a row: go back to ex mode as if "Q" was
@@ -1323,6 +1356,7 @@ main_loop(
 	    skip_redraw = FALSE;
 	else if (do_redraw || stuff_empty())
 	{
+	    TQ84_DEBUG("yes: do_redraw || stuff_empty()");
 #ifdef FEAT_GUI
 	    // If ui_breakcheck() was used a resize may have been postponed.
 	    gui_may_resize_shell();
@@ -1349,6 +1383,7 @@ main_loop(
 			)
 		 && !EQUAL_POS(last_cursormoved, curwin->w_cursor))
 	    {
+	        TQ84_DEBUG("-> has_cursormoved()");
 		if (has_cursormoved())
 		    apply_autocmds(EVENT_CURSORMOVED, NULL, NULL,
 							       FALSE, curbuf);
@@ -1378,6 +1413,7 @@ main_loop(
 			&& conceal_old_cursor_line
 						<= curbuf->b_ml.ml_line_count)
 		    redrawWinline(curwin, conceal_old_cursor_line);
+		TQ84_DEBUG("-> redrawWinline");
 		redrawWinline(curwin, conceal_new_cursor_line);
 		curwin->w_valid &= ~VALID_CROW;
 		need_cursor_line_redraw = FALSE;
@@ -1385,6 +1421,7 @@ main_loop(
 #endif
 
 	    // Trigger TextChanged if b:changedtick differs.
+	    TQ84_DEBUG("Trigger TextChanged if b:changedtick differs.");
 	    if (!finish_op && has_textchanged()
 		    && curbuf->b_last_changedtick != CHANGEDTICK(curbuf))
 	    {
@@ -1394,6 +1431,7 @@ main_loop(
 
 	    // If nothing is pending and we are going to wait for the user to
 	    // type a character, trigger SafeState.
+	    TQ84_DEBUG("-> may_trigger_safestate");
 	    may_trigger_safestate(!op_pending() && restart_edit == 0);
 
 #if defined(FEAT_DIFF)
@@ -1408,6 +1446,7 @@ main_loop(
 
 	    // Scroll-binding for diff mode may have been postponed until
 	    // here.  Avoids doing it for every change.
+	    TQ84_DEBUG("-> diff_need_scrollbind");
 	    if (diff_need_scrollbind)
 	    {
 		check_scrollbind((linenr_T)0, 0L);
@@ -1437,7 +1476,9 @@ main_loop(
 	     * Before redrawing, make sure w_topline is correct, and w_leftcol
 	     * if lines don't wrap, and w_skipcol if lines wrap.
 	     */
+	    TQ84_DEBUG("-> update_topline");
 	    update_topline();
+	    TQ84_DEBUG("-> validate_cursor");
 	    validate_cursor();
 
 #ifdef FEAT_SYN_HL
@@ -1468,6 +1509,7 @@ main_loop(
 	    curbuf->b_last_used = vim_time();
 #endif
 	    // display message after redraw
+	    TQ84_DEBUG("display message after redraw");
 	    if (keep_msg != NULL)
 	    {
 		char_u *p = vim_strsave(keep_msg);
@@ -1486,6 +1528,7 @@ main_loop(
 	    }
 	    if (need_fileinfo)		// show file info after redraw
 	    {
+	        TQ84_DEBUG("need_fileinfo");
 		fileinfo(FALSE, TRUE, FALSE);
 		need_fileinfo = FALSE;
 	    }
@@ -1496,6 +1539,7 @@ main_loop(
 	    may_clear_sb_text();	// clear scroll-back text on next msg
 	    showruler(FALSE);
 
+            TQ84_DEBUG("-> setcursor");
 	    setcursor();
 	    cursor_on();
 
@@ -1542,6 +1586,7 @@ main_loop(
 	{
 	    if (noexmode)   // End of ":global/path/visual" commands
 		goto theend;
+	    TQ84_DEBUG("-> do_exmode");
 	    do_exmode(exmode_active == EXMODE_VIM);
 	}
 	else
@@ -1555,6 +1600,7 @@ main_loop(
 		// If terminal_loop() returns OK we got a key that is handled
 		// in Normal model.  With FAIL we first need to position the
 		// cursor and the screen needs to be redrawn.
+		TQ84_DEBUG("-> terminal_loop");
 		if (terminal_loop(TRUE) == OK)
 		    normal_cmd(&oa, TRUE);
 	    }
@@ -1564,6 +1610,7 @@ main_loop(
 #ifdef FEAT_TERMINAL
 		skip_term_loop = FALSE;
 #endif
+                TQ84_DEBUG("-> normal_cmd");
 		normal_cmd(&oa, TRUE);
 	    }
 	}

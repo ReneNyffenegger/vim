@@ -834,6 +834,7 @@ mch_icon_load_cb(char_u *fname, void *cookie)
     int
 mch_icon_load(HANDLE *iconp)
 {
+    TQ84_DEBUG_INDENT();
     return do_in_runtimepath((char_u *)"bitmaps/vim.ico",
 						  0, mch_icon_load_cb, iconp);
 }
@@ -2145,6 +2146,7 @@ Messaging_WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 serverInitMessaging(void)
 {
     WNDCLASS wndclass;
+    TQ84_DEBUG_INDENT();
 
     // Clean up on exit
     atexit(CleanUpMessaging);

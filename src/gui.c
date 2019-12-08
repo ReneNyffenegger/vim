@@ -2946,6 +2946,8 @@ gui_wait_for_chars_buf(
 {
     int	    retval;
 
+    TQ84_DEBUG_INDENT();
+
 #ifdef FEAT_MENU
     // If we're going to wait a bit, update the menus and mouse shape for the
     // current State.
@@ -2956,24 +2958,31 @@ gui_wait_for_chars_buf(
     gui_mch_update();
     if (input_available())	// Got char, return immediately
     {
+        TQ84_DEBUG("yes: input_available");
 	if (buf != NULL && !typebuf_changed(tb_change_cnt))
 	    return read_from_input_buf(buf, (long)maxlen);
+	TQ84_DEBUG("return 0");
 	return 0;
     }
+    TQ84_DEBUG("wtime = %d", wtime);
     if (wtime == 0)		// Don't wait for char
 	return FAIL;
 
     // Before waiting, flush any output to the screen.
+    TQ84_DEBUG("-> gui_mch_flush");
     gui_mch_flush();
 
     // Blink while waiting for a character.
+    TQ84_DEBUG("-> gui_mch_start_blink");
     gui_mch_start_blink();
 
     // Common function to loop until "wtime" is met, while handling timers and
     // other callbacks.
+    TQ84_DEBUG("-> inchar_loop");
     retval = inchar_loop(buf, maxlen, wtime, tb_change_cnt,
 			 gui_wait_for_chars_or_timer, NULL);
 
+    TQ84_DEBUG("-> gui_mch_stop_blink");
     gui_mch_stop_blink(TRUE);
 
     return retval;
@@ -3004,6 +3013,7 @@ gui_inchar(
     long    wtime,		// milli seconds
     int	    tb_change_cnt)
 {
+    TQ84_DEBUG_INDENT_T("gui_inchar -> gui_wait_for_chars_buf");
     return gui_wait_for_chars_buf(buf, maxlen, wtime, tb_change_cnt);
 }
 

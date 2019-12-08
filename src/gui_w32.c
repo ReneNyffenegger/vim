@@ -804,7 +804,7 @@ _OnChar(
     char_u	string[40];
     int		len = 0;
 
-    TQ84_DEBUG_INDENT();
+    TQ84_DEBUG_INDENT_T("_OnChar ch = %c", ch);
 
     dead_key = 0;
 
@@ -4477,6 +4477,7 @@ _WndProc(
 	  hwnd, uMsg, wParam, lParam);
     */
 
+    TQ84_DEBUG_INDENT();
     HandleMouseHide(uMsg, lParam);
 
     s_uMsg = uMsg;
@@ -4563,7 +4564,7 @@ _WndProc(
 	break;
 
     case WM_CHAR:
-        TQ84_DEBUG("WM_CHAR");
+        TQ84_DEBUG("WM_CHAR -> _OnChar");
 	// Don't use HANDLE_MSG() for WM_CHAR, it truncates wParam to a single
 	// byte while we want the UTF-16 character value.
 	_OnChar(hwnd, (UINT)wParam, (int)(short)LOWORD(lParam));
@@ -5161,6 +5162,7 @@ gui_mch_init(void)
 
     // First try using the wide version, so that we can use any title.
     // Otherwise only characters in the active codepage will work.
+    TQ84_DEBUG("->GetClassInfoW()");
     if (GetClassInfoW(g_hinst, szVimWndClassW, &wndclassw) == 0)
     {
 	wndclassw.style = CS_DBLCLKS;
@@ -5174,6 +5176,7 @@ gui_mch_init(void)
 	wndclassw.lpszMenuName = NULL;
 	wndclassw.lpszClassName = szVimWndClassW;
 
+        TQ84_DEBUG("-> RegisterClassW");
 	if ((
 #ifdef GLOBAL_IME
 		    atom =
@@ -5255,6 +5258,7 @@ gui_mch_init(void)
 #endif
 
     // Create the text area window
+    TQ84_DEBUG("Creaate the text area window");
     if (GetClassInfoW(g_hinst, szTextAreaClassW, &wndclassw) == 0)
     {
 	wndclassw.style = CS_OWNDC;
@@ -5292,11 +5296,18 @@ gui_mch_init(void)
 	TQ84_DEBUG("-> mch_icon_load");
 
 	if (mch_icon_load(&hIcon) == OK && hIcon != NULL)
+	{
+	    TQ84_DEBUG("Icon was found");
 	    SendMessage(s_hwnd, WM_SETICON, ICON_SMALL, (LPARAM)hIcon);
+        }
+	else {
+	    TQ84_DEBUG("Icon was NOT found");
+	}
     }
 #endif
 
 #ifdef FEAT_MENU
+    TQ84_DEBUG("FEAT_MENU -> CreateMenu()");
     s_menuBar = CreateMenu();
 #endif
     s_hdc = GetDC(s_textArea);
@@ -5307,10 +5318,12 @@ gui_mch_init(void)
     // m_fMouseAvail = GetSystemMetrics(SM_MOUSEPRESENT);
 
     // Get background/foreground colors from the system
+    TQ84_DEBUG("Get background/foreground colors from the system -> gui_mch_def_colors");
     gui_mch_def_colors();
 
     // Get the colors from the "Normal" group (set in syntax.c or in a vimrc
     // file)
+    TQ84_DEBUG("Get colors from the 'Normal' group (set in syntax.c) or in a vimrc -> set_normal_colors");
     set_normal_colors();
 
     /*
@@ -5432,6 +5445,8 @@ gui_mch_set_shellsize(
     int		win_width, win_height;
     WINDOWPLACEMENT wndpl;
 
+    TQ84_DEBUG_INDENT_T("gui_mch_set_shellsize, width=%d, height=%d", width, height);
+
     // Try to keep window completely on screen.
     // Get position of the screen work area.  This is the part that is not
     // used by the taskbar or appbars.
@@ -5495,7 +5510,9 @@ gui_mch_set_shellsize(
     // these two are not compatible.
     SetWindowPlacement(s_hwnd, &wndpl);
 
+    TQ84_DEBUG("-> SetActiveWindow(s_hwnd)");
     SetActiveWindow(s_hwnd);
+    TQ84_DEBUG("-> SetFocus(s_hwnd)");
     SetFocus(s_hwnd);
 
 #ifdef FEAT_MENU
@@ -5552,6 +5569,7 @@ gui_mch_set_font(GuiFont font)
     void
 gui_mch_set_fg_color(guicolor_T color)
 {
+    TQ84_DEBUG_INDENT();
     gui.currFgColor = color;
 }
 
@@ -5561,6 +5579,7 @@ gui_mch_set_fg_color(guicolor_T color)
     void
 gui_mch_set_bg_color(guicolor_T color)
 {
+    TQ84_DEBUG_INDENT();
     gui.currBgColor = color;
 }
 

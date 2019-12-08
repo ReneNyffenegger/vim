@@ -127,7 +127,10 @@ ui_inchar(
 {
     int		retval = 0;
 
+    TQ84_DEBUG_INDENT();
+
 #if defined(FEAT_GUI) && (defined(UNIX) || defined(VMS))
+    TQ84_DEBUG("defined(FEAT_GUI) && (defined(UNIX) || defined(VMS))");
     /*
      * Use the typeahead if there is any.
      */
@@ -144,7 +147,7 @@ ui_inchar(
 	return maxlen;
     }
 #endif
-
+    TQ84_DEBUG("ui_inchar 1");
 #ifdef FEAT_PROFILE
     if (do_profiling == PROF_YES && wtime != 0)
 	prof_inchar_enter();
@@ -159,6 +162,7 @@ ui_inchar(
     {
 	static int count = 0;
 
+        TQ84_DEBUG("ui_inchar 2");
 # ifndef NO_CONSOLE
 	retval = mch_inchar(buf, maxlen, wtime, tb_change_cnt);
 	if (retval > 0 || typebuf_changed(tb_change_cnt) || wtime >= 0)
@@ -172,17 +176,23 @@ ui_inchar(
     }
 #endif
 
+    TQ84_DEBUG("ui_inchar 10");
     // If we are going to wait for some time or block...
     if (wtime == -1 || wtime > 100L)
     {
+
+        TQ84_DEBUG("ui_inchar 11");
 	// ... allow signals to kill us.
 	(void)vim_handle_signal(SIGNAL_UNBLOCK);
+        TQ84_DEBUG("ui_inchar 12");
 
 	// ... there is no need for CTRL-C to interrupt something, don't let
 	// it set got_int when it was mapped.
 	if ((mapped_ctrl_c | curbuf->b_mapped_ctrl_c) & get_real_state())
 	    ctrl_c_interrupts = FALSE;
+        TQ84_DEBUG("ui_inchar 13");
     }
+    TQ84_DEBUG("ui_inchar 14");
 
     /*
      * Here we call gui_inchar() or mch_inchar(), the GUI or machine-dependent
@@ -228,15 +238,20 @@ ui_inchar(
 
 #ifdef FEAT_GUI
     if (gui.in_use)
+    {
+        TQ84_DEBUG("->gui_inchar");
 	retval = gui_inchar(buf, maxlen, wtime, tb_change_cnt);
+    }
 #endif
 #ifndef NO_CONSOLE
 # ifdef FEAT_GUI
     else
 # endif
+        TQ84_DEBUG("->mch_inchar");
 	retval = mch_inchar(buf, maxlen, wtime, tb_change_cnt);
 #endif
 
+    TQ84_DEBUG("ui_inchar 20");
     if (wtime == -1 || wtime > 100L)
 	// block SIGHUP et al.
 	(void)vim_handle_signal(SIGNAL_BLOCK);
@@ -250,6 +265,7 @@ theend:
     if (do_profiling == PROF_YES && wtime != 0)
 	prof_inchar_exit();
 #endif
+    TQ84_DEBUG("ui_inchar 30");
     return retval;
 }
 
@@ -2090,6 +2106,7 @@ vim_is_input_buf_full(void)
     int
 vim_is_input_buf_empty(void)
 {
+    TQ84_DEBUG_INDENT_T("vim_is_input_buf_empty inbufcount = %d", inbufcount);
     return (inbufcount == 0);
 }
 

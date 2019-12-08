@@ -4166,6 +4166,8 @@ mch_system_piped(char *cmd, int options)
     PROCESS_INFORMATION pi;
     DWORD		ret = 0;
 
+    TQ84_DEBUG_INDENT();
+
     HANDLE g_hChildStd_IN_Rd = NULL;
     HANDLE g_hChildStd_IN_Wr = NULL;
     HANDLE g_hChildStd_OUT_Rd = NULL;

@@ -97,6 +97,8 @@ do_in_path(
     proc->pr_WindowPtr = (APTR)-1L;
 #endif
 
+    TQ84_DEBUG_INDENT_T("do_in_path, name=%s, path=%s", name, path);
+
     // Make a copy of 'runtimepath'.  Invoking the callback may change the
     // value.
     rtp_copy = vim_strsave(path);
@@ -113,6 +115,7 @@ do_in_path(
 
 	// Loop over all entries in 'runtimepath'.
 	rtp = rtp_copy;
+	TQ84_DEBUG("Loop over all entries in 'runtimepath', rtp = %s", rtp);
 	while (*rtp != NUL && ((flags & DIP_ALL) || !did_one))
 	{
 	    size_t buflen;
@@ -223,6 +226,8 @@ do_in_path_and_pp(
     char	*start_dir = "pack/*/start/*/%s";
     char	*opt_dir = "pack/*/opt/*/%s";
 
+    TQ84_DEBUG_INDENT_T("do_in_path_and_pp, name=%s, path=%s", name, path);
+
     if ((flags & DIP_NORTP) == 0)
 	done = do_in_path(path, name, flags, callback, cookie);
 
@@ -261,6 +266,7 @@ do_in_runtimepath(
     void	(*callback)(char_u *fname, void *ck),
     void	*cookie)
 {
+    TQ84_DEBUG_INDENT();
     return do_in_path_and_pp(p_rtp, name, flags, callback, cookie);
 }
 

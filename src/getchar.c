@@ -1622,6 +1622,7 @@ vgetc(void)
 		++allow_keys;
 		did_inc = TRUE;	// mod_mask may change value
 	    }
+	    TQ84_DEBUG("-> vgetc");
 	    c = vgetorpeek(TRUE);
 	    if (did_inc)
 	    {
@@ -2766,6 +2767,7 @@ vgetorpeek(int advance)
 /*
  * get a character: 1. from the stuffbuffer
  */
+        TQ84_DEBUG("1. from the user - from the stuffbuffer");
 	if (typeahead_char != 0)
 	{
 	    c = typeahead_char;
@@ -2813,6 +2815,7 @@ vgetorpeek(int advance)
 		if (got_int)
 		{
 		    // flush all input
+		    TQ84_DEBUG("-> inchar");
 		    c = inchar(typebuf.tb_buf, typebuf.tb_buflen - 1, 0L);
 
 		    /*
@@ -2862,6 +2865,7 @@ vgetorpeek(int advance)
 /*
  * get a character: 2. from the typeahead buffer
  */
+                        TQ84_DEBUG("2. from the user - from the typeahead buffer");
 			c = typebuf.tb_buf[typebuf.tb_off];
 			if (advance)	// remove chars from tb_buf
 			{
@@ -3066,6 +3070,7 @@ vgetorpeek(int advance)
 		// changed text so far. Also for when 'lazyredraw' is set and
 		// redrawing was postponed because there was something in the
 		// input buffer (e.g., termresponse).
+		TQ84_DEBUG("3. from the user - update display");
 		if (((State & INSERT) != 0 || p_lz) && (State & CMDLINE) == 0
 			  && advance && must_redraw != 0 && !need_wait_return)
 		{
@@ -3131,6 +3136,7 @@ vgetorpeek(int advance)
 /*
  * get a character: 3. from the user - get it
  */
+		TQ84_DEBUG("3. from the user - get it");
 		if (typebuf.tb_len == 0)
 		    // timedout may have been set while waiting for a mapping
 		    // that has a <Nop> RHS.
@@ -3152,6 +3158,7 @@ vgetorpeek(int advance)
 		    wait_time = 0;
 
 		wait_tb_len = typebuf.tb_len;
+		TQ84_DEBUG("->inchar");
 		c = inchar(typebuf.tb_buf + typebuf.tb_off + typebuf.tb_len,
 			typebuf.tb_buflen - typebuf.tb_off - typebuf.tb_len - 1,
 			wait_time);
@@ -3241,6 +3248,7 @@ vgetorpeek(int advance)
 
     --vgetc_busy;
 
+    TQ84_DEBUG("return %d", c);
     return c;
 }
 
@@ -3277,6 +3285,8 @@ inchar(
     int		retesc = FALSE;	    // return ESC with gotint
     int		script_char;
     int		tb_change_cnt = typebuf.tb_change_cnt;
+
+    TQ84_DEBUG_INDENT();
 
     if (wait_time == -1L || wait_time > 100L)  // flush output before waiting
     {
@@ -3466,6 +3476,7 @@ fix_input_buffer(char_u *buf, int len)
     int
 input_available(void)
 {
+    TQ84_DEBUG_INDENT();
     return (!vim_is_input_buf_empty()
 # if defined(FEAT_CLIENTSERVER) || defined(FEAT_EVAL)
 	    || typebuf_was_filled
