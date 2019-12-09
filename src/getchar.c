@@ -881,6 +881,7 @@ stop_redo_ins(void)
     static void
 init_typebuf(void)
 {
+    TQ84_DEBUG_INDENT();
     if (typebuf.tb_buf == NULL)
     {
 	typebuf.tb_buf = typebuf_init;
