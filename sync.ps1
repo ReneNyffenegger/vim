@@ -22,6 +22,13 @@ if (! $?) {
    exit
 }
 
+git pull
+
+if (! $?) {
+   exit
+}
+
+
 git merge master
 
 if (! $?) {
