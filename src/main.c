@@ -1298,6 +1298,7 @@ main_loop(
         TQ84_DEBUG("-> stuff_empty");
 	if (stuff_empty())
 	{
+            TQ84_DEBUG("yes: stuff_empty");
 	    did_check_timestamps = FALSE;
 	    if (need_check_timestamps)
 		check_timestamps(FALSE);
@@ -1311,6 +1312,9 @@ main_loop(
 		// after insert mode finishes!
 		need_fileinfo = FALSE;
 	    }
+	}
+	else {
+            TQ84_DEBUG("not: stuff_empty");
 	}
 
 	// Reset "got_int" now that we got back to the main loop.  Except when
@@ -1341,7 +1345,10 @@ main_loop(
 	    previous_got_int = FALSE;
 
 	if (!exmode_active)
+	{
+	    TQ84_DEBUG("! exmode_active");
 	    msg_scroll = FALSE;
+        }
 	quit_more = FALSE;
 
 	// it's not safe unless may_trigger_safestate_main() is called
