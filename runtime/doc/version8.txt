@@ -1,4 +1,4 @@
-*version8.txt*  For Vim version 8.1.  Last change: 2019 Dec 08
+*version8.txt*  For Vim version 8.1.  Last change: 2019 Dec 11
 
 
 		  VIM REFERENCE MANUAL    by Bram Moolenaar
@@ -25831,14 +25831,14 @@ window.  This also works for normal windows.
 Text properties					*new-text-properties*
 ---------------
 
-Text properties give a plugin author flexibility what to highlight.  This can
-be used with an external asynchronous parser to do syntax highlighting.  Or
-to highlight text in a popup window.  The text properties stick with the text
-when characters are deleted or inserted, which makes them also useful as text
-markers. See |text-properties|.
+Text properties give a plugin author flexibility about what to highlight.
+This can be used with an external asynchronous parser to do syntax
+highlighting.  Or to highlight text in a popup window.  The text properties
+stick with the text when characters are deleted or inserted, which makes them
+also useful as text markers. See |text-properties|.
 
 The listener functions have been added to report text changes to a server so
-that it can dynamically update highligting, mark syntax errors and the like.
+that it can dynamically update highlighting, mark syntax errors and the like.
 See |listener_add()|.
 
 
@@ -39746,7 +39746,7 @@ Files:	    src/testdir/test_exit.vim, src/ex_docmd.c
 
 Patch 8.1.2198
 Problem:    Crash when using :center in autocommand.
-Solution:   Bail out early for an empty line. (Dominique pelle, closes #5095)
+Solution:   Bail out early for an empty line. (Dominique Pelle, closes #5095)
 Files:	    src/ex_cmds.c, src/testdir/test_textformat.vim
 
 Patch 8.1.2199
@@ -40610,7 +40610,7 @@ Solution:   Make sure long line does not overflow IObuff. (Dominique Pelle,
 Files:	    src/quickfix.c, src/testdir/test_quickfix.vim
 
 Patch 8.1.2341
-Problem:    Not so easy to interrupt a script programatically.
+Problem:    Not so easy to interrupt a script programmatically.
 Solution:   Add the interrupt() function. (Yasuhiro Matsumoto, closes #2834)
 Files:	    runtime/doc/eval.txt, src/evalfunc.c, src/ex_eval.c,
             src/testdir/Make_all.mak, src/testdir/test_interrupt.vim
@@ -41039,7 +41039,7 @@ Solution:   Free the old title.  Don't copy expr_line.
 Files:	    src/term.c, src/os_unix.c, src/register.c
 
 Patch 8.1.2407
-Problem:    proto file and dependenciess outdated.
+Problem:    proto file and dependencies outdated.
 Solution:   Update proto files and dependencies.
 Files:	    src/Makefile, src/proto/bufwrite.pro, src/proto/cmdhist.pro,
             src/proto/optionstr.pro, src/proto/popupwin.pro,
@@ -41061,6 +41061,82 @@ Problem:    MS-Windows: test_iminsert fails without IME support.
 Solution:   Skip the test when imgetstatus() doesn't work.
 Files:	    src/testdir/test_iminsert.vim
 
+Patch 8.1.2411
+Problem:    Function argument copied unnecessarily.
+Solution:   Use the argument directly.
+Files:	    src/ex_docmd.c
+
+Patch 8.1.2412
+Problem:    Crash when evaluating expression with error. (Dhiraj Mishra)
+Solution:   Check parsing failed. (closes #5329)
+Files:	    src/eval.c, src/testdir/test_lambda.vim
+
+Patch 8.1.2413
+Problem:    Cannot update ex_cmdidxs.h on MS-Windows.
+Solution:   Add build rules and dependencies. (Ken Takata, closes #5337)
+Files:	    src/Make_cyg_ming.mak, src/Make_mvc.mak, src/Make_vms.mms
+
+Patch 8.1.2414
+Problem:    MS-Windows: properties dialog box shows wrong character.
+Solution:   Explicitly specify encoding. (Ken Takata, closes #5338)
+Files:	    src/vim.rc
+
+Patch 8.1.2415
+Problem:    Popup menu flickers if an info popup is used. (Nick Jensen)
+Solution:   Set the pum_skip_redraw flag.
+Files:	    src/popupmenu.c
+
+Patch 8.1.2416
+Problem:    Loading menus sets v:errmsg.
+Solution:   Avoid setting v:errmsg and add a test for that. (Jason Franklin)
+Files:	    runtime/delmenu.vim, runtime/menu.vim, src/testdir/test_menu.vim
+
+Patch 8.1.2417
+Problem:    MinGW/Cygwin build does not clean up all files.
+Solution:   Delete *.map files. (Michael Soyka)
+Files:	    src/Make_cyg_ming.mak
+
+Patch 8.1.2418
+Problem:    bufnr('$') is wrong after recycling popup buffer.
+Solution:   Sort the buffer list by buffer number. (closes #5335)
+Files:	    src/buffer.c, src/testdir/test_popupwin.vim
+
+Patch 8.1.2419
+Problem:    With a long file name the hit-enter prompt appears. (J. Lewis
+            Muir)
+Solution:   When checking for text to wrap don't do this when outputing a CR.
+Files:	    src/message.c, src/testdir/test_display.vim,
+            src/testdir/dumps/Test_long_file_name_1.dump
+
+Patch 8.1.2420
+Problem:    Crash when calling popup_close() in win_execute().
+Solution:   Disallow popup_close() in popup window. (Yasuhiro Matsumoto,
+            closes #5345)
+Files:	    src/popupwin.c, src/testdir/test_popupwin.vim
+
+Patch 8.1.2421
+Problem:    Test88 is old style.
+Solution:   Turn into a new style test. (Yegappan Lakshmanan, closes #5347)
+Files:	    src/Makefile, src/testdir/Make_all.mak, src/testdir/Make_vms.mms,
+            src/testdir/test88.in, src/testdir/test88.ok,
+            src/testdir/test_conceal.vim, src/testdir/test_python2.vim
+            src/testdir/test_python3.vim
+
+Patch 8.1.2422
+Problem:    "make depend" does not work correctly for libvterm.
+Solution:   Fix build dependencies. And a few minor improvements.
+Files:	    src/Makefile, src/filepath.c, src/insexpand.c, src/main.c
+
+Patch 8.1.2423
+Problem:    MS-Windows properties shows version as "8, 1, 0".
+Solution:   Use "8.1.0". (Ken Takata, closes #5342)
+Files:	    src/vim.rc
+
+Patch 8.1.2424
+Problem:    MS-Windows: console buffer is resized unnecessarily.
+Solution:   Only call ResizeConBuf() when the size differs. (Nobuhiro
+            Takasaki, closes #5343)
+Files:	    src/os_win32.c
 
 
  vim:tw=78:ts=8:noet:ft=help:norl:
