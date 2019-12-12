@@ -7511,6 +7511,9 @@ ex_normal(exarg_T *eap)
     int		l;
     char_u	*p;
 
+    TQ84_DEBUG_INDENT();
+    TQ84_DEBUG("eap->arg = %s", eap->arg);
+
     if (ex_normal_lock > 0)
     {
 	emsg(_(e_secure));

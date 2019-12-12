@@ -937,6 +937,8 @@ ins_typebuf(
     int		val;
     int		nrm;
 
+    TQ84_DEBUG_INDENT_T("ins_typebuf, noremap = %d, offset = %d, str = %s", noremap, offset, str);
+
     init_typebuf();
     if (++typebuf.tb_change_cnt == 0)
 	typebuf.tb_change_cnt = 1;
