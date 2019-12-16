@@ -65,6 +65,9 @@
 
 #include "vim.h"
 
+#define TQ84_DEBUG_ENABLED
+#include "tq84-c-debug/tq84_debug.h"
+
 static void win_update(win_T *wp);
 #ifdef FEAT_STL_OPT
 static void redraw_custom_statusline(win_T *wp);
@@ -78,6 +81,9 @@ static void redraw_custom_statusline(win_T *wp);
     int
 update_screen(int type_arg)
 {
+
+    TQ84_DEBUG_INDENT();
+
     int		type = type_arg;
     win_T	*wp;
     static int	did_intro = FALSE;
@@ -352,7 +358,10 @@ update_screen(int type_arg)
 
     // May put up an introductory message when not editing a file
     if (!did_intro)
+    {
+        TQ84_DEBUG("->maybe_intro_message()");
 	maybe_intro_message();
+    }
     did_intro = TRUE;
 
 #ifdef FEAT_GUI
@@ -2781,6 +2790,9 @@ updateWindow(win_T *wp)
     int
 redraw_asap(int type)
 {
+
+    TQ84_DEBUG_INDENT();
+
     int		rows;
     int		cols = screen_Columns;
     int		r;
@@ -2896,6 +2908,7 @@ redraw_asap(int type)
 	vim_free(screenline2);
 
     // Show the intro message when appropriate.
+    TQ84_DEBUG("->maybe_intro_message()");
     maybe_intro_message();
 
     setcursor();

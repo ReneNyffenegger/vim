@@ -132,6 +132,16 @@ TQ84_DEBUG("PROTO is not defined");
     #else
            TQ84_DEBUG("FEAT_DIRECTX no");
     #endif
+    #ifdef FEAT_GUI_GTK
+           TQ84_DEBUG("FEAT_GUI_GTK yes");
+    #else
+           TQ84_DEBUG("FEAT_GUI_GTK no");
+    #endif
+    #ifdef FEAT_GUI_MSWIN
+           TQ84_DEBUG("FEAT_GUI_MSWIN yes");
+    #else
+           TQ84_DEBUG("FEAT_GUI_MSWIN no");
+    #endif
     #ifdef FEAT_MENU
            TQ84_DEBUG("FEAT_MENU yes");
     #else
@@ -146,6 +156,11 @@ TQ84_DEBUG("PROTO is not defined");
            TQ84_DEBUG("FEAT_TERMINAL yes");
     #else
            TQ84_DEBUG("FEAT_TERMINAL no");
+    #endif
+    #ifdef GLOBAL_IME
+           TQ84_DEBUG("GLOBAL_IME yes");
+    #else
+           TQ84_DEBUG("GLOBAL_IME no");
     #endif
     #ifdef NO_CONSOLE_INPUT
            TQ84_DEBUG("NO_CONSOLE_INPUT yes");
@@ -1507,6 +1522,7 @@ main_loop(
 	    else if (must_redraw)
 	    {
 		mch_disable_flush();	// Stop issuing gui_mch_flush().
+		TQ84_DEBUG("main_loop (must_redraw) -> update_screen()");
 		update_screen(0);
 		mch_enable_flush();
 	    }

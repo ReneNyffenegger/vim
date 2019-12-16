@@ -695,6 +695,7 @@ _OnDeadChar(
     UINT ch UNUSED,
     int cRepeat UNUSED)
 {
+    TQ84_DEBUG_INDENT();
     dead_key = 1;
 }
 
@@ -1271,6 +1272,7 @@ typedef int WINAPI;
     LRESULT WINAPI
 vim_WindowProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
+    TQ84_DEBUG_INDENT();
 #ifdef GLOBAL_IME
     return global_ime_DefWindowProc(hwnd, message, wParam, lParam);
 #else
@@ -2806,6 +2808,7 @@ _OnEndSession(void)
     static void
 _OnClose(HWND hwnd UNUSED)
 {
+    TQ84_DEBUG_INDENT();
     gui_shell_closed();
 }
 
@@ -2815,6 +2818,7 @@ _OnClose(HWND hwnd UNUSED)
     static void
 _OnDestroy(HWND hwnd)
 {
+    TQ84_DEBUG_INDENT();
     if (!destroying)
 	_OnClose(hwnd);
 }
@@ -2899,6 +2903,7 @@ _OnActivateApp(
     BOOL fActivate,
     DWORD dwThreadId)
 {
+    TQ84_DEBUG_INDENT();
     // we call gui_focus_change() in _OnSetFocus()
     // gui_focus_change((int)fActivate);
     return MyWindowProc(hwnd, WM_ACTIVATEAPP, fActivate, (DWORD)dwThreadId);
@@ -3665,6 +3670,8 @@ _OnDropFiles(
     POINT   pt;
     int_u   modifiers = 0;
 
+    TQ84_DEBUG_INDENT();
+
     // TRACE("_OnDropFiles: %d files dropped\n", cFiles);
 
     // Obtain dropped position
@@ -3717,6 +3724,8 @@ _OnScroll(
     int		dragging = FALSE;
     int		dont_scroll_save = dont_scroll;
     SCROLLINFO	si;
+
+    TQ84_DEBUG_INDENT();
 
     si.cbSize = sizeof(si);
     si.fMask = SIF_POS;
@@ -4417,6 +4426,8 @@ _OnWindowPosChanged(
 {
     static int x = 0, y = 0, cx = 0, cy = 0;
     extern int WSInitialized;
+
+    TQ84_DEBUG_INDENT();
 
     if (WSInitialized && (lpwpos->x != x || lpwpos->y != y
 				     || lpwpos->cx != cx || lpwpos->cy != cy))

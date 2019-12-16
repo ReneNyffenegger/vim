@@ -387,6 +387,9 @@ may_do_incsearch_highlighting(
 #endif
     int		next_char;
     int		use_last_pat;
+    
+    TQ84_DEBUG_INDENT();
+
     int		did_do_incsearch = is_state->did_incsearch;
 
     // Parsing range may already set the last search pattern.

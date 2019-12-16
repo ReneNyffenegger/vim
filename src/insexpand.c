@@ -13,6 +13,9 @@
 
 #include "vim.h"
 
+#define TQ84_DEBUG_ENABLED
+#include "tq84-c-debug/tq84_debug.h"
+
 /*
  * Definitions used for CTRL-X submode.
  * Note: If you change CTRL-X submode, you must also maintain ctrl_x_msgs[] and

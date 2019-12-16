@@ -25,6 +25,9 @@
 
 #include "vim.h"
 
+#define TQ84_DEBUG_ENABLED
+#include "tq84-c-debug/tq84_debug.h"
+
 #ifdef HAVE_TGETENT
 # ifdef HAVE_TERMIOS_H
 #  include <termios.h>	    // seems to be required for some Linux
@@ -5903,6 +5906,8 @@ got_code_from_term(char_u *code, int len)
 check_for_codes_from_term(void)
 {
     int		c;
+
+    TQ84_DEBUG_INDENT();
 
     // If no codes requested or all are answered, no need to wait.
     if (xt_index_out == 0 || xt_index_out == xt_index_in)

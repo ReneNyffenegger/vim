@@ -6683,6 +6683,8 @@ do_sleep(long msec)
 # ifdef ELAPSED_FUNC
     elapsed_T	start_tv;
 
+    TQ84_DEBUG_INDENT();
+
     // Remember at what time we started, so that we know how much longer we
     // should wait after waiting for a bit.
     ELAPSED_INIT(start_tv);
@@ -7694,6 +7696,8 @@ exec_normal(int was_typed, int use_vpeekc, int may_use_terminal_loop UNUSED)
 {
     oparg_T	oa;
     int		c;
+
+    TQ84_DEBUG_INDENT();
 
     // When calling vpeekc() from feedkeys() it will return Ctrl_C when there
     // is nothing to get, so also check for Ctrl_C.
