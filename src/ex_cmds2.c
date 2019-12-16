@@ -955,6 +955,8 @@ ex_listdo(exarg_T *eap)
     int		qf_idx;
 #endif
 
+    TQ84_DEBUG_INDENT();
+
 #ifndef FEAT_QUICKFIX
     if (eap->cmdidx == CMD_cdo || eap->cmdidx == CMD_ldo ||
 	    eap->cmdidx == CMD_cfdo || eap->cmdidx == CMD_lfdo)

@@ -23,6 +23,9 @@
 
 #include "vim.h"
 
+#define TQ84_DEBUG_ENABLED
+#include "tq84-c-debug/tq84_debug.h"
+
 #include "if_mzsch.h"
 
 // Only do the following when the feature is enabled.  Needed for "make
@@ -1636,6 +1639,7 @@ do_flush(void)
     static Scheme_Object *
 vim_command(void *data, int argc, Scheme_Object **argv)
 {
+    TQ84_DEBUG_INDENT();
     Vim_Prim	*prim = (Vim_Prim *)data;
     Scheme_Object *cmd = NULL;
     MZ_GC_DECL_REG(1);

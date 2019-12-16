@@ -13,6 +13,9 @@
 
 #include "vim.h"
 
+#define TQ84_DEBUG_ENABLED
+#include "tq84-c-debug/tq84_debug.h"
+
 typedef struct ucmd
 {
     char_u	*uc_name;	// The command name
@@ -1548,6 +1551,8 @@ do_ucmd(exarg_T *eap)
 #ifdef FEAT_EVAL
     sctx_T	save_current_sctx = current_sctx;
 #endif
+
+    TQ84_DEBUG_INDENT();
 
     if (eap->cmdidx == CMD_USER)
 	cmd = USER_CMD(eap->useridx);

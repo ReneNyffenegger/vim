@@ -1396,7 +1396,11 @@ main_loop(
 							       FALSE, curbuf);
 #ifdef FEAT_PROP_POPUP
 		if (popup_visible)
+		{
+	            TQ84_DEBUG("-> popup_check_cursor_pos");
 		    popup_check_cursor_pos();
+	            TQ84_DEBUG("<- popup_check_cursor_pos");
+	        }
 #endif
 #ifdef FEAT_CONCEAL
 		if (curwin->w_p_cole > 0)
@@ -1408,6 +1412,7 @@ main_loop(
 #endif
 		last_cursormoved = curwin->w_cursor;
 	    }
+	    TQ84_DEBUG("main_loop: foo");
 
 #if defined(FEAT_CONCEAL)
 	    if (conceal_update_lines

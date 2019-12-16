@@ -477,6 +477,8 @@ do_exmode(
     linenr_T	prev_line;
     varnumber_T	changedtick;
 
+    TQ84_DEBUG_INDENT();
+
     if (improved)
 	exmode_active = EXMODE_VIM;
     else
@@ -587,7 +589,7 @@ msg_verbose_cmd(linenr_T lnum, char_u *cmd)
     int
 do_cmdline_cmd(char_u *cmd)
 {
-//  TQ84_DEBUG_INDENT_T("do_cmdline_cmd, cmd = %s", cmd);
+    TQ84_DEBUG_INDENT_T("do_cmdline_cmd, cmd = %s", cmd);
     return do_cmdline(cmd, NULL, NULL,
 				   DOCMD_VERBOSE|DOCMD_NOWAIT|DOCMD_KEYTYPED);
 }
@@ -7024,6 +7026,8 @@ ex_at(exarg_T *eap)
 {
     int		c;
     int		prev_len = typebuf.tb_len;
+
+    TQ84_DEBUG_INDENT();
 
     curwin->w_cursor.lnum = eap->line2;
     check_cursor_col();

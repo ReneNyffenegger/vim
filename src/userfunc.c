@@ -13,6 +13,9 @@
 
 #include "vim.h"
 
+#define TQ84_DEBUG_ENABLED
+#include "tq84-c-debug/tq84_debug.h"
+
 #if defined(FEAT_EVAL) || defined(PROTO)
 // flags used in uf_flags
 #define FC_ABORT    0x01	// abort function on error
@@ -780,6 +783,8 @@ call_user_func(
     proftime_T	call_start;
     int		started_profiling = FALSE;
 #endif
+
+    TQ84_DEBUG_INDENT();
 
     // If depth of calling is getting too high, don't execute the function
     if (depth >= p_mfd)

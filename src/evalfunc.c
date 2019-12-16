@@ -14,6 +14,9 @@
 
 #include "vim.h"
 
+#define TQ84_DEBUG_ENABLED
+#include "tq84-c-debug/tq84_debug.h"
+
 #if defined(FEAT_EVAL) || defined(PROTO)
 
 #ifdef VMS
@@ -2001,6 +2004,8 @@ execute_common(typval_T *argvars, typval_T *rettv, int arg_off)
     garray_T	save_ga;
     int		save_msg_col = msg_col;
     int		echo_output = FALSE;
+
+    TQ84_DEBUG_INDENT();
 
     rettv->vval.v_string = NULL;
     rettv->v_type = VAR_STRING;
