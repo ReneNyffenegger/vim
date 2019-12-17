@@ -1777,6 +1777,7 @@ report_default_term(char_u *term)
     int
 set_termname(char_u *term)
 {
+    TQ84_DEBUG_INDENT_T("set_termname, term=%s", term);
     struct builtin_term *termp;
 #ifdef HAVE_TGETENT
     int		builtin_first = p_tbi;
@@ -1833,6 +1834,7 @@ set_termname(char_u *term)
 		    termcap_cleared = TRUE;
 		}
 
+                TQ84_DEBUG("->get_term_entries");
 		get_term_entries(&height, &width);
 	    }
 	}
@@ -1899,6 +1901,7 @@ set_termname(char_u *term)
 	    if (term_is_gui(term))
 	    {
 		out_flush();
+		TQ84_DEBUG("term_is_gui -> gui_init");
 		gui_init();
 		// If starting the GUI failed, don't do any of the other
 		// things for this terminal
@@ -2033,6 +2036,7 @@ set_termname(char_u *term)
     ttest(TRUE);	// make sure we have a valid set of terminal codes
 
     full_screen = TRUE;		// we can use termcap codes from now on
+    TQ84_DEBUG("-> set_term_defaults");
     set_term_defaults();	// use current values as defaults
 #ifdef FEAT_TERMRESPONSE
     LOG_TR(("setting crv_status to STATUS_GET"));
@@ -2047,6 +2051,7 @@ set_termname(char_u *term)
      */
     if (starting != NO_SCREEN)
     {
+        TQ84_DEBUG("starting != NO_SCREEN");
 	starttermcap();		// may change terminal mode
 	setmouse();		// may start using the mouse
 #ifdef FEAT_TITLE
@@ -2418,6 +2423,7 @@ tgoto(char *cm, int x, int y)
     void
 termcapinit(char_u *name)
 {
+    TQ84_DEBUG_INDENT_T("termcapinit, name = %s", name);
     char_u	*term;
 
     if (name != NULL && *name == NUL)

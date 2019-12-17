@@ -86,7 +86,10 @@ gui_start(char_u *arg UNUSED)
     settmode(TMODE_COOK);		// stop RAW mode
     TQ84_DEBUG("full_screen = %d", full_screen);
     if (full_screen)
+    {
+        TQ84_DEBUG("full_screen, -> cursor_on");
 	cursor_on();			// needed for ":gui" in .vimrc
+    }
     full_screen = FALSE;
 
     ++recursive;
@@ -137,6 +140,7 @@ gui_start(char_u *arg UNUSED)
 	if (gui_mch_init_check() != OK)
 	    getout_preserve_modified(1);
 #endif
+        TQ84_DEBUG("->  gui_attempt_start");
 	gui_attempt_start();
     }
 
@@ -187,6 +191,7 @@ gui_start(char_u *arg UNUSED)
     static void
 gui_attempt_start(void)
 {
+    TQ84_DEBUG_INDENT();
     static int recursive = 0;
 
     ++recursive;
@@ -196,6 +201,7 @@ gui_attempt_start(void)
     gui.event_time = GDK_CURRENT_TIME;
 #endif
 
+    TQ84_DEBUG("->termcapinit");
     termcapinit((char_u *)"builtin_gui");
     gui.starting = recursive - 1;
 
@@ -492,8 +498,10 @@ gui_init_check(void)
     void
 gui_init(void)
 {
+    TQ84_DEBUG_INDENT();
     win_T	*wp;
     static int	recursive = 0;
+    TQ84_DEBUG("recursive = %d", recursive);
 
     /*
      * It's possible to use ":gui" in a .gvimrc file.  The first halve of this
@@ -508,6 +516,7 @@ gui_init(void)
 	clip_init(TRUE);
 
 	// If can't initialize, don't try doing the rest
+	TQ84_DEBUG("-> gui_init_check");
 	if (gui_init_check() == FAIL)
 	{
 	    --recursive;
@@ -519,6 +528,7 @@ gui_init(void)
 	 * Reset 'paste'.  It's useful in the terminal, but not in the GUI.  It
 	 * breaks the Paste toolbar button.
 	 */
+	TQ84_DEBUG("-> set_option_value paste");
 	set_option_value((char_u *)"paste", 0L, NULL, 0);
 
 	/*
@@ -528,6 +538,7 @@ gui_init(void)
 	if (vim_strchr(p_go, GO_NOSYSMENU) == NULL)
 	{
 	    sys_menu = TRUE;
+	    TQ84_DEBUG("do_source %s", SYS_MENU_FILE);
 	    do_source((char_u *)SYS_MENU_FILE, FALSE, DOSO_NONE);
 	    sys_menu = FALSE;
 	}

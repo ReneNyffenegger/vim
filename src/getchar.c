@@ -2111,6 +2111,7 @@ f_getcharmod(typval_T *argvars UNUSED, typval_T *rettv)
     void
 parse_queued_messages(void)
 {
+    TQ84_DEBUG_INDENT();
     int	    old_curwin_id;
     int	    old_curbuf_fnum;
     int	    i;
@@ -3353,6 +3354,7 @@ inchar(
     {
         TQ84_DEBUG("scriptin");
 #ifdef MESSAGE_QUEUE
+        TQ84_DEBUG("scriptin -> parse_queued_messages");
 	parse_queued_messages();
 #endif
 
@@ -3403,7 +3405,7 @@ inchar(
 		if (len == 0 || (len == 1 && dum[0] == 3))
 		    break;
 	    }
-	    TQ84_DEBUG("return retesc = %d" retesc);
+	    TQ84_DEBUG("return retesc = %d", retesc);
 	    return retesc;
 	}
 
