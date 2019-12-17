@@ -13,6 +13,9 @@
 
 #include "vim.h"
 
+#define TQ84_DEBUG_ENABLED
+#include "tq84-c-debug/tq84_debug.h"
+
 #define BACKSPACE_CHAR		    1
 #define BACKSPACE_WORD		    2
 #define BACKSPACE_WORD_NOT_SPACE    3
@@ -2086,6 +2089,8 @@ insertchar(
     char_u	*p;
     int		fo_ins_blank;
     int		force_format = flags & INSCHAR_FORMAT;
+
+    TQ84_DEBUG_INDENT();
 
     textwidth = comp_textwidth(force_format);
     fo_ins_blank = has_format_option(FO_INS_BLANK);
@@ -4940,6 +4945,8 @@ bracketed_paste(paste_mode_T mode, int drop, garray_T *gap)
     int		ret_char = -1;
     int		save_allow_keys = allow_keys;
     int		save_paste = p_paste;
+
+    TQ84_DEBUG_INDENT();
 
     // If the end code is too long we can't detect it, read everything.
     if (STRLEN(end) >= NUMBUFLEN)

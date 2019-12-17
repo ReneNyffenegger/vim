@@ -1801,6 +1801,8 @@ mch_inchar(
 	return 0;
 # endif
 
+    TQ84_DEBUG_INDENT();
+
     // First use any typeahead that was kept because "buf" was too small.
     if (typeaheadlen > 0)
 	goto theend;

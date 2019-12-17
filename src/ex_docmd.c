@@ -477,6 +477,8 @@ do_exmode(
     linenr_T	prev_line;
     varnumber_T	changedtick;
 
+    TQ84_DEBUG_INDENT();
+
     if (improved)
 	exmode_active = EXMODE_VIM;
     else
@@ -587,7 +589,7 @@ msg_verbose_cmd(linenr_T lnum, char_u *cmd)
     int
 do_cmdline_cmd(char_u *cmd)
 {
-//  TQ84_DEBUG_INDENT_T("do_cmdline_cmd, cmd = %s", cmd);
+    TQ84_DEBUG_INDENT_T("do_cmdline_cmd, cmd = %s", cmd);
     return do_cmdline(cmd, NULL, NULL,
 				   DOCMD_VERBOSE|DOCMD_NOWAIT|DOCMD_KEYTYPED);
 }
@@ -6681,6 +6683,8 @@ do_sleep(long msec)
 # ifdef ELAPSED_FUNC
     elapsed_T	start_tv;
 
+    TQ84_DEBUG_INDENT();
+
     // Remember at what time we started, so that we know how much longer we
     // should wait after waiting for a bit.
     ELAPSED_INIT(start_tv);
@@ -7024,6 +7028,8 @@ ex_at(exarg_T *eap)
 {
     int		c;
     int		prev_len = typebuf.tb_len;
+
+    TQ84_DEBUG_INDENT();
 
     curwin->w_cursor.lnum = eap->line2;
     check_cursor_col();
@@ -7511,6 +7517,9 @@ ex_normal(exarg_T *eap)
     int		l;
     char_u	*p;
 
+    TQ84_DEBUG_INDENT();
+    TQ84_DEBUG("eap->arg = %s", eap->arg);
+
     if (ex_normal_lock > 0)
     {
 	emsg(_(e_secure));
@@ -7687,6 +7696,8 @@ exec_normal(int was_typed, int use_vpeekc, int may_use_terminal_loop UNUSED)
 {
     oparg_T	oa;
     int		c;
+
+    TQ84_DEBUG_INDENT();
 
     // When calling vpeekc() from feedkeys() it will return Ctrl_C when there
     // is nothing to get, so also check for Ctrl_C.

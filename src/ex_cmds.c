@@ -14,6 +14,9 @@
 #include "vim.h"
 #include "version.h"
 
+#define TQ84_DEBUG_ENABLED
+#include "tq84-c-debug/tq84_debug.h"
+
 #ifdef FEAT_FLOAT
 # include <float.h>
 #endif
@@ -2504,6 +2507,8 @@ do_ecmd(
     int		did_inc_redrawing_disabled = FALSE;
     long        *so_ptr = curwin->w_p_so >= 0 ? &curwin->w_p_so : &p_so;
 
+    TQ84_DEBUG_INDENT();
+
     if (eap != NULL)
 	command = eap->do_ecmd_cmd;
     set_bufref(&old_curbuf, curbuf);
@@ -4732,6 +4737,7 @@ do_sub_msg(
     static void
 global_exe_one(char_u *cmd, linenr_T lnum)
 {
+    TQ84_DEBUG_INDENT();
     curwin->w_cursor.lnum = lnum;
     curwin->w_cursor.col = 0;
     if (*cmd == NUL || *cmd == '\n')
@@ -5906,6 +5912,7 @@ fix_help_buffer(void)
     void
 ex_exusage(exarg_T *eap UNUSED)
 {
+    TQ84_DEBUG_INDENT();
     do_cmdline_cmd((char_u *)"help ex-cmd-index");
 }
 
@@ -5915,6 +5922,7 @@ ex_exusage(exarg_T *eap UNUSED)
     void
 ex_viusage(exarg_T *eap UNUSED)
 {
+    TQ84_DEBUG_INDENT();
     do_cmdline_cmd((char_u *)"help normal-index");
 }
 

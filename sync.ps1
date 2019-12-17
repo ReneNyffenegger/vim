@@ -35,4 +35,3 @@ if (! $?) {
 }
 
 git push https://github.com/ReneNyffenegger/vim tq84
-

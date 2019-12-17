@@ -13,6 +13,9 @@
 
 #include "vim.h"
 
+#define TQ84_DEBUG_ENABLED
+#include "tq84-c-debug/tq84_debug.h"
+
 /*
  * The autocommands are stored in a list for each event.
  * Autocommands for the same pattern, that are consecutive, are joined
@@ -1829,6 +1832,8 @@ apply_autocmds_group(
     int		did_save_redobuff = FALSE;
     save_redo_T	save_redo;
     int		save_KeyTyped = KeyTyped;
+
+    TQ84_DEBUG_INDENT_T("apply_autocmds_group, event = %s, fname = %s, fname_io = %s, group = %d", event_nr2name(event), fname, fname_io, group);
 
     /*
      * Quickly return if there are no autocommands for this event or

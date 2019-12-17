@@ -937,6 +937,8 @@ ins_typebuf(
     int		val;
     int		nrm;
 
+    TQ84_DEBUG_INDENT_T("ins_typebuf, noremap = %d, offset = %d, str = %s", noremap, offset, str);
+
     init_typebuf();
     if (++typebuf.tb_change_cnt == 0)
 	typebuf.tb_change_cnt = 1;
@@ -1392,6 +1394,7 @@ openscript(
     char_u	*name,
     int		directly)	// when TRUE execute directly
 {
+    TQ84_DEBUG_INDENT();
     if (curscript + 1 == NSCRIPT)
     {
 	emsg(_(e_nesting));
@@ -1623,7 +1626,7 @@ vgetc(void)
 		++allow_keys;
 		did_inc = TRUE;	// mod_mask may change value
 	    }
-	    TQ84_DEBUG("-> vgetc");
+	    TQ84_DEBUG("-> vgetorpeek (c=)");
 	    c = vgetorpeek(TRUE);
 	    if (did_inc)
 	    {
@@ -1642,7 +1645,9 @@ vgetc(void)
 
 		++no_mapping;
 		allow_keys = 0;		// make sure BS is not found
+	        TQ84_DEBUG("-> vgetorpeek (c2=)");
 		c2 = vgetorpeek(TRUE);	// no mapping for these chars
+	        TQ84_DEBUG("-> vgetorpeek (c=, after c2=)");
 		c = vgetorpeek(TRUE);
 		--no_mapping;
 		allow_keys = save_allow_keys;
@@ -1666,6 +1671,7 @@ vgetc(void)
 		    int		i;
 
 		    // get menu path, it ends with a <CR>
+		    TQ84_DEBUG("->vgetorpeek (for loop)");
 		    for (i = 0; (c = vgetorpeek(TRUE)) != '\r'; )
 		    {
 			name[i] = c;
@@ -1780,6 +1786,7 @@ vgetc(void)
 		buf[0] = c;
 		for (i = 1; i < n; ++i)
 		{
+		    TQ84_DEBUG("vgetorpeek (buf[i])");
 		    buf[i] = vgetorpeek(TRUE);
 		    if (buf[i] == K_SPECIAL
 #ifdef FEAT_GUI
@@ -1797,6 +1804,7 @@ vgetc(void)
 			// represents a CSI (0x9B),
 			// or a K_SPECIAL - KS_EXTRA - KE_CSI, which is CSI
 			// too.
+		        TQ84_DEBUG("vgetorpeek (c=, K_SPECIAL etc)");
 			c = vgetorpeek(TRUE);
 			if (vgetorpeek(TRUE) == (int)KE_CSI && c == KS_EXTRA)
 			    buf[i] = CSI;
@@ -1895,8 +1903,14 @@ plain_vgetc(void)
     int
 vpeekc(void)
 {
+    TQ84_DEBUG_INDENT();
     if (old_char != -1)
+    {
+        TQ84_DEBUG("old_char != -1, return it (%c)", old_char);
 	return old_char;
+    }
+
+    TQ84_DEBUG("->vgetorpeek(FALSE)");
     return vgetorpeek(FALSE);
 }
 
@@ -1909,6 +1923,8 @@ vpeekc(void)
 vpeekc_nomap(void)
 {
     int		c;
+
+    TQ84_DEBUG_INDENT();
 
     ++no_mapping;
     ++allow_keys;
@@ -1929,6 +1945,7 @@ vpeekc_any(void)
 {
     int		c;
 
+    TQ84_DEBUG_INDENT();
     c = vpeekc();
     if (c == NUL && typebuf.tb_len > 0)
 	c = ESC;
@@ -1943,6 +1960,8 @@ vpeekc_any(void)
 char_avail(void)
 {
     int	    retval;
+
+    TQ84_DEBUG_INDENT();
 
 #ifdef FEAT_EVAL
     // When test_override("char_avail", 1) was called pretend there is no

@@ -13,6 +13,9 @@
 
 #include "vim.h"
 
+#define TQ84_DEBUG_ENABLED
+#include "tq84-c-debug/tq84_debug.h"
+
 #ifdef CHECK_DOUBLE_CLICK
 /*
  * Return the duration from t1 to t2 in milliseconds.
@@ -204,6 +207,8 @@ do_mouse(
     long	count,
     int		fixindent)	// PUT_FIXINDENT if fixing indent necessary
 {
+
+    TQ84_DEBUG_INDENT();
     static int	do_always = FALSE;	// ignore 'mouse' setting next time
     static int	got_click = FALSE;	// got a click some time back
 

@@ -13,6 +13,9 @@
 
 #include "vim.h"
 
+#define TQ84_DEBUG_ENABLED
+#include "tq84-c-debug/tq84_debug.h"
+
 #if defined(FEAT_EVAL) || defined(PROTO)
 
 static int	throw_exception(void *, except_type_T, char_u *);

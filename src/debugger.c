@@ -13,6 +13,9 @@
 
 #include "vim.h"
 
+#define TQ84_DEBUG_ENABLED
+#include "tq84-c-debug/tq84_debug.h"
+
 #if defined(FEAT_EVAL) || defined(PROTO)
 static int debug_greedy = FALSE;	// batch mode debugging: don't save
 					// and restore typeahead.
@@ -63,6 +66,8 @@ do_debug(char_u *cmd)
 #define CMD_FRAME	8
 #define CMD_UP		9
 #define CMD_DOWN	10
+
+    TQ84_DEBUG_INDENT();
 
 #ifdef ALWAYS_USE_GUI
     // Can't do this when there is no terminal for input/output.

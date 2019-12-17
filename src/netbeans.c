@@ -25,6 +25,9 @@
 
 #include "vim.h"
 
+#define TQ84_DEBUG_ENABLED
+#include "tq84-c-debug/tq84_debug.h"
+
 #if defined(FEAT_NETBEANS_INTG) || defined(PROTO)
 
 #ifndef MSWIN
@@ -2260,6 +2263,8 @@ coloncmd(char *cmd, ...)
 {
     char buf[1024];
     va_list ap;
+
+    TQ84_DEBUG_INDENT();
 
     va_start(ap, cmd);
     vim_vsnprintf(buf, sizeof(buf), cmd, ap);

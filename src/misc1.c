@@ -779,6 +779,8 @@ get_keystroke(void)
     int		save_mapped_ctrl_c = mapped_ctrl_c;
     int		waited = 0;
 
+    TQ84_DEBUG_INDENT();
+
     mapped_ctrl_c = FALSE;	/* mappings are not used here */
     for (;;)
     {

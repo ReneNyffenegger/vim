@@ -40,6 +40,9 @@
 
 #include "vim.h"
 
+#define TQ84_DEBUG_ENABLED
+#include "tq84-c-debug/tq84_debug.h"
+
 #if defined(FEAT_TERMINAL) || defined(PROTO)
 
 #ifndef MIN

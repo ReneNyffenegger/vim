@@ -2046,6 +2046,8 @@ gui_outstr(char_u *s, int len)
     int	    this_len;
     int	    cells;
 
+    TQ84_DEBUG_INDENT();
+
     if (len == 0)
 	return;
 
@@ -2106,6 +2108,8 @@ gui_screenchar(
 {
     char_u	buf[MB_MAXBYTES + 1];
 
+    TQ84_DEBUG_INDENT();
+
     // Don't draw right halve of a double-width UTF-8 char. "cannot happen"
     if (enc_utf8 && ScreenLines[off] == 0)
 	return OK;
@@ -2147,6 +2151,8 @@ gui_screenstr(
     int	    outlen = 0;
     int	    i;
     int	    retval;
+
+    TQ84_DEBUG_INDENT();
 
     if (len <= 0) // "cannot happen"?
 	return OK;
@@ -2232,6 +2238,8 @@ gui_outstr_nowrap(
     guicolor_T	fg_color;
     guicolor_T	bg_color;
     guicolor_T	sp_color;
+
+    TQ84_DEBUG_INDENT();
 #if !defined(FEAT_GUI_GTK)
     GuiFont	font = NOFONT;
     GuiFont	wide_font = NOFONT;
@@ -2689,6 +2697,8 @@ gui_redraw_block(
     int		back, nback;
     int		retval = FALSE;
     int		orig_col1, orig_col2;
+
+    TQ84_DEBUG_INDENT();
 
     // Don't try to update when ScreenLines is not valid
     if (!screen_cleared || ScreenLines == NULL)

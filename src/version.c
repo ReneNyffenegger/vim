@@ -28,6 +28,9 @@
 
 #include "version.h"
 
+#define TQ84_DEBUG_ENABLED
+#include "tq84-c-debug/tq84_debug.h"
+
 char		*Version = VIM_VERSION_SHORT;
 static char	*mediumVersion = VIM_VERSION_MEDIUM;
 
@@ -1243,6 +1246,7 @@ static void do_intro_line(int row, char_u *mesg, int add_version, int attr);
     void
 maybe_intro_message(void)
 {
+    TQ84_DEBUG_INDENT();
     if (BUFEMPTY()
 	    && curbuf->b_fname == NULL
 	    && firstwin->w_next == NULL
@@ -1264,6 +1268,9 @@ intro_message(
     int		blanklines;
     int		sponsor;
     char	*p;
+
+    TQ84_DEBUG_INDENT();
+
     static char	*(lines[]) =
     {
 	N_("VIM - Vi IMproved"),
@@ -1448,6 +1455,7 @@ do_intro_line(
     void
 ex_intro(exarg_T *eap UNUSED)
 {
+    TQ84_DEBUG_INDENT();
     screenclear();
     intro_message(TRUE);
     wait_return(TRUE);
