@@ -1197,6 +1197,7 @@ mch_bevalterm_changed(void)
 decode_mouse_event(
     MOUSE_EVENT_RECORD *pmer)
 {
+    TQ84_DEBUG_INDENT();
     static int s_nOldButton = -1;
     static int s_nOldMouseClick = -1;
     static int s_xOldMouse = -1;
@@ -1286,6 +1287,7 @@ decode_mouse_event(
 		for (;;)
 		{
 		    // wait a short time for next input event
+		    TQ84_DEBUG("->WaitForSingleObject");
 		    if (WaitForSingleObject(g_hConIn, p_mouset / 3)
 							     != WAIT_OBJECT_0)
 			break;
@@ -1497,6 +1499,7 @@ static void ResizeConBuf(HANDLE hConsole, COORD coordScreen);
     static int
 WaitForChar(long msec, int ignore_input)
 {
+    TQ84_DEBUG_INDENT_T("WaitForChar, msec = %d, ignore_input = %d", msec, ignore_input);
     DWORD	    dwNow = 0, dwEndTime = 0;
     INPUT_RECORD    ir;
     DWORD	    cRecords;
@@ -1593,9 +1596,11 @@ WaitForChar(long msec, int ignore_input)
 # ifdef FEAT_CLIENTSERVER
 		    // Wait for either an event on the console input or a
 		    // message in the client-server window.
+		    TQ84_DEBUG("->msg_wait_for_multiple_objects");
 		    msg_wait_for_multiple_objects(1, &g_hConIn, FALSE,
 				  dwWaitTime, QS_SENDMESSAGE) != WAIT_OBJECT_0
 # else
+		    TQ84_DEBUG("->wait_for_single_object");
 		    wait_for_single_object(g_hConIn, dwWaitTime)
 							      != WAIT_OBJECT_0
 # endif
@@ -5967,6 +5972,7 @@ mch_set_normal_colors(void)
     static void
 visual_bell(void)
 {
+    TQ84_DEBUG_INDENT();
     COORD   coordOrigin = {0, 0};
     WORD    attrFlash = ~g_attrCurrent & 0xff;
 
@@ -6387,6 +6393,7 @@ mch_delay(
     long    msec,
     int	    ignoreinput UNUSED)
 {
+    TQ84_DEBUG_INDENT_T("mch_delay msec=%d ignoreinput=%d", msec, ignoreinput);
 #if defined(FEAT_GUI_MSWIN) && !defined(VIMDLL)
     Sleep((int)msec);	    // never wait for input
 #else // Console

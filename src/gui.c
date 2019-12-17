@@ -2915,6 +2915,8 @@ gui_wait_for_chars_3(
     int *interrupted UNUSED,
     int ignore_input UNUSED)
 {
+    TQ84_DEBUG_INDENT();
+    TQ84_DEBUG("-> gui_mch_wait_for_chars");
     return gui_mch_wait_for_chars(wtime);
 }
 #endif
@@ -2929,10 +2931,13 @@ gui_wait_for_chars_or_timer(
 	int *interrupted UNUSED,
 	int ignore_input UNUSED)
 {
+    TQ84_DEBUG_INDENT();
 #ifdef FEAT_TIMERS
+    TQ84_DEBUG("-> ui_wait_for_chars_or_timer (wait_func = gui_wait_for_chars_3)");
     return ui_wait_for_chars_or_timer(wtime, gui_wait_for_chars_3,
 						    interrupted, ignore_input);
 #else
+    TQ84_DEBUG("-> gui_mch_wait_for_chars");
     return gui_mch_wait_for_chars(wtime);
 #endif
 }
@@ -2988,7 +2993,7 @@ gui_wait_for_chars_buf(
 
     // Common function to loop until "wtime" is met, while handling timers and
     // other callbacks.
-    TQ84_DEBUG("-> inchar_loop");
+    TQ84_DEBUG("-> inchar_loop (func ptr = gui_wait_for_chars_or_timer)");
     retval = inchar_loop(buf, maxlen, wtime, tb_change_cnt,
 			 gui_wait_for_chars_or_timer, NULL);
 
@@ -3010,6 +3015,8 @@ gui_wait_for_chars_buf(
     int
 gui_wait_for_chars(long wtime, int tb_change_cnt)
 {
+    TQ84_DEBUG_INDENT_T("gui_wait_for_chars, wtime = %d", wtime);
+    TQ84_DEBUG("-> gui_wait_for_chars_buf");
     return gui_wait_for_chars_buf(NULL, 0, wtime, tb_change_cnt);
 }
 
@@ -3023,7 +3030,8 @@ gui_inchar(
     long    wtime,		// milli seconds
     int	    tb_change_cnt)
 {
-    TQ84_DEBUG_INDENT_T("gui_inchar -> gui_wait_for_chars_buf");
+    TQ84_DEBUG_INDENT();
+    TQ84_DEBUG("->gui_wait_for_chars_buf");
     return gui_wait_for_chars_buf(buf, maxlen, wtime, tb_change_cnt);
 }
 

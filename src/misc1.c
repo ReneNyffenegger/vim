@@ -813,6 +813,7 @@ get_keystroke(void)
 
 	/* First time: blocking wait.  Second time: wait up to 100ms for a
 	 * terminal code to complete. */
+        TQ84_DEBUG("-> ui_inchar");
 	n = ui_inchar(buf + len, maxlen, len == 0 ? -1L : 100L, 0);
 	if (n > 0)
 	{

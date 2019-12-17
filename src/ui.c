@@ -33,12 +33,16 @@
     void
 ui_write(char_u *s, int len)
 {
+    TQ84_DEBUG_INDENT();
 #ifdef FEAT_GUI
     if (gui.in_use && !gui.dying && !gui.starting)
     {
 	gui_write(s, len);
 	if (p_wd)
+	{
+	    TQ84_DEBUG("->gui_wait_for_chars");
 	    gui_wait_for_chars(p_wd, typebuf.tb_change_cnt);
+	}
 	return;
     }
 #endif
@@ -162,8 +166,8 @@ ui_inchar(
     {
 	static int count = 0;
 
-        TQ84_DEBUG("ui_inchar 2");
 # ifndef NO_CONSOLE
+        TQ84_DEBUG("-> mch_inchar");
 	retval = mch_inchar(buf, maxlen, wtime, tb_change_cnt);
 	if (retval > 0 || typebuf_changed(tb_change_cnt) || wtime >= 0)
 	    goto theend;
@@ -176,21 +180,17 @@ ui_inchar(
     }
 #endif
 
-    TQ84_DEBUG("ui_inchar 10");
     // If we are going to wait for some time or block...
     if (wtime == -1 || wtime > 100L)
     {
 
-        TQ84_DEBUG("ui_inchar 11");
 	// ... allow signals to kill us.
 	(void)vim_handle_signal(SIGNAL_UNBLOCK);
-        TQ84_DEBUG("ui_inchar 12");
 
 	// ... there is no need for CTRL-C to interrupt something, don't let
 	// it set got_int when it was mapped.
 	if ((mapped_ctrl_c | curbuf->b_mapped_ctrl_c) & get_real_state())
 	    ctrl_c_interrupts = FALSE;
-        TQ84_DEBUG("ui_inchar 13");
     }
     TQ84_DEBUG("ui_inchar 14");
 
@@ -265,7 +265,7 @@ theend:
     if (do_profiling == PROF_YES && wtime != 0)
 	prof_inchar_exit();
 #endif
-    TQ84_DEBUG("ui_inchar 30");
+    TQ84_DEBUG("return retval = %d", retval);
     return retval;
 }
 
@@ -304,13 +304,18 @@ inchar_loop(
     ELAPSED_INIT(start_tv);
 #endif
 
+    TQ84_DEBUG_INDENT();
+
     // repeat until we got a character or waited long enough
     for (;;)
     {
 	// Check if window changed size while we were busy, perhaps the ":set
 	// columns=99" command was used.
 	if (resize_func != NULL)
+	{
+	    TQ84_DEBUG("->resize_func");
 	    resize_func(FALSE);
+	}
 
 #ifdef MESSAGE_QUEUE
 	// Only process messages when waiting.
@@ -402,6 +407,7 @@ inchar_loop(
 	// Wait for a character to be typed or another event, such as the winch
 	// signal or an event on the monitored file descriptors.
 	did_call_wait_func = TRUE;
+	TQ84_DEBUG("-> wait_func (function pointer)");
 	if (wait_func(wait_time, &interrupted, FALSE))
 	{
 	    // If input was put directly in typeahead buffer bail out here.
@@ -465,12 +471,18 @@ ui_wait_for_chars_or_timer(
     int	    brief_wait = FALSE;
 # endif
 
+    TQ84_DEBUG_INDENT();
+
     // When waiting very briefly don't trigger timers.
     if (wtime >= 0 && wtime < 10L)
+    {
+        TQ84_DEBUG("-> wait_func (function pointer)");
 	return wait_func(wtime, NULL, ignore_input);
+    }
 
     while (wtime < 0 || remaining > 0)
     {
+        TQ84_DEBUG("while wtime < 0 || remaining > 0");
 	// Trigger timers and then get the time in wtime until the next one is
 	// due.  Wait up to that time.
 	due_time = check_due_timer();
@@ -506,8 +518,12 @@ ui_wait_for_chars_or_timer(
 #  endif
 	}
 # endif
+        TQ84_DEBUG("-> wait_func (func pointer) II");
 	if (wait_func(due_time, interrupted, ignore_input))
+	{
+	    TQ84_DEBUG("return OK");
 	    return OK;
+	}
 	if ((interrupted != NULL && *interrupted)
 # ifdef FEAT_JOB_CHANNEL
 		|| brief_wait
@@ -519,6 +535,7 @@ ui_wait_for_chars_or_timer(
 	if (wtime > 0)
 	    remaining -= due_time;
     }
+    TQ84_DEBUG("return FAIL");
     return FAIL;
 }
 #endif
@@ -554,12 +571,16 @@ ui_char_avail(void)
     void
 ui_delay(long msec, int ignoreinput)
 {
+    TQ84_DEBUG_INDENT();
 #ifdef FEAT_JOB_CHANNEL
     ch_log(NULL, "ui_delay(%ld)", msec);
 #endif
 #ifdef FEAT_GUI
     if (gui.in_use && !ignoreinput)
+    {
+	TQ84_DEBUG("->gui_wait_for_chars");
 	gui_wait_for_chars(msec, typebuf.tb_change_cnt);
+    }
     else
 #endif
 	mch_delay(msec, ignoreinput);
@@ -2238,6 +2259,7 @@ read_from_input_buf(char_u *buf, long maxlen)
     void
 fill_input_buf(int exit_on_error UNUSED)
 {
+    TQ84_DEBUG_INDENT();
 #if defined(UNIX) || defined(VMS) || defined(MACOS_X)
     int		len;
     int		try;
@@ -2279,6 +2301,7 @@ fill_input_buf(int exit_on_error UNUSED)
     len = inbufcount;
     inbufcount = 0;
 # else
+    TQ84_DEBUG("fill_input_buf, ! UNIX ! BEOS");
 
     if (rest != NULL)
     {
@@ -2309,6 +2332,7 @@ fill_input_buf(int exit_on_error UNUSED)
 #  ifdef VMS
 	len = vms_read((char *)inbuf + inbufcount, readlen);
 #  else
+        TQ84_DEBUG("->read");
 	len = read(read_cmd_fd, (char *)inbuf + inbufcount, readlen);
 #  endif
 

@@ -137,6 +137,9 @@ edit(
     int		startln,	// if set, insert at start of line
     long	count)
 {
+
+    TQ84_DEBUG_INDENT();
+
     int		c = 0;
     char_u	*ptr;
     int		lastc = 0;

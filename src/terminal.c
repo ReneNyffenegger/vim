@@ -1947,6 +1947,7 @@ term_enter_job_mode()
     static int
 term_vgetc()
 {
+    TQ84_DEBUG_INDENT();
     int c;
     int save_State = State;
     int modify_other_keys =
@@ -2344,6 +2345,8 @@ terminal_loop(int blocking)
 				 ->ch_part[get_tty_part(curbuf->b_term)].ch_fd;
 #endif
     int		restore_cursor = FALSE;
+
+    TQ84_DEBUG_INDENT();
 
     // Remember the terminal we are sending keys to.  However, the terminal
     // might be closed while waiting for a character, e.g. typing "exit" in a

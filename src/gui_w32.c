@@ -676,6 +676,8 @@ _OnTimer(
 {
     MSG msg;
 
+    TQ84_DEBUG_INDENT_T("_OnTimer");
+
     /*
     TRACE2("Got timer event, id %d, s_wait_timer %d\n", idEvent, s_wait_timer);
     */
@@ -686,7 +688,10 @@ _OnTimer(
     while (pPeekMessage(&msg, hwnd, WM_TIMER, WM_TIMER, PM_REMOVE))
 	;
     if (idEvent == s_wait_timer)
+    {
+        TQ84_DEBUG("idEvent == s_wait_timer -> s_wait_timer = 0");
 	s_wait_timer = 0;
+    }
 }
 
     static void
@@ -1778,16 +1783,21 @@ process_message(void)
     int		i;
     int		modifiers = 0;
     int		key;
+
+    TQ84_DEBUG_INDENT();
 #ifdef FEAT_MENU
     static char_u k10[] = {K_SPECIAL, 'k', ';', 0};
 #endif
 
+    TQ84_DEBUG("->pGetMessage");
     pGetMessage(&msg, NULL, 0, 0);
+    TQ84_DEBUG("msg.message = %d (%x)", msg.message, msg.message);
 
 #ifdef FEAT_OLE
     // Look after OLE Automation commands
     if (msg.message == WM_OLE)
     {
+        TQ84_DEBUG("WM_OLE");
 	char_u *str = (char_u *)msg.lParam;
 	if (str == NULL || *str == NUL)
 	{
@@ -1808,6 +1818,7 @@ process_message(void)
     // Don't process messages used by the dialog
     if (s_findrep_hwnd != NULL && pIsDialogMessage(s_findrep_hwnd, &msg))
     {
+        TQ84_DEBUG("-> HandleMouseHide");
 	HandleMouseHide(msg.message, msg.lParam);
 	return;
     }
@@ -1855,6 +1866,7 @@ process_message(void)
 	    if ((vk == VK_SPACE || vk == VK_BACK || vk == VK_ESCAPE))
 	    {
 		dead_key = 0;
+		TQ84_DEBUG("VK_SPACE/BACK/ESCAPE-> MyTranslateMessage");
 		MyTranslateMessage(&msg);
 		return;
 	    }
@@ -1871,11 +1883,12 @@ process_message(void)
 	// Check for CTRL-BREAK
 	if (vk == VK_CANCEL)
 	{
+	    TQ84_DEBUG("VK_CANCEL");
 	    trash_input_buf();
 	    got_int = TRUE;
 	    ctrl_break_was_pressed = TRUE;
 	    string[0] = Ctrl_C;
-	    TQ84_DEBUG("->add_to_input_buf (1)");
+	    TQ84_DEBUG("->add_to_input_buf (Ctrl_C)");
 	    add_to_input_buf(string, 1);
 	}
 
@@ -2036,6 +2049,7 @@ process_message(void)
     if (vk != VK_F10 || check_map(k10, State, FALSE, TRUE, FALSE,
 							  NULL, NULL) == NULL)
 #endif
+        TQ84_DEBUG("->pDispatchMessage");
 	pDispatchMessage(&msg);
 }
 
@@ -2084,6 +2098,7 @@ remove_any_timer(void)
     int
 gui_mch_wait_for_chars(int wtime)
 {
+    TQ84_DEBUG_INDENT_T("gui_mch_wait_for_chars, wtime=%d, s_busy_processing=%d", wtime, s_busy_processing);
     int		focus;
 
     s_timed_out = FALSE;
@@ -2092,11 +2107,16 @@ gui_mch_wait_for_chars(int wtime)
     {
 	// Don't do anything while processing a (scroll) message.
 	if (s_busy_processing)
+	{
+	    TQ84_DEBUG("s_busy_processing -> return FAIL");
 	    return FAIL;
+        }
 
 	// When called with "wtime" zero, just want one msec.
+	TQ84_DEBUG("-> SetTimer");
 	s_wait_timer = (UINT)SetTimer(NULL, 0, (UINT)(wtime == 0 ? 1 : wtime),
 							 (TIMERPROC)_OnTimer);
+	TQ84_DEBUG("<- SetTimer");
     }
 
     allow_scrollbar = TRUE;
@@ -2104,7 +2124,8 @@ gui_mch_wait_for_chars(int wtime)
     focus = gui.in_focus;
     while (!s_timed_out)
     {
-	// Stop or start blinking when focus changes
+        TQ84_DEBUG("! s_timed_out");
+        // Stop or start blinking when focus changes
 	if (gui.in_focus != focus)
 	{
 	    if (gui.in_focus)
@@ -2129,29 +2150,40 @@ gui_mch_wait_for_chars(int wtime)
 	{
 	    MSG msg;
 
+            TQ84_DEBUG("-> parse_queued_messages");
 	    parse_queued_messages();
 # ifdef FEAT_TIMERS
 	    if (did_add_timer)
+	    {
+	        TQ84_DEBUG("did_add_timer -> break");
 		break;
+	    }
 # endif
+            TQ84_DEBUG("-> pPeekMessage");
 	    if (pPeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE))
 	    {
+                TQ84_DEBUG("yes, pPeekMessage -> process_message");
 		process_message();
 		break;
 	    }
 	    else if (input_available()
 		    || MsgWaitForMultipleObjects(0, NULL, FALSE, 100,
 						  QS_ALLINPUT) != WAIT_TIMEOUT)
+	    {
+	        TQ84_DEBUG("input_available() or MsgWaitForMultipleObjects != WAIT_TIMEOUT --> break");
 		break;
+	    }
 	}
 #else
 	// Don't use gui_mch_update() because then we will spin-lock until a
 	// char arrives, instead we use GetMessage() to hang until an
 	// event arrives.  No need to check for input_buf_full because we are
 	// returning as soon as it contains a single char -- webb
+	TQ84_DEBUG("->process_message");
 	process_message();
 #endif
 
+        TQ84_DEBUG("-> input_available");
 	if (input_available())
 	{
 	    remove_any_timer();
@@ -2163,6 +2195,7 @@ gui_mch_wait_for_chars(int wtime)
 	    if (!s_getting_focus)
 		s_button_pending = -1;
 
+            TQ84_DEBUG("-> return OK (1)");
 	    return OK;
 	}
 
@@ -2176,6 +2209,7 @@ gui_mch_wait_for_chars(int wtime)
 #endif
     }
     allow_scrollbar = FALSE;
+    TQ84_DEBUG("-> return FAIL (1)");
     return FAIL;
 }
 
@@ -4833,15 +4867,18 @@ _WndProc(
 	    return MyWindowProc(hwnd, uMsg, wParam, lParam);
 	return 1L;
 #endif
-
+    case WM_TIMER:
+        TQ84_DEBUG("WM_TIMER");
     default:
 #ifdef MSWIN_FIND_REPLACE
 	if (uMsg == s_findrep_msg && s_findrep_msg != 0)
 	    _OnFindRepl();
 #endif
+        TQ84_DEBUG("->MyWindowProc");
 	return MyWindowProc(hwnd, uMsg, wParam, lParam);
     }
 
+    TQ84_DEBUG("->DefWindowProc");
     return DefWindowProc(hwnd, uMsg, wParam, lParam);
 }
 

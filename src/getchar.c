@@ -1867,9 +1867,13 @@ safe_vgetc(void)
     int	c;
     TQ84_DEBUG_INDENT();
 
+    TQ84_DEBUG("->vgetc");
     c = vgetc();
     if (c == NUL)
+    {
+        TQ84_DEBUG("c == NUL -> get_keystroke()");
 	c = get_keystroke();
+    }
     return c;
 }
 
@@ -2771,7 +2775,10 @@ vgetorpeek(int advance)
      * thus it should be OK.  But don't get a key from the user then.
      */
     if (vgetc_busy > 0 && ex_normal_busy == 0)
+    {
+        TQ84_DEBUG("vgetc_busy > 0 && ex_normal_busy == 0 -> return NUL");
 	return NUL;
+    }
 
     ++vgetc_busy;
 
@@ -2795,7 +2802,10 @@ vgetorpeek(int advance)
 		typeahead_char = 0;
 	}
 	else
+	{
+	    TQ84_DEBUG("->read_readbuffers()");
 	    c = read_readbuffers(advance);
+	}
 	if (c != NUL && !got_int)
 	{
 	    if (advance)
@@ -3306,7 +3316,7 @@ inchar(
     int		script_char;
     int		tb_change_cnt = typebuf.tb_change_cnt;
 
-    TQ84_DEBUG_INDENT();
+    TQ84_DEBUG_INDENT_T("inchar maxlen=%d, wait_time = %d", maxlen, wait_time);
 
     if (wait_time == -1L || wait_time > 100L)  // flush output before waiting
     {
@@ -3341,6 +3351,7 @@ inchar(
 #endif
 	    )
     {
+        TQ84_DEBUG("scriptin");
 #ifdef MESSAGE_QUEUE
 	parse_queued_messages();
 #endif
@@ -3370,6 +3381,7 @@ inchar(
 
     if (script_char < 0)	// did not get a character from script
     {
+        TQ84_DEBUG("script_char < 0");
 	/*
 	 * If we got an interrupt, skip all previously typed characters and
 	 * return TRUE if quit reading script file.
@@ -3380,15 +3392,18 @@ inchar(
 	 */
 	if (got_int)
 	{
+	    TQ84_DEBUG("got_int");
 #define DUM_LEN MAXMAPLEN * 3 + 3
 	    char_u	dum[DUM_LEN + 1];
 
 	    for (;;)
 	    {
+	        TQ84_DEBUG("->ui_inchar (got_int)");
 		len = ui_inchar(dum, DUM_LEN, 0L, 0);
 		if (len == 0 || (len == 1 && dum[0] == 3))
 		    break;
 	    }
+	    TQ84_DEBUG("return retesc = %d" retesc);
 	    return retesc;
 	}
 
@@ -3403,6 +3418,8 @@ inchar(
 	 * Fill up to a third of the buffer, because each character may be
 	 * tripled below.
 	 */
+
+	TQ84_DEBUG("->ui_inchar (2)");
 	len = ui_inchar(buf, maxlen / 3, wait_time, tb_change_cnt);
     }
 
@@ -3417,6 +3434,7 @@ inchar(
     if (len > 0 && ++typebuf.tb_change_cnt == 0)
 	typebuf.tb_change_cnt = 1;
 
+    TQ84_DEBUG("-> fix_input_buffer");
     return fix_input_buffer(buf, len);
 }
 
@@ -3497,6 +3515,16 @@ fix_input_buffer(char_u *buf, int len)
 input_available(void)
 {
     TQ84_DEBUG_INDENT();
+
+    int tq84_ret = (!vim_is_input_buf_empty()
+# if defined(FEAT_CLIENTSERVER) || defined(FEAT_EVAL)
+	    || typebuf_was_filled
+# endif
+	    );
+
+    TQ84_DEBUG("tq84_ret = %d", tq84_ret);
+    return tq84_ret;
+
     return (!vim_is_input_buf_empty()
 # if defined(FEAT_CLIENTSERVER) || defined(FEAT_EVAL)
 	    || typebuf_was_filled

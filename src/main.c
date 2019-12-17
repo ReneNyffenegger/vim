@@ -26,6 +26,9 @@
 #define TQ84_DEBUG_ENABLED
 #define TQ84_DEBUG_TO_FILE
 #define TQ84_DEBUG_FUNCNAME_WIDTH "30"
+#define TQ84_DEBUG_OPENING_TAG " <<<"
+#define TQ84_DEBUG_CLOSING_TAG " >>>"
+#define TQ84_DEBUG_TIMESTAMP
 #include "tq84-c-debug/tq84_debug.c"
 
 // Values for edit_type.
@@ -127,6 +130,16 @@ TQ84_DEBUG("PROTO is not defined");
 
     TQ84_DEBUG("DFLT_RUNTIMEPATH = %s", DFLT_RUNTIMEPATH);
 
+    #ifdef ELAPSED_FUNC
+           TQ84_DEBUG("ELAPSED_FUNC yes");
+    #else
+           TQ84_DEBUG("ELAPSED_FUNC no");
+    #endif
+    #ifdef FEAT_DIRECTX
+           TQ84_DEBUG("FEAT_CLIENTSERVER yes");
+    #else
+           TQ84_DEBUG("FEAT_CLIENTSERVER no");
+    #endif
     #ifdef FEAT_DIRECTX
            TQ84_DEBUG("FEAT_DIRECTX yes");
     #else
@@ -157,6 +170,11 @@ TQ84_DEBUG("PROTO is not defined");
     #else
            TQ84_DEBUG("FEAT_TERMINAL no");
     #endif
+    #ifdef FEAT_TIMERS
+           TQ84_DEBUG("FEAT_TIMERS yes");
+    #else
+           TQ84_DEBUG("FEAT_TIMERS no");
+    #endif
     #ifdef GLOBAL_IME
            TQ84_DEBUG("GLOBAL_IME yes");
     #else
@@ -166,6 +184,11 @@ TQ84_DEBUG("PROTO is not defined");
            TQ84_DEBUG("NO_CONSOLE_INPUT yes");
     #else
            TQ84_DEBUG("NO_CONSOLE_INPUT no");
+    #endif
+    #ifdef MESSAGE_QUEUE
+           TQ84_DEBUG("MESSAGE_QUEUE yes");
+    #else
+           TQ84_DEBUG("MESSAGE_QUEUE no");
     #endif
     /*
      * Do any system-specific initialisations.  These can NOT use IObuff or
@@ -705,6 +728,7 @@ vim_main2(void)
      */
     if (gui.in_use)
     {
+        TQ84_DEBUG("->gui_wait_for_chars");
 	gui_wait_for_chars(50L, typebuf.tb_change_cnt);
 	TIME_MSG("GUI delay");
     }
@@ -985,7 +1009,7 @@ vim_main2(void)
     /*
      * Call the main command loop.  This never returns.
      */
-    TQ84_DEBUG("calling main_loop()");
+    TQ84_DEBUG("calling main_loop(FALSE, FALSE)");
     main_loop(FALSE, FALSE);
 
 #endif // NO_VIM_MAIN
@@ -1268,7 +1292,7 @@ main_loop(
     static int		conceal_update_lines = FALSE;
 #endif
 
-    TQ84_DEBUG_INDENT();
+    TQ84_DEBUG_INDENT_T("main_loop, cmdwin=%d noexmode=%d", cmdwin, noexmode);
 
     prev_oap = current_oap;
     current_oap = &oa;
@@ -1303,7 +1327,7 @@ main_loop(
 #endif
 
     clear_oparg(&oa);
-    TQ84_DEBUG("Entering loop?");
+    TQ84_DEBUG("Entering while-loop, cmdwin=%d cmdwin_result=%d", cmdwin, cmdwin_result);
     while (!cmdwin
 #ifdef FEAT_CMDWIN
 	    || cmdwin_result == 0
@@ -1612,6 +1636,7 @@ main_loop(
 	 */
 	if (exmode_active)
 	{
+	    TQ84_DEBUG("exmode_active");
 	    if (noexmode)   // End of ":global/path/visual" commands
 		goto theend;
 	    TQ84_DEBUG("-> do_exmode");
@@ -1619,6 +1644,7 @@ main_loop(
 	}
 	else
 	{
+	    TQ84_DEBUG("! exmode_active");
 #ifdef FEAT_TERMINAL
 	    if (term_use_loop()
 		    && oa.op_type == OP_NOP && oa.regname == NUL
@@ -1640,9 +1666,11 @@ main_loop(
 #endif
                 TQ84_DEBUG("-> normal_cmd");
 		normal_cmd(&oa, TRUE);
+                TQ84_DEBUG("<- normal_cmd");
 	    }
 	}
     }
+    TQ84_DEBUG("just before theend:");
 
 theend:
     current_oap = prev_oap;
