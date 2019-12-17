@@ -23,7 +23,7 @@ static int	ex_pressedreturn = FALSE;
 #endif
 
 #ifdef FEAT_EVAL
-static char_u	*do_one_cmd(char_u **, int, struct condstack *, char_u *(*fgetline)(int, void *, int, int), void *cookie);
+static char_u	*do_one_cmd(char_u **, int, cstack_T *, char_u *(*fgetline)(int, void *, int, int), void *cookie);
 #else
 static char_u	*do_one_cmd(char_u **, int, char_u *(*fgetline)(int, void *, int, int), void *cookie);
 static int	if_level = 0;		// depth in :if
@@ -627,7 +627,7 @@ do_cmdline(
     int		did_inc = FALSE;	// incremented RedrawingDisabled
     int		retval = OK;
 #ifdef FEAT_EVAL
-    struct condstack cstack;		// conditional stack
+    cstack_T	cstack;			// conditional stack
     garray_T	lines_ga;		// keep lines for ":while"/":for"
     int		current_line = 0;	// active line in lines_ga
     char_u	*fname = NULL;		// function or script name
@@ -677,7 +677,7 @@ do_cmdline(
 #ifdef FEAT_EVAL
 	// When converting to an exception, we do not include the command name
 	// since this is not an error of the specific command.
-	do_errthrow((struct condstack *)NULL, (char_u *)NULL);
+	do_errthrow((cstack_T *)NULL, (char_u *)NULL);
 	msg_list = saved_msg_list;
 #endif
 	return FAIL;
@@ -1644,25 +1644,25 @@ current_tab_nr(tabpage_T *tab)
 #endif
     static char_u *
 do_one_cmd(
-    char_u		**cmdlinep,
-    int			sourcing,
+    char_u	**cmdlinep,
+    int		sourcing,
 #ifdef FEAT_EVAL
-    struct condstack	*cstack,
+    cstack_T	*cstack,
 #endif
-    char_u		*(*fgetline)(int, void *, int, int),
-    void		*cookie)		// argument for fgetline()
+    char_u	*(*fgetline)(int, void *, int, int),
+    void	*cookie)		// argument for fgetline()
 {
-    char_u		*p;
-    linenr_T		lnum;
-    long		n;
-    char		*errormsg = NULL;	// error message
-    char_u		*after_modifier = NULL;
-    exarg_T		ea;			// Ex command arguments
-    int			save_msg_scroll = msg_scroll;
-    cmdmod_T		save_cmdmod;
-    int			save_reg_executing = reg_executing;
-    int			ni;			// set when Not Implemented
-    char_u		*cmd;
+    char_u	*p;
+    linenr_T	lnum;
+    long	n;
+    char	*errormsg = NULL;	// error message
+    char_u	*after_modifier = NULL;
+    exarg_T	ea;			// Ex command arguments
+    int		save_msg_scroll = msg_scroll;
+    cmdmod_T	save_cmdmod;
+    int		save_reg_executing = reg_executing;
+    int		ni;			// set when Not Implemented
+    char_u	*cmd;
 
     TQ84_DEBUG_INDENT_T("do_one_cmd - *cmdlinep = %s", *cmdlinep);
 
