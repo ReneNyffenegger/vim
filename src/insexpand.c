@@ -3364,6 +3364,8 @@ ins_compl_check_keys(int frequency, int in_compl_func)
     static int	count = 0;
     int		c;
 
+    TQ84_DEBUG_INDENT();
+
     // Don't check when reading keys from a script, :normal or feedkeys().
     // That would break the test scripts.  But do check for keys when called
     // from complete_check().
@@ -3380,8 +3382,10 @@ ins_compl_check_keys(int frequency, int in_compl_func)
     c = vpeekc_any();
     if (c != NUL)
     {
+        TQ84_DEBUG("c != NUL");
 	if (vim_is_ctrl_x_key(c) && c != Ctrl_X && c != Ctrl_R)
 	{
+	    TQ84_DEBUG("vim_is_ctrx_x_key etc. -> safe_vgetc");
 	    c = safe_vgetc();	// Eat the character
 	    compl_shows_dir = ins_compl_key2dir(c);
 	    (void)ins_compl_next(FALSE, ins_compl_key2count(c),
@@ -3391,6 +3395,7 @@ ins_compl_check_keys(int frequency, int in_compl_func)
 	{
 	    // Need to get the character to have KeyTyped set.  We'll put it
 	    // back with vungetc() below.  But skip K_IGNORE.
+	    TQ84_DEBUG("! vim_is_ctrx_x_key etc. -> safe_vgetc");
 	    c = safe_vgetc();
 	    if (c != K_IGNORE)
 	    {

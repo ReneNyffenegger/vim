@@ -16,6 +16,9 @@
 
 #include "vim.h"
 
+#define TQ84_DEBUG_ENABLED
+#include "tq84-c-debug/tq84_debug.h"
+
 static void add_msg_hist(char_u *s, int len, int attr);
 static void hit_return_msg(void);
 static void msg_home_replace_attr(char_u *fname, int attr);
@@ -1057,6 +1060,7 @@ wait_return(int redraw)
     int		had_got_int;
     int		save_reg_recording;
     FILE	*save_scriptout;
+    TQ84_DEBUG_INDENT();
 
     if (redraw == TRUE)
 	must_redraw = CLEAR;

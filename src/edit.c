@@ -597,6 +597,7 @@ edit(
 	else
 	    do
 	    {
+	        TQ84_DEBUG("-> safe_vgetc");
 		c = safe_vgetc();
 
 		if (stop_insert_mode)
