@@ -11,6 +11,8 @@
 
 #include "protodef.h"
 
+const char *tq84_char_to_string(int c);
+
 // _WIN32 is defined as 1 when the compilation target is 32-bit or 64-bit.
 // Note: If you want to check for 64-bit use the _WIN64 macro.
 #if defined(WIN32) || defined(_WIN32)

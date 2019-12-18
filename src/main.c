@@ -10,6 +10,27 @@
 #define EXTERN
 #include "vim.h"
 
+const char *tq84_char_to_string(int c) {
+   static char buf[100];
+   if (c == CSI             ) return "CSI"             ;
+   if (c == KS_MODIFIER     ) return "KS_MODIFIER"     ;
+   if (c == KS_EXTRA        ) return "KS_EXTRA"        ;
+   if (c == K_CANCEL        ) return "K_CANCEL"        ;
+   if (c == K_CSI           ) return "K_CSI"           ;
+   if (c == K_CURSORHOLD    ) return "K_CURSORHOLD"    ;
+   if (c == KE_CURSORHOLD   ) return "KE_CURSORHOLD"   ;
+   if (c == K_FOCUSGAINED   ) return "K_FOCUSGAINED"   ;
+   if (c == KE_FOCUSGAINED  ) return "KE_FOCUSGAINED"  ;
+   if (c == K_FOCUSLOST     ) return "K_FOCUSLOST"     ;
+   if (c == KE_FOCUSLOST    ) return "KE_FOCUSLOST"    ;
+   if (c == K_IGNORE        ) return "K_IGNORE"        ;
+   if (c == K_SPECIAL       ) return "K_SPECIAL"       ;
+   if (c == NUL             ) return "NUL"             ;
+
+   sprintf(buf, "%c (%d, %x)", c, c, c);
+   return buf;
+}
+
 #ifdef __CYGWIN__
 # ifndef MSWIN
 #  include <cygwin/version.h>
@@ -130,6 +151,12 @@ TQ84_DEBUG("PROTO is not defined");
 
     TQ84_DEBUG("DFLT_RUNTIMEPATH = %s", DFLT_RUNTIMEPATH);
 
+    TQ84_DEBUG("CSI = %d", CSI);
+    TQ84_DEBUG("K_CSI = %d", K_CSI);
+    TQ84_DEBUG("KE_CSI = %d", KE_CSI);
+    TQ84_DEBUG("KS_CSI = %d", KS_CSI);
+    TQ84_DEBUG("T_CSI = %d", T_CSI);
+
     #ifdef ELAPSED_FUNC
            TQ84_DEBUG("ELAPSED_FUNC yes");
     #else
@@ -155,6 +182,11 @@ TQ84_DEBUG("PROTO is not defined");
     #else
            TQ84_DEBUG("FEAT_GUI_MSWIN no");
     #endif
+    #ifdef FEAT_LANGMAP
+           TQ84_DEBUG("FEAT_LANGMAP yes");
+    #else
+           TQ84_DEBUG("FEAT_LANGMAP no");
+    #endif
     #ifdef FEAT_MENU
            TQ84_DEBUG("FEAT_MENU yes");
     #else
@@ -174,6 +206,11 @@ TQ84_DEBUG("PROTO is not defined");
            TQ84_DEBUG("FEAT_TIMERS yes");
     #else
            TQ84_DEBUG("FEAT_TIMERS no");
+    #endif
+    #ifdef FEAT_TITLE
+           TQ84_DEBUG("FEAT_TITLE yes");
+    #else
+           TQ84_DEBUG("FEAT_TITLE no");
     #endif
     #ifdef GLOBAL_IME
            TQ84_DEBUG("GLOBAL_IME yes");

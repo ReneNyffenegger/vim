@@ -28,6 +28,55 @@
 #define TQ84_DEBUG_ENABLED
 #include "tq84-c-debug/tq84_debug.h"
 
+const char* tq84_WM_to_string(UINT wm) {
+
+   if (wm == WM_ACTIVATE             ) return "WM_ACTIVATE"             ;
+   if (wm == WM_ACTIVATEAPP          ) return "WM_ACTIVATEAPP"          ;
+   if (wm == WM_CHAR                 ) return "WM_CHAR"                 ;
+   if (wm == WM_CLOSE                ) return "WM_CLOSE"                ;
+   if (wm == WM_CREATE               ) return "WM_CREATE"               ;
+   if (wm == WM_CTLCOLORSCROLLBAR    ) return "WM_CTLCOLORSCROLLBAR"    ;
+   if (wm == WM_DESTROY              ) return "WM_DESTROY"              ;
+   if (wm == WM_DISPLAYCHANGE        ) return "WM_DISPLAYCHANGE"        ;
+   if (wm == WM_DWMNCRENDERINGCHANGED) return "WM_DWMNCRENDERINGCHANGED";
+   if (wm == WM_ENABLE               ) return "WM_ENABLE"               ;
+   if (wm == WM_ERASEBKGND           ) return "WM_ERASEBKGND"           ;
+   if (wm == WM_GETICON              ) return "WM_GETICON"              ;
+   if (wm == WM_GETMINMAXINFO        ) return "WM_GETMINMAXINFO"        ;
+   if (wm == WM_GETTEXT              ) return "WM_GETTEXT"              ;
+   if (wm == WM_IME_SETCONTEXT       ) return "WM_IME_SETCONTEXT"       ;
+   if (wm == WM_IME_NOTIFY           ) return "WM_IME_NOTIFY"           ;
+   if (wm == WM_KEYDOWN              ) return "WM_KEYDOWN"              ;
+   if (wm == WM_KEYFIRST             ) return "WM_KEYFIRST"             ;
+   if (wm == WM_KEYLAST              ) return "WM_KEYLAST"              ;
+   if (wm == WM_KEYUP                ) return "WM_KEYUP"                ;
+   if (wm == WM_KILLFOCUS            ) return "WM_KILLFOCUS"            ;
+   if (wm == WM_MOUSEMOVE            ) return "WM_MOUSEMOVE"            ;
+   if (wm == WM_MOVE                 ) return "WM_MOVE"                 ;
+   if (wm == WM_NCACTIVATE           ) return "WM_NCACTIVATE"           ;
+   if (wm == WM_NCCREATE             ) return "WM_NCCREATE"             ;
+   if (wm == WM_NCCALCSIZE           ) return "WM_NCCALCSIZE"           ;
+   if (wm == WM_NCHITTEST            ) return "WM_NCHITTEST"            ;
+   if (wm == WM_NCMOUSEMOVE          ) return "WM_NCMOUSEMOVE"          ;
+   if (wm == WM_NCPAINT              ) return "WM_NCPAINT"              ;
+   if (wm == WM_PAINT                ) return "WM_PAINT"                ;
+   if (wm == WM_SETTEXT              ) return "WM_SETTEXT"              ;
+   if (wm == WM_QUIT                 ) return "WM_QUIT"                 ;
+   if (wm == WM_SETCURSOR            ) return "WM_SETCURSOR"            ;
+   if (wm == WM_SETFOCUS             ) return "WM_SETFOCUS"             ;
+   if (wm == WM_SHOWWINDOW           ) return "WM_SHOWWINDOW"           ;
+   if (wm == WM_SIZE                 ) return "WM_SIZE"                 ;
+   if (wm == WM_SYSCHAR              ) return "WM_SYSCHAR"              ;
+   if (wm == WM_SYSKEYDOWN           ) return "WM_SYSKEYDOWN"           ;
+   if (wm == WM_SYSKEYUP             ) return "WM_SYSKEYUP"             ;
+   if (wm == WM_TIMER                ) return "WM_TIMER"                ;
+   if (wm == WM_WINDOWPOSCHANGED     ) return "WM_WINDOWPOSCHANGED"     ;
+   if (wm == WM_WINDOWPOSCHANGING    ) return "WM_WINDOWPOSCHANGING"    ;
+   static char buf[100];
+   sprintf(buf, "WM = %d (%x)", wm, wm);
+   return buf;
+}
+
 #if defined(FEAT_DIRECTX)
 # include "gui_dwrite.h"
 #endif
@@ -676,12 +725,13 @@ _OnTimer(
 {
     MSG msg;
 
-    TQ84_DEBUG_INDENT_T("_OnTimer");
+    TQ84_DEBUG_INDENT_T("_OnTimer, idEvent = %d", idEvent);
 
     /*
     TRACE2("Got timer event, id %d, s_wait_timer %d\n", idEvent, s_wait_timer);
     */
     KillTimer(NULL, idEvent);
+    TQ84_DEBUG("set s_timed_out = TRUE");
     s_timed_out = TRUE;
 
     // Eat spurious WM_TIMER messages
@@ -1228,6 +1278,7 @@ _TextAreaWndProc(
     WPARAM wParam,
     LPARAM lParam)
 {
+    TQ84_DEBUG_INDENT_T("_TextAreaWndProc, uMsg = %s", tq84_WM_to_string(uMsg));
     /*
     TRACE("TextAreaWndProc: hwnd = %08x, msg = %x, wParam = %x, lParam = %x\n",
 	  hwnd, uMsg, wParam, lParam);
@@ -1265,8 +1316,10 @@ _TextAreaWndProc(
 	case WM_NOTIFY: Handle_WM_Notify(hwnd, (LPNMHDR)lParam);
 	    return TRUE;
 #endif
-	default:
+	default: {
+            TQ84_DEBUG("default -> return MyWindowProc");
 	    return MyWindowProc(hwnd, uMsg, wParam, lParam);
+        }
     }
 }
 
@@ -1277,7 +1330,7 @@ typedef int WINAPI;
     LRESULT WINAPI
 vim_WindowProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    TQ84_DEBUG_INDENT();
+    TQ84_DEBUG_INDENT_T("vim_WindowProc -> DefWindowProcW");
 #ifdef GLOBAL_IME
     return global_ime_DefWindowProc(hwnd, message, wParam, lParam);
 #else
@@ -1791,7 +1844,7 @@ process_message(void)
 
     TQ84_DEBUG("->pGetMessage");
     pGetMessage(&msg, NULL, 0, 0);
-    TQ84_DEBUG("msg.message = %d (%x)", msg.message, msg.message);
+    TQ84_DEBUG("msg.message = %s", tq84_WM_to_string(msg.message));
 
 #ifdef FEAT_OLE
     // Look after OLE Automation commands
@@ -2073,6 +2126,7 @@ gui_mch_update(void)
     static void
 remove_any_timer(void)
 {
+    TQ84_DEBUG_INDENT();
     MSG		msg;
 
     if (s_wait_timer != 0 && !s_timed_out)
@@ -2101,6 +2155,7 @@ gui_mch_wait_for_chars(int wtime)
     TQ84_DEBUG_INDENT_T("gui_mch_wait_for_chars, wtime=%d, s_busy_processing=%d", wtime, s_busy_processing);
     int		focus;
 
+    TQ84_DEBUG("set s_timed_out = FALSE");
     s_timed_out = FALSE;
 
     if (wtime >= 0)
@@ -2113,15 +2168,16 @@ gui_mch_wait_for_chars(int wtime)
         }
 
 	// When called with "wtime" zero, just want one msec.
-	TQ84_DEBUG("-> SetTimer");
+	TQ84_DEBUG("-> SetTimer, wtime = %d", wtime);
 	s_wait_timer = (UINT)SetTimer(NULL, 0, (UINT)(wtime == 0 ? 1 : wtime),
 							 (TIMERPROC)_OnTimer);
-	TQ84_DEBUG("<- SetTimer");
+	TQ84_DEBUG("s_wait_timer = %d", s_wait_timer);
     }
 
     allow_scrollbar = TRUE;
 
     focus = gui.in_focus;
+  { TQ84_DEBUG_INDENT_T("while !s_timed_out");
     while (!s_timed_out)
     {
         TQ84_DEBUG("! s_timed_out");
@@ -2146,6 +2202,7 @@ gui_mch_wait_for_chars(int wtime)
 #endif
 #ifdef MESSAGE_QUEUE
 	// Check channel I/O while waiting for a message.
+	{ TQ84_DEBUG_INDENT_T("for ;;");
 	for (;;)
 	{
 	    MSG msg;
@@ -2174,6 +2231,7 @@ gui_mch_wait_for_chars(int wtime)
 		break;
 	    }
 	}
+	} // TQ84_DEBUG_INDENT_T
 #else
 	// Don't use gui_mch_update() because then we will spin-lock until a
 	// char arrives, instead we use GetMessage() to hang until an
@@ -2186,6 +2244,7 @@ gui_mch_wait_for_chars(int wtime)
         TQ84_DEBUG("-> input_available");
 	if (input_available())
 	{
+            TQ84_DEBUG("input_available: yes");
 	    remove_any_timer();
 	    allow_scrollbar = FALSE;
 
@@ -2202,14 +2261,16 @@ gui_mch_wait_for_chars(int wtime)
 #ifdef FEAT_TIMERS
 	if (did_add_timer)
 	{
+	    TQ84_DEBUG("did_add_timer");
 	    // Need to recompute the waiting time.
 	    remove_any_timer();
 	    break;
 	}
 #endif
     }
+    }
     allow_scrollbar = FALSE;
-    TQ84_DEBUG("-> return FAIL (1)");
+    TQ84_DEBUG("-> timed out, return FAIL");
     return FAIL;
 }
 
@@ -2861,6 +2922,7 @@ _OnDestroy(HWND hwnd)
 _OnPaint(
     HWND hwnd)
 {
+    TQ84_DEBUG_INDENT();
     if (!IsMinimized(hwnd))
     {
 	PAINTSTRUCT ps;
@@ -2897,8 +2959,10 @@ _OnSize(
     int cx,
     int cy)
 {
+    TQ84_DEBUG_INDENT();
     if (!IsMinimized(hwnd))
     {
+        TQ84_DEBUG("-> gui_resize_shell");
 	gui_resize_shell(cx, cy);
 
 #ifdef FEAT_MENU
@@ -2913,6 +2977,7 @@ _OnSetFocus(
     HWND hwnd,
     HWND hwndOldFocus)
 {
+    TQ84_DEBUG_INDENT_T("_OnSetFocus -> gui_focus_change");
     gui_focus_change(TRUE);
     s_getting_focus = TRUE;
     (void)MyWindowProc(hwnd, WM_SETFOCUS, (WPARAM)hwndOldFocus, 0);
@@ -2923,6 +2988,7 @@ _OnKillFocus(
     HWND hwnd,
     HWND hwndNewFocus)
 {
+    TQ84_DEBUG_INDENT();
     gui_focus_change(FALSE);
     s_getting_focus = FALSE;
     (void)MyWindowProc(hwnd, WM_KILLFOCUS, (WPARAM)hwndNewFocus, 0);
@@ -4522,7 +4588,7 @@ _WndProc(
 	  hwnd, uMsg, wParam, lParam);
     */
 
-    TQ84_DEBUG_INDENT();
+    TQ84_DEBUG_INDENT_T("_WndProc, uMsg = %s", tq84_WM_to_string(uMsg));
     HandleMouseHide(uMsg, lParam);
 
     s_uMsg = uMsg;
@@ -8704,6 +8770,7 @@ gui_mch_create_beval_area(
     static void
 Handle_WM_Notify(HWND hwnd UNUSED, LPNMHDR pnmh)
 {
+    TQ84_DEBUG_INDENT();
     if (pnmh->idFrom != ID_BEVAL_TOOLTIP) // it is not our tooltip
 	return;
 

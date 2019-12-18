@@ -1841,14 +1841,20 @@ apply_autocmds_group(
      */
     if (event == NUM_EVENTS || first_autopat[(int)event] == NULL
 	    || autocmd_blocked > 0)
+    {
+        TQ84_DEBUG("no autocommands for this event -> goto BYPASS_AU");
 	goto BYPASS_AU;
+    }
 
     /*
      * When autocommands are busy, new autocommands are only executed when
      * explicitly enabled with the "nested" flag.
      */
     if (autocmd_busy && !(force || autocmd_nested))
+    {
+        TQ84_DEBUG("no autocommands busy, goto BYPASS_AU");
 	goto BYPASS_AU;
+    }
 
 #ifdef FEAT_EVAL
     /*
@@ -1856,7 +1862,10 @@ apply_autocmds_group(
      * occurred or an exception was thrown but not caught.
      */
     if (aborting())
+    {
+        TQ84_DEBUG("aborting, goto BYPASS_AU");
 	goto BYPASS_AU;
+    }
 #endif
 
     /*
@@ -1864,13 +1873,19 @@ apply_autocmds_group(
      */
     if (filechangeshell_busy && (event == EVENT_FILECHANGEDSHELL
 				      || event == EVENT_FILECHANGEDSHELLPOST))
+    {
+        TQ84_DEBUG("filechangeshell_busy, goto BYPASS_AU");
 	goto BYPASS_AU;
+    }
 
     /*
      * Ignore events in 'eventignore'.
      */
     if (event_ignored(event))
+    {
+        TQ84_DEBUG("event ignored, goto BYPASS_AU");
 	goto BYPASS_AU;
+    }
 
     /*
      * Allow nesting of autocommands, but restrict the depth, because it's
@@ -1879,6 +1894,8 @@ apply_autocmds_group(
     if (nesting == 10)
     {
 	emsg(_("E218: autocommand nesting too deep"));
+
+        TQ84_DEBUG("nesting == 10, goto BYPASS_AU");
 	goto BYPASS_AU;
     }
 
@@ -1890,7 +1907,10 @@ apply_autocmds_group(
 		&& (event == EVENT_WINENTER || event == EVENT_BUFENTER))
 	    || (autocmd_no_leave
 		&& (event == EVENT_WINLEAVE || event == EVENT_BUFLEAVE)))
+    {
+        TQ84_DEBUG("disabled (:all...), goto BYPASS_AU");
 	goto BYPASS_AU;
+    }
 
     /*
      * Save the autocmd_* variables and info about the current buffer.
@@ -2047,6 +2067,7 @@ apply_autocmds_group(
      */
     if (!autocmd_busy)
     {
+        TQ84_DEBUG("! autocmd_busy -> save_search_patterns");
 	save_search_patterns();
 	if (!ins_compl_active())
 	{
@@ -2079,11 +2100,13 @@ apply_autocmds_group(
     patcmd.event = event;
     patcmd.arg_bufnr = autocmd_bufnr;
     patcmd.next = NULL;
+    TQ84_DEBUG("-> auto_next_pat");
     auto_next_pat(&patcmd, FALSE);
 
     // found one, start executing the autocommands
     if (patcmd.curpat != NULL)
     {
+        TQ84_DEBUG("patcmd.curpat != NULL");
 	// add to active_apc_list
 	patcmd.next = active_apc_list;
 	active_apc_list = &patcmd;
@@ -2195,9 +2218,11 @@ apply_autocmds_group(
 	curbuf->b_changed = save_changed;
     }
 
+    TQ84_DEBUG("-> au_cleanup");
     au_cleanup();	// may really delete removed patterns/commands now
 
 BYPASS_AU:
+    TQ84_DEBUG("BYPASS_AU");
     // When wiping out a buffer make sure all its buffer-local autocommands
     // are deleted.
     if (event == EVENT_BUFWIPEOUT && buf != NULL)

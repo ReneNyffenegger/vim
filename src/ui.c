@@ -192,7 +192,6 @@ ui_inchar(
 	if ((mapped_ctrl_c | curbuf->b_mapped_ctrl_c) & get_real_state())
 	    ctrl_c_interrupts = FALSE;
     }
-    TQ84_DEBUG("ui_inchar 14");
 
     /*
      * Here we call gui_inchar() or mch_inchar(), the GUI or machine-dependent
@@ -241,6 +240,7 @@ ui_inchar(
     {
         TQ84_DEBUG("->gui_inchar");
 	retval = gui_inchar(buf, maxlen, wtime, tb_change_cnt);
+        TQ84_DEBUG("retval = %d", retval);
     }
 #endif
 #ifndef NO_CONSOLE
@@ -306,6 +306,7 @@ inchar_loop(
 
     TQ84_DEBUG_INDENT();
 
+  { TQ84_DEBUG_INDENT_T("Repeat until we got a character or waited long enough");
     // repeat until we got a character or waited long enough
     for (;;)
     {
@@ -348,8 +349,11 @@ inchar_loop(
 	    if (wait_time <= 0 && did_call_wait_func)
 	    {
 		if (wtime >= 0)
+		{
 		    // no character available within "wtime"
+		    TQ84_DEBUG("no character available within wtime, return 0");
 		    return 0;
+		}
 
 		// No character available within 'updatetime'.
 		did_start_blocking = TRUE;
@@ -359,6 +363,7 @@ inchar_loop(
 		    // Put K_CURSORHOLD in the input buffer or return it.
 		    if (buf == NULL)
 		    {
+		        TQ84_DEBUG("buf == NULL: put CSI, KS_EXTRA, K_CURSORHOLD into inputbuffer");
 			char_u	ibuf[3];
 
 			ibuf[0] = CSI;
@@ -368,10 +373,12 @@ inchar_loop(
 		    }
 		    else
 		    {
+		        TQ84_DEBUG("buf != NULL: put K_SPECIAL, KS_EXTRA, KE_CURSORHOLD into inputbuffer");
 			buf[0] = K_SPECIAL;
 			buf[1] = KS_EXTRA;
 			buf[2] = (int)KE_CURSORHOLD;
 		    }
+		    TQ84_DEBUG("return 3");
 		    return 3;
 		}
 
@@ -410,19 +417,29 @@ inchar_loop(
 	TQ84_DEBUG("-> wait_func (function pointer)");
 	if (wait_func(wait_time, &interrupted, FALSE))
 	{
+	    TQ84_DEBUG("wait_func just returned");
 	    // If input was put directly in typeahead buffer bail out here.
 	    if (typebuf_changed(tb_change_cnt))
+	    {
+	        TQ84_DEBUG("typebuf_changed, return 0");
 		return 0;
+	    }
 
 	    // We might have something to return now.
 	    if (buf == NULL)
+	    {
 		// "buf" is NULL, we were just waiting, not actually getting
 		// input.
+		TQ84_DEBUG("buf == NULL, return -> input_available()");
 		return input_available();
+	    }
 
 	    len = read_from_input_buf(buf, (long)maxlen);
 	    if (len > 0)
+	    {
+	        TQ84_DEBUG("len > 0, returning len = %d", len);
 		return len;
+	    }
 	    continue;
 	}
 	// Timed out or interrupted with no character available.
@@ -447,6 +464,7 @@ inchar_loop(
 	// no character available or interrupted, return zero
 	break;
     }
+    } // TQ84_DEBUG_INDENT_T
     return 0;
 }
 #endif
@@ -2199,12 +2217,15 @@ set_input_buf(char_u *p)
     void
 add_to_input_buf(char_u *s, int len)
 {
-    TQ84_DEBUG_INDENT_T("add_to_input_buf s = %s, len=%d", s, len);
+    TQ84_DEBUG_INDENT();
     if (inbufcount + len > INBUFLEN + MAX_KEY_CODE_LEN)
 	return;	    // Shouldn't ever happen!
 
     while (len--)
+    {
+        TQ84_DEBUG("*s = %s", tq84_char_to_string(*s));
 	inbuf[inbufcount++] = *s++;
+    }
 }
 
 /*

@@ -328,9 +328,15 @@ read_readbuffers(int advance)
 
     TQ84_DEBUG_INDENT();
 
+    TQ84_DEBUG("-> read_readbuf(readbuf1)");
     c = read_readbuf(&readbuf1, advance);
+    TQ84_DEBUG("c = %c", c);
     if (c == NUL)
+    {
+        TQ84_DEBUG("c = NUL -> readbuf 2");
 	c = read_readbuf(&readbuf2, advance);
+    }
+    TQ84_DEBUG("c = %c", c);
     return c;
 }
 
@@ -343,7 +349,10 @@ read_readbuf(buffheader_T *buf, int advance)
     TQ84_DEBUG_INDENT();
 
     if (buf->bh_first.b_next == NULL)  // buffer is empty
+    {
+        TQ84_DEBUG("return NUL");
 	return NUL;
+    }
 
     curr = buf->bh_first.b_next;
     c = curr->b_str[buf->bh_index];
@@ -357,6 +366,7 @@ read_readbuf(buffheader_T *buf, int advance)
 	    buf->bh_index = 0;
 	}
     }
+    TQ84_DEBUG("return c = %c", c);
     return c;
 }
 
@@ -417,6 +427,7 @@ typeahead_noflush(int c)
     void
 flush_buffers(flush_buffers_T flush_typeahead)
 {
+    TQ84_DEBUG_INDENT();
     init_typebuf();
 
     start_stuff();
@@ -1302,6 +1313,7 @@ alloc_typebuf(void)
     static void
 free_typebuf(void)
 {
+    TQ84_DEBUG_INDENT();
     if (typebuf.tb_buf == typebuf_init)
 	internal_error("Free typebuf 1");
     else
@@ -1630,6 +1642,7 @@ vgetc(void)
 	    c = vgetorpeek(TRUE);
 	    if (did_inc)
 	    {
+	        TQ84_DEBUG("did_inc");
 		--no_mapping;
 		--allow_keys;
 	    }
@@ -1641,22 +1654,28 @@ vgetc(void)
 #endif
 	       )
 	    {
+
+	        TQ84_DEBUG("c == K_SPECIAL");
 		int	    save_allow_keys = allow_keys;
 
 		++no_mapping;
 		allow_keys = 0;		// make sure BS is not found
-	        TQ84_DEBUG("-> vgetorpeek (c2=)");
+	        TQ84_DEBUG("-> c2 = vgetorpeek(TRUE))");
 		c2 = vgetorpeek(TRUE);	// no mapping for these chars
-	        TQ84_DEBUG("-> vgetorpeek (c=, after c2=)");
+	        TQ84_DEBUG("c2 = %s, -> c = vgetorpeek (TRUE)", tq84_char_to_string(c2));
 		c = vgetorpeek(TRUE);
+	        TQ84_DEBUG("c = %s", tq84_char_to_string(c));
 		--no_mapping;
 		allow_keys = save_allow_keys;
 		if (c2 == KS_MODIFIER)
 		{
+	            TQ84_DEBUG("cs == KS_MODIFIER");
 		    mod_mask = c;
 		    continue;
 		}
+		TQ84_DEBUG("c = TO_SPECIAL(%s, %s)", tq84_char_to_string(c2), tq84_char_to_string(c)); 
 		c = TO_SPECIAL(c2, c);
+	        TQ84_DEBUG("c after TO_SPECIAL: %s", tq84_char_to_string(c));
 
 #if defined(FEAT_GUI_MSWIN) && defined(FEAT_MENU) && defined(FEAT_TEAROFF)
 		// Handle K_TEAROFF here, the caller of vgetc() doesn't need to
@@ -1667,6 +1686,7 @@ vgetc(void)
 # endif
 		    c == K_TEAROFF)
 		{
+                    TQ84_DEBUG("c == K_TEAROFF");
 		    char_u	name[200];
 		    int		i;
 
@@ -1689,6 +1709,7 @@ vgetc(void)
 		// behavior if it's not mapped.
 		if (c == K_F10 && gui.menubar != NULL)
 		{
+		    TQ84_DEBUG(c == "K_F10");
 		    gtk_menu_shell_select_first(
 					   GTK_MENU_SHELL(gui.menubar), FALSE);
 		    continue;
@@ -1702,7 +1723,9 @@ vgetc(void)
 		    // once (needed if 'lazyredraw' is set).
 		    if (c == K_FOCUSGAINED || c == K_FOCUSLOST)
 		    {
+		        TQ84_DEBUG("c == K_FOCUSGAINED / K_FOCUSLOST, -> ui_focus_change");
 			ui_focus_change(c == K_FOCUSGAINED);
+		        TQ84_DEBUG("set c = K_IGNORE");
 			c = K_IGNORE;
 		    }
 
@@ -1710,7 +1733,10 @@ vgetc(void)
 		    // to avoid it being recognized as the start of a special
 		    // key.
 		    if (c == K_CSI)
+		    {
+		        TQ84_DEBUG("c == K_CSI");
 			c = CSI;
+		    }
 		}
 #endif
 	    }
@@ -1854,6 +1880,7 @@ vgetc(void)
     if (c != K_IGNORE)
 	state_no_longer_safe("key typed");
 
+    TQ84_DEBUG("return c = %s", tq84_char_to_string(c));
     return c;
 }
 
@@ -1869,11 +1896,13 @@ safe_vgetc(void)
 
     TQ84_DEBUG("->vgetc");
     c = vgetc();
+    TQ84_DEBUG("c = %s", tq84_char_to_string(c));
     if (c == NUL)
     {
         TQ84_DEBUG("c == NUL -> get_keystroke()");
 	c = get_keystroke();
     }
+    TQ84_DEBUG("return %s", tq84_char_to_string(c));
     return c;
 }
 
@@ -2122,12 +2151,18 @@ parse_queued_messages(void)
     // Do not handle messages while redrawing, because it may cause buffers to
     // change or be wiped while they are being redrawn.
     if (updating_screen)
+    {
+        TQ84_DEBUG("updating_screen -> return");
 	return;
+    }
 
     // If memory allocation fails during startup we'll exit but curbuf or
     // curwin could be NULL.
     if (curbuf == NULL || curwin == NULL)
+    {
+       TQ84_DEBUG("curbuf == NULL || curwin == NULL -> return");
        return;
+    }
 
     old_curbuf_fnum = curbuf->b_fnum;
     old_curwin_id = curwin->w_id;
@@ -2141,6 +2176,7 @@ parse_queued_messages(void)
     may_garbage_collect = FALSE;
 
     // Loop when a job ended, but don't keep looping forever.
+ {  TQ84_DEBUG_INDENT_T("Loop when a job ended...");
     for (i = 0; i < MAX_REPEAT_PARSE; ++i)
     {
 	// For Win32 mch_breakcheck() does not check for input, do it here.
@@ -2178,6 +2214,7 @@ parse_queued_messages(void)
 # endif
 	break;
     }
+    }   // TQ84_DEBUG_INDENT_T
 
     // When not nested we'll go back to waiting for a typed character.  If it
     // was safe before then this triggers a SafeStateAgain autocommand event.
@@ -2189,7 +2226,10 @@ parse_queued_messages(void)
     // If the current window or buffer changed we need to bail out of the
     // waiting loop.  E.g. when a job exit callback closes the terminal window.
     if (curwin->w_id != old_curwin_id || curbuf->b_fnum != old_curbuf_fnum)
+    {
+        TQ84_DEBUG("->ins_char_typebuf(K_IGNORE)");
 	ins_char_typebuf(K_IGNORE);
+    }
 
     --entered;
 }
@@ -2762,7 +2802,7 @@ vgetorpeek(int advance)
     int		old_wcol, old_wrow;
     int		wait_tb_len;
 
-    TQ84_DEBUG_INDENT();
+    TQ84_DEBUG_INDENT_T("vgetorpeek, advance = %d", advance);
 
     /*
      * This function doesn't work very well when called recursively.  This may
@@ -2786,10 +2826,14 @@ vgetorpeek(int advance)
     if (advance)
 	KeyStuffed = FALSE;
 
+    TQ84_DEBUG("-> init_typebuf");
     init_typebuf();
+    TQ84_DEBUG("-> start_stuff");
     start_stuff();
     if (advance && typebuf.tb_maplen == 0)
 	reg_executing = 0;
+
+  { TQ84_DEBUG_INDENT_T("do loop");
     do
     {
 /*
@@ -2799,6 +2843,7 @@ vgetorpeek(int advance)
 	if (typeahead_char != 0)
 	{
 	    c = typeahead_char;
+	    TQ84_DEBUG("typeahead_char != 0, c = %c (%d, %x), setting typeahead_char = 0", c, c, c);
 	    if (advance)
 		typeahead_char = 0;
 	}
@@ -2806,11 +2851,14 @@ vgetorpeek(int advance)
 	{
 	    TQ84_DEBUG("->read_readbuffers()");
 	    c = read_readbuffers(advance);
+	    TQ84_DEBUG("<- read_readbuffers, c=%s", tq84_char_to_string(c));
 	}
 	if (c != NUL && !got_int)
 	{
+	    TQ84_DEBUG("c != NUL && !got_int");
 	    if (advance)
 	    {
+	        TQ84_DEBUG("advance");
 		// KeyTyped = FALSE;  When the command that stuffed something
 		// was typed, behave like the stuffed command was typed.
 		// needed for CTRL-W CTRL-] to open a fold, for example.
@@ -2827,6 +2875,7 @@ vgetorpeek(int advance)
 	     * If a mapped key sequence is found we go back to the start to
 	     * try re-mapping.
 	     */
+	 {  TQ84_DEBUG_INDENT_T("Loop until finding matching key, or we're sure its not a mapped key");
 	    for (;;)
 	    {
 		long	wait_time;
@@ -2840,14 +2889,21 @@ vgetorpeek(int advance)
 		 * characters.
 		 */
 		if (typebuf.tb_maplen)
+		{
+		    TQ84_DEBUG("typebuf.tb_maplen -> line_breakcheck");
 		    line_breakcheck();
+		}
 		else
+		{
+		    TQ84_DEBUG("!typebuf.tb_maplen -> ui_breakcheck");
 		    ui_breakcheck();		// check for CTRL-C
+		}
 		if (got_int)
 		{
 		    // flush all input
-		    TQ84_DEBUG("-> inchar");
+		    TQ84_DEBUG("got_int -> inchar");
 		    c = inchar(typebuf.tb_buf, typebuf.tb_buflen - 1, 0L);
+		    TQ84_DEBUG("<- inchar, c=%c (%d, %x)", c, c);
 
 		    /*
 		     * If inchar() returns TRUE (script file was active) or we
@@ -2868,14 +2924,17 @@ vgetorpeek(int advance)
 			// Also record this character, it might be needed to
 			// get out of Insert mode.
 			*typebuf.tb_buf = c;
+			TQ84_DEBUG("advance -> gotchars");
 			gotchars(typebuf.tb_buf, 1);
 		    }
 		    cmd_silent = FALSE;
 
+                    TQ84_DEBUG("break");
 		    break;
 		}
 		else if (typebuf.tb_len > 0)
 		{
+		    TQ84_DEBUG("typebuf.tb_len > 0, -> handle_mapping");
 		    /*
 		     * Check for a mapping in "typebuf".
 		     */
@@ -2896,15 +2955,21 @@ vgetorpeek(int advance)
 /*
  * get a character: 2. from the typeahead buffer
  */
-                        TQ84_DEBUG("2. from the user - from the typeahead buffer");
+                        TQ84_DEBUG("2. from the user - from the typeahead buffer, typebuf.tb_off = %d", typebuf.tb_off);
 			c = typebuf.tb_buf[typebuf.tb_off];
+			TQ84_DEBUG("c = %s", tq84_char_to_string(c));
 			if (advance)	// remove chars from tb_buf
 			{
+			    TQ84_DEBUG("advance");
 			    cmd_silent = (typebuf.tb_silent > 0);
 			    if (typebuf.tb_maplen > 0)
+			    {
+			        TQ84_DEBUG("typebuf.tb_maplen > 0, set KeyTyped = FALSE");
 				KeyTyped = FALSE;
+			    }
 			    else
 			    {
+			        TQ84_DEBUG("typebuf.tb_maplen <= 0, set KeyTyped = TRUE");
 				KeyTyped = TRUE;
 				// write char to script file(s)
 				gotchars(typebuf.tb_buf
@@ -2914,15 +2979,18 @@ vgetorpeek(int advance)
 						      typebuf.tb_off];
 			    del_typebuf(1, 0);
 			}
+			TQ84_DEBUG("break");
 			break;
 		    }
 
 		    // not enough characters, get more
+                    TQ84_DEBUG("not enough characters, get more");
 		}
 
 /*
  * get a character: 3. from the user - handle <Esc> in Insert mode
  */
+                TQ84_DEBUG("get character from user / handle <ESC> in insert mode, set c = 0");
 		/*
 		 * Special case: if we get an <ESC> in insert mode and there
 		 * are no more characters at once, we pretend to go out of
@@ -2948,6 +3016,7 @@ vgetorpeek(int advance)
 			&& (c = inchar(typebuf.tb_buf + typebuf.tb_off
 					       + typebuf.tb_len, 3, 25L)) == 0)
 		{
+		    TQ84_DEBUG("advance && ...");
 		    colnr_T	col = 0, vcol;
 		    char_u	*ptr;
 
@@ -3026,6 +3095,7 @@ vgetorpeek(int advance)
 				--curwin->w_wcol;
 			}
 		    }
+		    TQ84_DEBUG("-> setcursor, out_flush");
 		    setcursor();
 		    out_flush();
 #ifdef FEAT_CMDL_INFO
@@ -3036,7 +3106,10 @@ vgetorpeek(int advance)
 		    curwin->w_wrow = old_wrow;
 		}
 		if (c < 0)
+		{
+		    TQ84_DEBUG("c < 0, end of input script reached, continue");
 		    continue;	// end of input script reached
+		}
 
 		// Allow mapping for just typed characters. When we get here c
 		// is the number of extra bytes and typebuf.tb_len is 1.
@@ -3053,6 +3126,7 @@ vgetorpeek(int advance)
 
 		if (ex_normal_busy > 0)
 		{
+		    TQ84_DEBUG("ex_normal_busy");
 #ifdef FEAT_CMDWIN
 		    static int tc = 0;
 #endif
@@ -3105,6 +3179,7 @@ vgetorpeek(int advance)
 		if (((State & INSERT) != 0 || p_lz) && (State & CMDLINE) == 0
 			  && advance && must_redraw != 0 && !need_wait_return)
 		{
+		    TQ84_DEBUG("-> update_screen(0), setcursor");
 		    update_screen(0);
 		    setcursor(); // put cursor back where it belongs
 		}
@@ -3175,6 +3250,7 @@ vgetorpeek(int advance)
 
 		if (advance)
 		{
+		    TQ84_DEBUG("advance");
 		    if (typebuf.tb_len == 0
 			    || !(p_timeout
 				 || (p_ttimeout && keylen == KEYLEN_PART_KEY)))
@@ -3189,10 +3265,11 @@ vgetorpeek(int advance)
 		    wait_time = 0;
 
 		wait_tb_len = typebuf.tb_len;
-		TQ84_DEBUG("->inchar");
+		TQ84_DEBUG("->inchar (wait_tb_len = %d", wait_tb_len);
 		c = inchar(typebuf.tb_buf + typebuf.tb_off + typebuf.tb_len,
 			typebuf.tb_buflen - typebuf.tb_off - typebuf.tb_len - 1,
 			wait_time);
+		TQ84_DEBUG("c = %c (%d, %x)", c, c, c);
 
 #ifdef FEAT_CMDL_INFO
 		if (showcmd_idx != 0)
@@ -3209,13 +3286,21 @@ vgetorpeek(int advance)
 		}
 
 		if (c < 0)
+		{
+		    TQ84_DEBUG("c < 0 end of input script reached, continue");
 		    continue;		// end of input script reached
+		}
 		if (c == NUL)		// no character available
 		{
+		    TQ84_DEBUG("c == NUL");
 		    if (!advance)
+		    {
+		        TQ84_DEBUG("! advance -> break");
 			break;
+		    }
 		    if (wait_tb_len > 0)	// timed out
 		    {
+		        TQ84_DEBUG("! wait_tb_len > 0, continue");
 			timedout = TRUE;
 			continue;
 		    }
@@ -3233,10 +3318,13 @@ vgetorpeek(int advance)
 #endif
 		}
 	    }	    // for (;;)
+	    } // TQ84_DEBUG_INDENT_T
 	}	// if (!character from stuffbuf)
 
 	// if advance is FALSE don't loop on NULs
     } while ((c < 0 && c != K_CANCEL) || (advance && c == NUL));
+    } // TQ84_DEBUG_INDENT_T
+    TQ84_DEBUG("after while");
 
     /*
      * The "INSERT" message is taken care of here:
@@ -3245,6 +3333,7 @@ vgetorpeek(int advance)
      */
     if (advance && p_smd && msg_silent == 0 && (State & INSERT))
     {
+        TQ84_DEBUG("advance && p_smd && msg_silent");
 	if (c == ESC && !mode_deleted && !no_mapping && mode_displayed)
 	{
 	    if (typebuf.tb_len && !KeyTyped)
@@ -3267,6 +3356,7 @@ vgetorpeek(int advance)
 #endif
     if (timedout && c == ESC)
     {
+        TQ84_DEBUG("timedout && c == ESC");
 	char_u nop_buf[3];
 
 	// When recording there will be no timeout.  Add a <Nop> after the ESC
@@ -3279,7 +3369,7 @@ vgetorpeek(int advance)
 
     --vgetc_busy;
 
-    TQ84_DEBUG("return %d", c);
+    TQ84_DEBUG("return %s", tq84_char_to_string(c));
     return c;
 }
 
@@ -3423,6 +3513,7 @@ inchar(
 
 	TQ84_DEBUG("->ui_inchar (2)");
 	len = ui_inchar(buf, maxlen / 3, wait_time, tb_change_cnt);
+	TQ84_DEBUG("len = %d");
     }
 
     // If the typebuf was changed further down, it is like nothing was added by

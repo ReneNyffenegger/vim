@@ -699,6 +699,7 @@ gui_init(void)
 	emsg(_("E665: Cannot start GUI, no valid font found"));
 	goto error2;
     }
+    TQ84_DEBUG("-> gui_get_wide_font");
     if (gui_get_wide_font() == FAIL)
 	emsg(_("E231: 'guifontwide' invalid"));
 
@@ -715,6 +716,7 @@ gui_init(void)
     gui_create_scrollbar(&gui.bottom_sbar, SBAR_BOTTOM, NULL);
 
 #ifdef FEAT_MENU
+    TQ84_DEBUG("-> gui_create_initial_menus");
     gui_create_initial_menus(root_menu);
 #endif
 #ifdef FEAT_SIGN_ICONS
@@ -722,6 +724,7 @@ gui_init(void)
 #endif
 
     // Configure the desired menu and scrollbars
+    TQ84_DEBUG("-> gui_init_which_components");
     gui_init_which_components(NULL);
 
     // All components of the GUI have been created now
@@ -733,6 +736,7 @@ gui_init(void)
     // If the window is already maximized (e.g. when --windowid is passed in),
     // we want to use the system-provided dimensions by passing FALSE to
     // mustset. Otherwise, we want to initialize with the default rows/columns.
+    TQ84_DEBUG("-> gui_mch_maximized");
     if (gui_mch_maximized())
 	gui_set_shellsize(FALSE, TRUE, RESIZE_BOTH);
     else
@@ -751,12 +755,16 @@ gui_init(void)
     /*
      * Actually open the GUI shell.
      */
+
+    TQ84_DEBUG("-> gui_mch_open");
     if (gui_mch_open() != FAIL)
     {
 #ifdef FEAT_TITLE
+        TQ84_DEBUG("-> maketitle");
 	maketitle();
 	resettitle();
 #endif
+        TQ84_DEBUG("-> init_gui_options");
 	init_gui_options();
 #ifdef FEAT_ARABIC
 	// Our GUI can't do bidi.
@@ -3008,6 +3016,7 @@ gui_wait_for_chars_buf(
     retval = inchar_loop(buf, maxlen, wtime, tb_change_cnt,
 			 gui_wait_for_chars_or_timer, NULL);
 
+    TQ84_DEBUG("retval = %d", retval);
     TQ84_DEBUG("-> gui_mch_stop_blink");
     gui_mch_stop_blink(TRUE);
 
@@ -4838,12 +4847,14 @@ gui_new_scrollbar_colors(void)
     void
 gui_focus_change(int in_focus)
 {
+   TQ84_DEBUG_INDENT();
 /*
  * Skip this code to avoid drawing the cursor when debugging and switching
  * between the debugger window and gvim.
  */
 #if 1
     gui.in_focus = in_focus;
+    TQ84_DEBUG("-> out_flush_cursor");
     out_flush_cursor(TRUE, FALSE);
 
 # ifdef FEAT_XIM
@@ -4855,6 +4866,7 @@ gui_focus_change(int in_focus)
     // autocommands and that must not happen asynchronously.
     if (!hold_gui_events)
     {
+        TQ84_DEBUG("! hold_gui_events");
 	char_u  bytes[3];
 
 	bytes[0] = CSI;

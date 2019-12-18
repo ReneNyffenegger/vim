@@ -574,7 +574,9 @@ normal_cmd(
      */
     TQ84_DEBUG("-> safe_vgetc");
     c = safe_vgetc();
+    TQ84_DEBUG("c = %s", tq84_char_to_string(c));
     LANGMAP_ADJUST(c, get_real_state() != SELECTMODE);
+    TQ84_DEBUG("after LANGMAP_ADJUST: c = %s", tq84_char_to_string(c));
 
     /*
      * If a mapping was started in Visual or Select mode, remember the length
@@ -588,7 +590,10 @@ normal_cmd(
 	old_mapped_len = typebuf_maplen();
 
     if (c == NUL)
+    {
+        TQ84_DEBUG("c = NUL -> set c = K_ZERO");
 	c = K_ZERO;
+    }
 
     /*
      * In Select mode, typed text replaces the selection.
@@ -602,6 +607,7 @@ normal_cmd(
 	// restart automatically.
 	// Insert the typed character in the typeahead buffer, so that it can
 	// be mapped in Insert mode.  Required for ":lmap" to work.
+	TQ84_DEBUG("VIsual_select && VIsual_select && vim_isprintc etc... -> ins_char_typebuf");
 	ins_char_typebuf(c);
 	if (restart_edit != 0)
 	    c = 'd';
@@ -612,12 +618,15 @@ normal_cmd(
     }
 
 #ifdef FEAT_CMDL_INFO
+    TQ84_DEBUG("-> add_to_showcmd, c = %s", tq84_char_to_string(c));
     need_flushbuf = add_to_showcmd(c);
 #endif
 
 getcount:
+    TQ84_DEBUG("getcount:");
     if (!(VIsual_active && VIsual_select))
     {
+        TQ84_DEBUG("! VIsual_active, etc.");
 	/*
 	 * Handle a count before a command and compute ca.count0.
 	 * Note that '0' is a command and not the start of a count, but it's
@@ -650,7 +659,9 @@ getcount:
 		++allow_keys;		// no mapping for nchar, but keys
 	    }
 	    ++no_zero_mapping;		// don't map zero here
+	    TQ84_DEBUG("-> plain_vgetc");
 	    c = plain_vgetc();
+	    TQ84_DEBUG("c = %s", tq84_char_to_string(c));
 	    LANGMAP_ADJUST(c, TRUE);
 	    --no_zero_mapping;
 	    if (ctrl_w)
@@ -662,12 +673,13 @@ getcount:
 	    need_flushbuf |= add_to_showcmd(c);
 #endif
 	}
-        TQ84_DEBUG("checkpoint 1");
+        TQ84_DEBUG("check if c(%s) == Ctrl_W", tq84_char_to_string(c));
 	/*
 	 * If we got CTRL-W there may be a/another count
 	 */
 	if (c == Ctrl_W && !ctrl_w && oap->op_type == OP_NOP)
 	{
+           TQ84_DEBUG("c == Ctrl_W && ..");
 	    ctrl_w = TRUE;
 	    ca.opcount = ca.count0;	// remember first count
 	    ca.count0 = 0;
@@ -684,9 +696,9 @@ getcount:
 	}
     }
 
-    TQ84_DEBUG("checkpoint 2");
     if (c == K_CURSORHOLD)
     {
+        TQ84_DEBUG("c == K_CURSORHOLD");
 	// Save the count values so that ca.opcount and ca.count0 are exactly
 	// the same when coming back here after handling K_CURSORHOLD.
 	oap->prev_opcount = ca.opcount;
@@ -694,6 +706,7 @@ getcount:
     }
     else if (ca.opcount != 0)
     {
+        TQ84_DEBUG("ca.opcount != 0");
 	/*
 	 * If we're in the middle of an operator (including after entering a
 	 * yank buffer with '"') AND we had a count before the operator, then
@@ -732,9 +745,9 @@ getcount:
      * Find the command character in the table of commands.
      * For CTRL-W we already got nchar when looking for a count.
      */
-    TQ84_DEBUG("checkpoint 4");
     if (ctrl_w)
     {
+        TQ84_DEBUG("ctrl_w");
 	ca.nchar = c;
 	ca.cmdchar = Ctrl_W;
     }
@@ -748,23 +761,28 @@ getcount:
 	goto normal_end;
     }
 
-    TQ84_DEBUG("checkpoint 5");
+    TQ84_DEBUG("check text_locked etc.");
     if (text_locked() && (nv_cmds[idx].cmd_flags & NV_NCW))
     {
+        TQ84_DEBUG("yes text_locked etc.");
 	// This command is not allowed while editing a cmdline: beep.
 	clearopbeep(oap);
 	text_locked_msg();
+        TQ84_DEBUG("goto normal_end");
 	goto normal_end;
     }
     if ((nv_cmds[idx].cmd_flags & NV_NCW) && curbuf_locked())
+    {
+        TQ84_DEBUG("goto normal_end");
 	goto normal_end;
+    }
 
     /*
      * In Visual/Select mode, a few keys are handled in a special way.
      */
-    TQ84_DEBUG("checkpoint 6");
     if (VIsual_active)
     {
+        TQ84_DEBUG("VIsual_active");
 	// when 'keymodel' contains "stopsel" may stop Select/Visual mode
 	if (km_stopsel
 		&& (nv_cmds[idx].cmd_flags & NV_STS)
@@ -795,13 +813,13 @@ getcount:
     }
 
 #ifdef FEAT_RIGHTLEFT
-    TQ84_DEBUG("checkpoint 7");
     if (curwin->w_p_rl && KeyTyped && !KeyStuffed
 					  && (nv_cmds[idx].cmd_flags & NV_RL))
     {
 	// Invert horizontal movements and operations.  Only when typed by the
 	// user directly, not when the result of a mapping or "x" translated
 	// to "dl".
+        TQ84_DEBUG("Invert horizontal movements etc.");
 	switch (ca.cmdchar)
 	{
 	    case 'l':	    ca.cmdchar = 'h'; break;
@@ -1054,13 +1072,12 @@ getcount:
 	goto normal_end;
     }
 
-    TQ84_DEBUG("checkpoint 12");
     if (ca.cmdchar != K_IGNORE)
     {
+        TQ84_DEBUG("cmdchar != K_IGNORE");
 	msg_didout = FALSE;    // don't scroll screen up for normal command
 	msg_col = 0;
     }
-    TQ84_DEBUG("checkpoint 12.1");
 
     old_pos = curwin->w_cursor;		// remember where cursor was
 
@@ -1068,10 +1085,10 @@ getcount:
     // mode.
     if (!VIsual_active && km_startsel)
     {
-        TQ84_DEBUG("checkpoint 12.2");
+        TQ84_DEBUG("!VIsual_active && km_startsel");
 	if (nv_cmds[idx].cmd_flags & NV_SS)
 	{
-            TQ84_DEBUG("checkpoint 12.3");
+            TQ84_DEBUG("nv_cmds[idx].cmd_flags & NV_SS");
 	    start_selection();
 	    unshift_special(&ca);
 	    idx = find_command(ca.cmdchar);
@@ -1079,8 +1096,7 @@ getcount:
 	else if ((nv_cmds[idx].cmd_flags & NV_SSS)
 					   && (mod_mask & MOD_MASK_SHIFT))
 	{
-
-            TQ84_DEBUG("checkpoint 12.4");
+            TQ84_DEBUG("! nv_cmds[idx].cmd_flags & NV_SS");
 	    start_selection();
 	    mod_mask &= ~MOD_MASK_SHIFT;
 	}
@@ -6966,6 +6982,7 @@ set_cursor_for_append_to_line(void)
     static void
 nv_edit(cmdarg_T *cap)
 {
+    TQ84_DEBUG_INDENT();
     // <Insert> is equal to "i"
     if (cap->cmdchar == K_INS || cap->cmdchar == K_KINS)
 	cap->cmdchar = 'i';
@@ -7522,6 +7539,7 @@ nv_drop(cmdarg_T *cap UNUSED)
     static void
 nv_cursorhold(cmdarg_T *cap)
 {
+    TQ84_DEBUG_INDENT();
     apply_autocmds(EVENT_CURSORHOLD, NULL, NULL, FALSE, curbuf);
     did_cursorhold = TRUE;
     cap->retval |= CA_COMMAND_BUSY;	// don't call edit() now
