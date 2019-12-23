@@ -5921,7 +5921,7 @@ job_start(
     {
 	// Command is a string.
 	cmd = argvars[0].vval.v_string;
-	if (cmd == NULL || *cmd == NUL)
+	if (cmd == NULL || *skipwhite(cmd) == NUL)
 	{
 	    emsg(_(e_invarg));
 	    goto theend;
@@ -5943,10 +5943,22 @@ job_start(
 
 	if (build_argv_from_list(l, &argv, &argc) == FAIL)
 	    goto theend;
+
+	// Empty command is invalid.
+	if (argc == 0 || *skipwhite((char_u *)argv[0]) == NUL)
+	{
+	    emsg(_(e_invarg));
+	    goto theend;
+	}
 #ifndef USE_ARGV
 	if (win32_build_cmd(l, &ga) == FAIL)
 	    goto theend;
 	cmd = ga.ga_data;
+	if (cmd == NULL || *skipwhite(cmd) == NUL)
+	{
+	    emsg(_(e_invarg));
+	    goto theend;
+	}
 #endif
     }
 

@@ -5465,7 +5465,6 @@ tv_get_number_chk(typval_T *varp, int *denote)
 	    break;
 	case VAR_SPECIAL:
 	    return varp->vval.v_number == VVAL_TRUE ? 1 : 0;
-	    break;
 	case VAR_JOB:
 #ifdef FEAT_JOB_CHANNEL
 	    emsg(_("E910: Using a Job as a Number"));
@@ -6150,7 +6149,7 @@ last_set_msg(sctx_T script_ctx)
 	    msg_puts((char *)p);
 	    if (script_ctx.sc_lnum > 0)
 	    {
-		msg_puts(_(" line "));
+		msg_puts(_(line_msg));
 		msg_outnum((long)script_ctx.sc_lnum);
 	    }
 	    verbose_leave();
