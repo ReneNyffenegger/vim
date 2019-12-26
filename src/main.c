@@ -137,9 +137,7 @@ main
     int		i;
 #endif
 
-#ifndef MSWIN
-  TQ84_DEBUG_OPEN("tq84-debug.out", "w");
-#endif
+  TQ84_DEBUG_INDENT();
 
 #ifdef PROTO
 TQ84_DEBUG("PROTO is defined");
@@ -162,10 +160,15 @@ TQ84_DEBUG("PROTO is not defined");
     #else
            TQ84_DEBUG("ELAPSED_FUNC no");
     #endif
-    #ifdef FEAT_DIRECTX
+    #ifdef FEAT_CLIENTSERVER
            TQ84_DEBUG("FEAT_CLIENTSERVER yes");
     #else
            TQ84_DEBUG("FEAT_CLIENTSERVER no");
+    #endif
+    #ifdef FEAT_CONCEAL
+           TQ84_DEBUG("FEAT_CONCEAL yes");
+    #else
+           TQ84_DEBUG("FEAT_CONCEAL no");
     #endif
     #ifdef FEAT_DIRECTX
            TQ84_DEBUG("FEAT_DIRECTX yes");
@@ -1374,10 +1377,11 @@ main_loop(
         TQ84_DEBUG("-> stuff_empty");
 	if (stuff_empty())
 	{
-            TQ84_DEBUG("yes: stuff_empty");
+            TQ84_DEBUG("yes: stuff_empty, need_check_timestamps=%d", need_check_timestamps);
 	    did_check_timestamps = FALSE;
 	    if (need_check_timestamps)
 		check_timestamps(FALSE);
+            TQ84_DEBUG("need_wait_return=%d", need_wait_return);
 	    if (need_wait_return)	// if wait_return still needed ...
 		wait_return(FALSE);	// ... call it now
 	    if (need_start_insertmode && goto_im() && !VIsual_active)
@@ -1693,7 +1697,10 @@ main_loop(
 		// cursor and the screen needs to be redrawn.
 		TQ84_DEBUG("-> terminal_loop");
 		if (terminal_loop(TRUE) == OK)
+		{
+		    TQ84_DEBUG("terminal_loop returned OK -> normal_cmd");
 		    normal_cmd(&oa, TRUE);
+		}
 	    }
 	    else
 #endif

@@ -1106,8 +1106,8 @@ getcount:
      * Execute the command!
      * Call the command function found in the commands table.
      */
-    TQ84_DEBUG("checkpoint 12.5, idx=%d", idx);
     ca.arg = nv_cmds[idx].cmd_arg;
+    TQ84_DEBUG("Call function in commands table: nv_cmds[%d], ca.arg=%d", idx, ca.arg);
     (nv_cmds[idx].cmd_func)(&ca);
 
     TQ84_DEBUG("checkpoint 12.6");

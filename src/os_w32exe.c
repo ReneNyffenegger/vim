@@ -42,6 +42,7 @@ wmain(int argc UNUSED, wchar_t **argv UNUSED)
 # endif
 {
   TQ84_DEBUG_OPEN("tq84-debug.out", "w");
+  tq84_debug_out("vim: foldmarker=<<<,>>> foldmethod=marker buftype=nofile\n");
   TQ84_DEBUG_INDENT_T("Entered wWinMain");
 # ifndef VIMDLL
 #  ifdef FEAT_GUI

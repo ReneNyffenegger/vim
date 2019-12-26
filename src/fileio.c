@@ -13,6 +13,9 @@
 
 #include "vim.h"
 
+#define TQ84_DEBUG_ENABLED
+#include "tq84-c-debug/tq84_debug.h"
+
 #if defined(__TANDEM) || defined(__MINT__)
 # include <limits.h>		// for SSIZE_MAX
 #endif
@@ -3832,6 +3835,7 @@ static int already_warned = FALSE;
 check_timestamps(
     int		focus)		// called for GUI focus event
 {
+    TQ84_DEBUG_INDENT_T("check_timestamps, focus=%d, no_check_timestamps=%d", focus, no_check_timestamps);
     buf_T	*buf;
     int		didit = 0;
     int		n;
