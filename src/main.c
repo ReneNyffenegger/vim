@@ -4356,7 +4356,7 @@ cmdsrv_main(
 	    if (xterm_dpy != NULL)
 		res = serverGetVimNames(xterm_dpy);
 # endif
-	    if (called_emsg)
+	    if (did_emsg)
 		mch_errmsg("\n");
 	}
 	else if (STRICMP(argv[i], "--servername") == 0)
