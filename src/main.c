@@ -2917,6 +2917,7 @@ check_tty(mparm_T *parmp)
     TQ84_DEBUG_INDENT();
 
     input_isatty = mch_input_isatty();
+    TQ84_DEBUG("input_isatty = %d", input_isatty);
     if (exmode_active)
     {
 	if (!input_isatty)

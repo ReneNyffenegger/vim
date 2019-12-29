@@ -12,7 +12,8 @@
  */
 
 #include "vim.h"
-
+#define TQ84_DEBUG_ENABLED
+#include "tq84-c-debug/tq84_debug.h"
 /*
  * List used for abbreviations.
  */
@@ -2218,6 +2219,7 @@ static struct initmap initmappings[] =
     void
 init_mappings(void)
 {
+    TQ84_DEBUG_INDENT();
 #if defined(MSWIN) || defined(MACOS_X)
     int		i;
 
