@@ -3307,7 +3307,10 @@ exe_pre_commands(mparm_T *parmp)
 	current_sctx.sc_sid = SID_CMDARG;
 # endif
 	for (i = 0; i < cnt; ++i)
+	{
+	    TQ84_DEBUG("do_cmdline_cmd(cmds[%d])", i);
 	    do_cmdline_cmd(cmds[i]);
+	}
 	sourcing_name = NULL;
 # ifdef FEAT_EVAL
 	current_sctx.sc_sid = 0;
