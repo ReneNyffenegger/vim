@@ -1001,13 +1001,14 @@ getcmdline_int(
 	{
 	    TQ84_DEBUG("-> safe_vgetc");
 	    c = safe_vgetc();
-	    TQ84_DEBUG("<- safe_vgetc c=%c", c);
+	    TQ84_DEBUG("<- safe_vgetc c=%s", tq84_char_to_string(c));
 	}
 	while (c == K_IGNORE || c == K_NOP);
 
+        TQ84_DEBUG("KeyTyped=%d", KeyTyped);
 	if (KeyTyped)
 	{
-	    TQ84_DEBUG("KeyTyped");
+	    TQ84_DEBUG("yes: KeyTyped");
 	    some_key_typed = TRUE;
 #ifdef FEAT_RIGHTLEFT
 	    if (cmd_hkmap)
@@ -1048,7 +1049,10 @@ getcmdline_int(
 		&& !break_ctrl_c
 #endif
 		&& !global_busy)
+	{
+	    TQ84_DEBUG("set got_int = FALSE");
 	    got_int = FALSE;
+	}
 
 	// free old command line when finished moving around in the history
 	// list
@@ -1555,6 +1559,7 @@ getcmdline_int(
 	/*
 	 * Big switch for a typed command line character.
 	 */
+	TQ84_DEBUG("Big switch for c=%s", tq84_char_to_string(c));
 	switch (c)
 	{
 	case K_BS:
@@ -1747,6 +1752,7 @@ getcmdline_int(
 
 	case ESC:	// get here if p_wc != ESC or when ESC typed twice
 	case Ctrl_C:
+	        TQ84_DEBUG("ESC or Ctrl_C");
 		// In exmode it doesn't make sense to return.  Except when
 		// ":normal" runs out of characters.
 		if (exmode_active
@@ -1755,6 +1761,7 @@ getcmdline_int(
 
 		gotesc = TRUE;		// will free ccline.cmdbuff after
 					// putting it in history
+                TQ84_DEBUG("goto returncmd");
 		goto returncmd;		// back to cmd mode
 
 	case Ctrl_R:			// insert register
@@ -2402,7 +2409,10 @@ returncmd:
 	}
 
 	if (gotesc)
+	{
+	    TQ84_DEBUG("gotesc -> abandon_cmdline()");
 	    abandon_cmdline();
+	}
     }
 
     /*

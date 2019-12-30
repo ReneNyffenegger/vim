@@ -8513,10 +8513,14 @@ ex_digraphs(exarg_T *eap UNUSED)
     static void
 ex_set(exarg_T *eap)
 {
+    TQ84_DEBUG_INDENT();
     int		flags = 0;
 
     if (eap->cmdidx == CMD_setlocal)
+    {
+        TQ84_DEBUG("eap->cmdidx == CMD_setlocal");
 	flags = OPT_LOCAL;
+    }
     else if (eap->cmdidx == CMD_setglobal)
 	flags = OPT_GLOBAL;
 #if defined(FEAT_EVAL) && defined(FEAT_BROWSE)

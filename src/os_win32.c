@@ -1896,6 +1896,7 @@ mch_inchar(
 # if defined(FEAT_CLIENTSERVER)
 		trash_input_buf();
 # endif
+                TQ84_DEBUG("set got_int = TRUE");
 		got_int = TRUE;
 	    }
 
@@ -6463,6 +6464,7 @@ mch_remove(char_u *name)
     void
 mch_breakcheck(int force UNUSED)
 {
+    TQ84_DEBUG_INDENT();
 #if !defined(FEAT_GUI_MSWIN) || defined(VIMDLL)
 # ifdef VIMDLL
     if (!gui.in_use)
@@ -6471,6 +6473,7 @@ mch_breakcheck(int force UNUSED)
 	{
 	    ctrl_break_was_pressed = g_fCBrkPressed;
 	    g_fCtrlCPressed = g_fCBrkPressed = FALSE;
+	    TQ84_DEBUG("set got_int = TRUE");
 	    got_int = TRUE;
 	}
 #endif

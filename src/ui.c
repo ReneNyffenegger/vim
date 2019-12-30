@@ -2421,6 +2421,7 @@ fill_input_buf(int exit_on_error UNUSED)
 		// remove everything typed before the CTRL-C
 		mch_memmove(inbuf, inbuf + inbufcount, (size_t)(len + 1));
 		inbufcount = 0;
+		TQ84_DEBUG("set got_int = TRUE");
 		got_int = TRUE;
 	    }
 	    ++inbufcount;

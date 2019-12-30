@@ -12,6 +12,7 @@
 
 const char *tq84_char_to_string(int c) {
    static char buf[100];
+   if (c == Ctrl_C          ) return "Ctrl_C"          ;
    if (c == CSI             ) return "CSI"             ;
    if (c == KS_MODIFIER     ) return "KS_MODIFIER"     ;
    if (c == KS_EXTRA        ) return "KS_EXTRA"        ;
@@ -24,6 +25,7 @@ const char *tq84_char_to_string(int c) {
    if (c == K_FOCUSLOST     ) return "K_FOCUSLOST"     ;
    if (c == KE_FOCUSLOST    ) return "KE_FOCUSLOST"    ;
    if (c == K_IGNORE        ) return "K_IGNORE"        ;
+   if (c == K_NOP           ) return "K_NOP"           ;
    if (c == K_SPECIAL       ) return "K_SPECIAL"       ;
    if (c == NUL             ) return "NUL"             ;
 
@@ -155,81 +157,91 @@ TQ84_DEBUG("PROTO is not defined");
     TQ84_DEBUG("KS_CSI = %d", KS_CSI);
     TQ84_DEBUG("T_CSI = %d", T_CSI);
 
-    #ifdef ELAPSED_FUNC
+    #ifdef DO_DECLARE_EXCMD // {
+           TQ84_DEBUG("DO_DECLARE_EXCMD yes");
+    #else
+           TQ84_DEBUG("DO_DECLARE_EXCMD no");
+    #endif // }
+    #ifdef ELAPSED_FUNC // {
            TQ84_DEBUG("ELAPSED_FUNC yes");
     #else
            TQ84_DEBUG("ELAPSED_FUNC no");
-    #endif
-    #ifdef FEAT_CLIENTSERVER
+    #endif // }
+    #ifdef FEAT_CLIENTSERVER // {
            TQ84_DEBUG("FEAT_CLIENTSERVER yes");
     #else
            TQ84_DEBUG("FEAT_CLIENTSERVER no");
-    #endif
-    #ifdef FEAT_CONCEAL
+    #endif // }
+    #ifdef FEAT_CONCEAL // {
            TQ84_DEBUG("FEAT_CONCEAL yes");
     #else
            TQ84_DEBUG("FEAT_CONCEAL no");
-    #endif
-    #ifdef FEAT_DIRECTX
+    #endif // }
+    #ifdef FEAT_DIRECTX // {
            TQ84_DEBUG("FEAT_DIRECTX yes");
     #else
            TQ84_DEBUG("FEAT_DIRECTX no");
-    #endif
-    #ifdef FEAT_GUI_GTK
+    #endif // }
+    #ifdef FEAT_GUI_GTK // {
            TQ84_DEBUG("FEAT_GUI_GTK yes");
     #else
            TQ84_DEBUG("FEAT_GUI_GTK no");
-    #endif
-    #ifdef FEAT_GUI_MSWIN
+    #endif // }
+    #ifdef FEAT_GUI_MSWIN // {
            TQ84_DEBUG("FEAT_GUI_MSWIN yes");
     #else
            TQ84_DEBUG("FEAT_GUI_MSWIN no");
-    #endif
-    #ifdef FEAT_LANGMAP
+    #endif // }
+    #ifdef FEAT_LANGMAP // {
            TQ84_DEBUG("FEAT_LANGMAP yes");
     #else
            TQ84_DEBUG("FEAT_LANGMAP no");
-    #endif
-    #ifdef FEAT_MENU
+    #endif // }
+    #ifdef FEAT_MENU // {
            TQ84_DEBUG("FEAT_MENU yes");
     #else
            TQ84_DEBUG("FEAT_MENU no");
-    #endif
-    #ifdef FEAT_PROFILE
+    #endif // }
+    #ifdef FEAT_PROFILE // {
            TQ84_DEBUG("FEAT_PROFILE yes");
     #else
            TQ84_DEBUG("FEAT_PROFILE no");
-    #endif
-    #ifdef FEAT_TERMINAL
+    #endif // }
+    #ifdef FEAT_RIGHTLEFT // {
+           TQ84_DEBUG("FEAT_RIGHTLEFT yes");
+    #else
+           TQ84_DEBUG("FEAT_RIGHTLEFT no");
+    #endif // }
+    #ifdef FEAT_TERMINAL // {
            TQ84_DEBUG("FEAT_TERMINAL yes");
     #else
            TQ84_DEBUG("FEAT_TERMINAL no");
-    #endif
-    #ifdef FEAT_TIMERS
+    #endif // }
+    #ifdef FEAT_TIMERS // {
            TQ84_DEBUG("FEAT_TIMERS yes");
     #else
            TQ84_DEBUG("FEAT_TIMERS no");
-    #endif
-    #ifdef FEAT_TITLE
+    #endif // }
+    #ifdef FEAT_TITLE // {
            TQ84_DEBUG("FEAT_TITLE yes");
     #else
            TQ84_DEBUG("FEAT_TITLE no");
-    #endif
-    #ifdef GLOBAL_IME
+    #endif // }
+    #ifdef GLOBAL_IME // {
            TQ84_DEBUG("GLOBAL_IME yes");
     #else
            TQ84_DEBUG("GLOBAL_IME no");
-    #endif
-    #ifdef NO_CONSOLE_INPUT
+    #endif // }
+    #ifdef NO_CONSOLE_INPUT // {
            TQ84_DEBUG("NO_CONSOLE_INPUT yes");
     #else
            TQ84_DEBUG("NO_CONSOLE_INPUT no");
-    #endif
-    #ifdef MESSAGE_QUEUE
+    #endif // }
+    #ifdef MESSAGE_QUEUE // {
            TQ84_DEBUG("MESSAGE_QUEUE yes");
     #else
            TQ84_DEBUG("MESSAGE_QUEUE no");
-    #endif
+    #endif // }
     /*
      * Do any system-specific initialisations.  These can NOT use IObuff or
      * NameBuff.  Thus emsg2() cannot be called!
