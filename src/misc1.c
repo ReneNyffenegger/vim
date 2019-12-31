@@ -1704,11 +1704,6 @@ vim_getenv(char_u *name, int *mustfree)
      * When expanding $VIMRUNTIME fails, try using $VIM/vim<version> or $VIM.
      * Don't do this when default_vimruntime_dir is non-empty.
      */
-#ifdef HAVE_PATHDEF
-       TQ84_DEBUG("HAVE_PATHDEF");
-#else
-       TQ84_DEBUG("Don't HAVE_PATHDEF");
-#endif
 
     if (vimruntime
 #ifdef HAVE_PATHDEF
@@ -1758,6 +1753,7 @@ vim_getenv(char_u *name, int *mustfree)
      */
     if (p == NULL)
     {
+        TQ84_DEBUG("p == NULL");
 	if (p_hf != NULL && vim_strchr(p_hf, '$') == NULL)
 	    p = p_hf;
 #ifdef USE_EXE_NAME
@@ -1867,13 +1863,16 @@ vim_getenv(char_u *name, int *mustfree)
      */
     if (p != NULL)
     {
+        TQ84_DEBUG("p != NULL");
 	if (vimruntime)
 	{
+	    TQ84_DEBUG("-> vim_setenv(VIMRUNTIME)");
 	    vim_setenv((char_u *)"VIMRUNTIME", p);
 	    didset_vimruntime = TRUE;
 	}
 	else
 	{
+	    TQ84_DEBUG("-> vim_setenv(VIM)");
 	    vim_setenv((char_u *)"VIM", p);
 	    didset_vim = TRUE;
 	}

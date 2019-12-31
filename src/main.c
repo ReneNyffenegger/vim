@@ -232,6 +232,11 @@ TQ84_DEBUG("PROTO is not defined");
     #else
            TQ84_DEBUG("GLOBAL_IME no");
     #endif // }
+    #ifdef HAVE_PATHDEF // {
+           TQ84_DEBUG("HAVE_PATHDEF yes");
+    #else
+           TQ84_DEBUG("HAVE_PATHDEF no");
+    #endif // }
     #ifdef NO_CONSOLE_INPUT // {
            TQ84_DEBUG("NO_CONSOLE_INPUT yes");
     #else
@@ -241,6 +246,11 @@ TQ84_DEBUG("PROTO is not defined");
            TQ84_DEBUG("MESSAGE_QUEUE yes");
     #else
            TQ84_DEBUG("MESSAGE_QUEUE no");
+    #endif // }
+    #ifdef USE_EXE_NAME // {
+           TQ84_DEBUG("USE_EXE_NAME yes");
+    #else
+           TQ84_DEBUG("USE_EXE_NAME no");
     #endif // }
     /*
      * Do any system-specific initialisations.  These can NOT use IObuff or

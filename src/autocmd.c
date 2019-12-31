@@ -2222,7 +2222,7 @@ apply_autocmds_group(
     au_cleanup();	// may really delete removed patterns/commands now
 
 BYPASS_AU:
-    TQ84_DEBUG("BYPASS_AU");
+    TQ84_DEBUG("BYPASS_AU:");
     // When wiping out a buffer make sure all its buffer-local autocommands
     // are deleted.
     if (event == EVENT_BUFWIPEOUT && buf != NULL)
@@ -2231,6 +2231,7 @@ BYPASS_AU:
     if (retval == OK && event == EVENT_FILETYPE)
 	au_did_filetype = TRUE;
 
+    TQ84_DEBUG("returning %d", retval);
     return retval;
 }
 

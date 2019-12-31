@@ -511,6 +511,7 @@ gui_init(void)
      */
     if (!recursive)
     {
+        TQ84_DEBUG("! recursive");
 	++recursive;
 
 	clip_init(TRUE);

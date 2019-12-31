@@ -928,7 +928,10 @@ fopen_noinh_readbin(char *filename)
 # endif
 
     if (fd_tmp == -1)
+    {
+        TQ84_DEBUG("fd_temp == -1, return NULL");
 	return NULL;
+    }
 
 # ifdef HAVE_FD_CLOEXEC
     {
