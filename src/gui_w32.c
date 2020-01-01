@@ -2031,7 +2031,7 @@ process_message(void)
 	TQ84_DEBUG("strawberry");
 	if (special_keys[i].key_sym == 0)
 	{
-	    TQ84_DEBUG("special_keys[i].key_sym == 0");
+	    TQ84_DEBUG("special_keys[%d].key_sym == 0", i);
 	    // Some keys need C-S- where they should only need C-.
 	    // Ignore 0xff, Windows XP sends it when NUMLOCK has changed since
 	    // system startup (Helmut Stiegler, 2003 Oct 3).

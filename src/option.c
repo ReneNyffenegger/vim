@@ -1124,14 +1124,17 @@ do_set(
 	goto theend;
     }
 
+    TQ84_DEBUG_INDENT_T("Loop to process all options"); {
     while (*arg != NUL)		// loop to process all options
     {
 	errmsg = NULL;
 	startarg = arg;		// remember for error message
 
+        TQ84_DEBUG("arg = %s", arg);
 	if (STRNCMP(arg, "all", 3) == 0 && !isalpha(arg[3])
 						&& !(opt_flags & OPT_MODELINE))
 	{
+	    TQ84_DEBUG("all");
 	    /*
 	     * ":set all"  show all options.
 	     * ":set all&" set all options to their default value.
@@ -1154,6 +1157,7 @@ do_set(
 	}
 	else if (STRNCMP(arg, "termcap", 7) == 0 && !(opt_flags & OPT_MODELINE))
 	{
+	    TQ84_DEBUG("termcap");
 	    showoptions(2, opt_flags);
 	    show_termcodes();
 	    did_show = TRUE;
@@ -1161,6 +1165,7 @@ do_set(
 	}
 	else
 	{
+	    TQ84_DEBUG("neither all nor termcap");
 	    prefix = 1;
 	    if (STRNCMP(arg, "no", 2) == 0 && STRNCMP(arg, "novice", 6) != 0)
 	    {
@@ -1177,6 +1182,7 @@ do_set(
 	    key = 0;
 	    if (*arg == '<')
 	    {
+	        TQ84_DEBUG("*arg == '<'");
 		opt_idx = -1;
 		// look out for <t_>;>
 		if (arg[1] == 't' && arg[2] == '_' && arg[3] && arg[4])
@@ -1201,6 +1207,7 @@ do_set(
 	    }
 	    else
 	    {
+	        TQ84_DEBUG("*arg != '<'");
 		len = 0;
 		/*
 		 * The two characters after "t_" may not be alphanumeric.
@@ -1222,6 +1229,7 @@ do_set(
 	    afterchar = arg[len];
 
 	    // skip white space, allow ":set ai  ?"
+	    TQ84_DEBUG("skip whitespace");
 	    while (VIM_ISWHITE(arg[len]))
 		++len;
 
@@ -1250,14 +1258,17 @@ do_set(
 
 	    if (opt_idx == -1 && key == 0)	// found a mismatch: skip
 	    {
+	        TQ84_DEBUG("E518: Unknown option");
 		errmsg = N_("E518: Unknown option");
 		goto skip;
 	    }
 
 	    if (opt_idx >= 0)
 	    {
+	        TQ84_DEBUG("opt_idx (%d) >= 0", opt_idx);
 		if (options[opt_idx].var == NULL)   // hidden option: skip
 		{
+		    TQ84_DEBUG("hidden option: skip");
 		    // Only give an error message when requesting the value of
 		    // a hidden option, ignore setting it.
 		    if (vim_strchr((char_u *)"=:!&<", nextchar) == NULL
@@ -1272,6 +1283,7 @@ do_set(
 	    }
 	    else
 	    {
+	        TQ84_DEBUG("opt_idx < 0");
 		flags = P_STRING;
 		if (key < 0)
 		{
@@ -1289,16 +1301,25 @@ do_set(
 	    // an already loaded buffer in a window).
 	    if ((opt_flags & OPT_WINONLY)
 			  && (opt_idx < 0 || options[opt_idx].var != VAR_WIN))
+	    {
+	        TQ84_DEBUG("skip options that are not window-local");
 		goto skip;
+	    }
 
 	    // Skip all options that are window-local (used for :vimgrep).
 	    if ((opt_flags & OPT_NOWIN) && opt_idx >= 0
 					   && options[opt_idx].var == VAR_WIN)
+            {
+	        TQ84_DEBUG("skip options that are window-local");
 		goto skip;
+	    }
+
+	    TQ84_DEBUG("window-local and non-window-local options were not skipped");
 
 	    // Disallow changing some options from modelines.
 	    if (opt_flags & OPT_MODELINE)
 	    {
+	        TQ84_DEBUG("skip options from modelines");
 		if (flags & (P_SECURE | P_NO_ML))
 		{
 		    errmsg = _("E520: Not allowed in a modeline");
@@ -1328,6 +1349,7 @@ do_set(
 	    // Disallow changing some options in the sandbox
 	    if (sandbox != 0 && (flags & P_SECURE))
 	    {
+	        TQ84_DEBUG("sandbox");
 		errmsg = _(e_sandbox);
 		goto skip;
 	    }
@@ -1335,6 +1357,7 @@ do_set(
 
 	    if (vim_strchr((char_u *)"?=:!&<", nextchar) != NULL)
 	    {
+	        TQ84_DEBUG("?=:!&<");
 		arg += len;
 		cp_val = p_cp;
 		if (nextchar == '&' && arg[1] == 'v' && arg[2] == 'i')
@@ -1367,6 +1390,7 @@ do_set(
 			&& vim_strchr((char_u *)"=:&<", nextchar) == NULL
 			&& !(flags & P_BOOL)))
 	    {
+	        TQ84_DEBUG("= :");
 		/*
 		 * print value
 		 */
@@ -1414,6 +1438,7 @@ do_set(
 	    }
 	    else
 	    {
+	        TQ84_DEBUG("NOT = :");
 		int value_is_replaced = !prepending && !adding && !removing;
 		int value_checked = FALSE;
 
@@ -1470,6 +1495,7 @@ do_set(
 		}
 		else				    // numeric or string
 		{
+		    TQ84_DEBUG("! P_BOOL");
 		    if (vim_strchr((char_u *)"=:&<", nextchar) == NULL
 							       || prefix != 1)
 		    {
@@ -1479,6 +1505,7 @@ do_set(
 
 		    if (flags & P_NUM)		    // numeric
 		    {
+		        TQ84_DEBUG("P_NUM");
 			/*
 			 * Different ways to set a number option:
 			 * &	    set to default value
@@ -1538,12 +1565,14 @@ do_set(
 			    goto skip;
 			}
 
+                        TQ84_DEBUG("adding = %d, prepending = %d, removing %d", adding, prepending, removing);
 			if (adding)
 			    value = *(long *)varp + value;
 			if (prepending)
 			    value = *(long *)varp * value;
 			if (removing)
 			    value = *(long *)varp - value;
+		        TQ84_DEBUG("-> set_num_option");
 			errmsg = set_num_option(opt_idx, varp, value,
 					   errbuf, sizeof(errbuf), opt_flags);
 		    }
@@ -2064,6 +2093,7 @@ skip:
 
 	arg = skipwhite(arg);
     }
+    } // TQ84_DEBUG_INDENT
 
 theend:
     if (silent_mode && did_show)
@@ -2448,7 +2478,7 @@ set_option_sctx_idx(int opt_idx, int opt_flags, sctx_T script_ctx)
     int		indir = (int)options[opt_idx].indir;
     sctx_T	new_script_ctx = script_ctx;
 
-    new_script_ctx.sc_lnum += sourcing_lnum;
+    new_script_ctx.sc_lnum += SOURCING_LNUM;
 
     // Remember where the option was set.  For local options need to do that
     // in the buffer or window structure.
@@ -3129,6 +3159,7 @@ set_num_option(
     int		opt_flags)		// OPT_LOCAL, OPT_GLOBAL and
 					// OPT_MODELINE
 {
+    TQ84_DEBUG_INDENT();
     char	*errmsg = NULL;
     long	old_value = *(long *)varp;
 #if defined(FEAT_EVAL)
@@ -3298,6 +3329,7 @@ set_num_option(
     // 'foldnestmax'
     else if (pp == &curwin->w_p_fdn)
     {
+        TQ84_DEBUG("pp == &curwin->w_p_fdn (%d)", pp);
 	if (foldmethodIsSyntax(curwin) || foldmethodIsIndent(curwin))
 	    foldUpdateAll(curwin);
     }

@@ -221,7 +221,7 @@ static AutoPat *last_autopat[NUM_EVENTS] =
 /*
  * struct used to keep status while executing autocommands for an event.
  */
-typedef struct AutoPatCmd
+struct AutoPatCmd_S
 {
     AutoPat	*curpat;	// next AutoPat to examine
     AutoCmd	*nextcmd;	// next AutoCmd to execute
@@ -232,8 +232,8 @@ typedef struct AutoPatCmd
     event_T	event;		// current event
     int		arg_bufnr;	// Initially equal to <abuf>, set to zero when
 				// buf is deleted.
-    struct AutoPatCmd   *next;	// chain of active apc-s for auto-invalidation
-} AutoPatCmd;
+    AutoPatCmd   *next;		// chain of active apc-s for auto-invalidation
+};
 
 static AutoPatCmd *active_apc_list = NULL; // stack of active autocommands
 
@@ -1245,7 +1245,7 @@ do_autocmd_event(
 	    ac->cmd = vim_strsave(cmd);
 #ifdef FEAT_EVAL
 	    ac->script_ctx = current_sctx;
-	    ac->script_ctx.sc_lnum += sourcing_lnum;
+	    ac->script_ctx.sc_lnum += SOURCING_LNUM;
 #endif
 	    if (ac->cmd == NULL)
 	    {
@@ -1808,8 +1808,6 @@ apply_autocmds_group(
     int		save_changed;
     buf_T	*old_curbuf;
     int		retval = FALSE;
-    char_u	*save_sourcing_name;
-    linenr_T	save_sourcing_lnum;
     char_u	*save_autocmd_fname;
     int		save_autocmd_fname_full;
     int		save_autocmd_bufnr;
@@ -2045,10 +2043,9 @@ apply_autocmds_group(
 
     // Don't redraw while doing autocommands.
     ++RedrawingDisabled;
-    save_sourcing_name = sourcing_name;
-    sourcing_name = NULL;	// don't free this one
-    save_sourcing_lnum = sourcing_lnum;
-    sourcing_lnum = 0;		// no line number here
+
+    // name and lnum are filled in later
+    estack_push(ETYPE_AUCMD, NULL, 0);
 
 #ifdef FEAT_EVAL
     save_current_sctx = current_sctx;
@@ -2154,9 +2151,8 @@ apply_autocmds_group(
     autocmd_busy = save_autocmd_busy;
     filechangeshell_busy = FALSE;
     autocmd_nested = save_autocmd_nested;
-    vim_free(sourcing_name);
-    sourcing_name = save_sourcing_name;
-    sourcing_lnum = save_sourcing_lnum;
+    vim_free(SOURCING_NAME);
+    estack_pop();
     vim_free(autocmd_fname);
     autocmd_fname = save_autocmd_fname;
     autocmd_fname_full = save_autocmd_fname_full;
@@ -2287,8 +2283,9 @@ auto_next_pat(
     AutoCmd	*cp;
     char_u	*name;
     char	*s;
+    char_u	**sourcing_namep = &SOURCING_NAME;
 
-    VIM_CLEAR(sourcing_name);
+    VIM_CLEAR(*sourcing_namep);
 
     for (ap = apc->curpat; ap != NULL && !got_int; ap = ap->next)
     {
@@ -2308,16 +2305,16 @@ auto_next_pat(
 	    {
 		name = event_nr2name(apc->event);
 		s = _("%s Autocommands for \"%s\"");
-		sourcing_name = alloc(STRLEN(s)
+		*sourcing_namep = alloc(STRLEN(s)
 					      + STRLEN(name) + ap->patlen + 1);
-		if (sourcing_name != NULL)
+		if (*sourcing_namep != NULL)
 		{
-		    sprintf((char *)sourcing_name, s,
+		    sprintf((char *)*sourcing_namep, s,
 					       (char *)name, (char *)ap->pat);
 		    if (p_verbose >= 8)
 		    {
 			verbose_enter();
-			smsg(_("Executing %s"), sourcing_name);
+			smsg(_("Executing %s"), *sourcing_namep);
 			verbose_leave();
 		    }
 		}

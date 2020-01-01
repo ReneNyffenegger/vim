@@ -7006,6 +7006,7 @@ nv_edit(cmdarg_T *cap)
     else if ((cap->cmdchar == 'a' || cap->cmdchar == 'i')
 	    && (cap->oap->op_type != OP_NOP || VIsual_active))
     {
+        TQ84_DEBUG("(cap->cmdchar == 'a' || cap->cmdchar == 'i') && (cap->oap->op_type != OP_NOP || VIsual_active)");
 #ifdef FEAT_TEXTOBJ
 	nv_object(cap);
 #else
@@ -7015,6 +7016,7 @@ nv_edit(cmdarg_T *cap)
 #ifdef FEAT_TERMINAL
     else if (term_in_normal_mode())
     {
+        TQ84_DEBUG("term_in_normal_mode");
 	clearop(cap->oap);
 	term_enter_job_mode();
 	return;
@@ -7022,6 +7024,7 @@ nv_edit(cmdarg_T *cap)
 #endif
     else if (!curbuf->b_p_ma && !p_im)
     {
+        TQ84_DEBUG("!curbuf->b_p_ma && !p_im");
 	// Only give this error when 'insertmode' is off.
 	emsg(_(e_modifiable));
 	clearop(cap->oap);
@@ -7031,6 +7034,7 @@ nv_edit(cmdarg_T *cap)
     }
     else if (cap->cmdchar == K_PS && VIsual_active)
     {
+        TQ84_DEBUG("cap->cmdchar == K_PS && VIsual_active");
 	pos_T old_pos = curwin->w_cursor;
 	pos_T old_visual = VIsual;
 
@@ -7059,6 +7063,7 @@ nv_edit(cmdarg_T *cap)
     }
     else if (!checkclearopq(cap->oap))
     {
+        TQ84_DEBUG("! checkclearopq()");
 	switch (cap->cmdchar)
 	{
 	    case 'A':	// "A"ppend after the line
@@ -7103,6 +7108,7 @@ nv_edit(cmdarg_T *cap)
 	    State = save_State;
 	}
 
+        TQ84_DEBUG("-> invoke_edit");
 	invoke_edit(cap, FALSE, cap->cmdchar, FALSE);
     }
     else if (cap->cmdchar == K_PS)
@@ -7120,6 +7126,7 @@ invoke_edit(
     int		cmd,
     int		startln)
 {
+    TQ84_DEBUG_INDENT();
     int		restart_edit_save = 0;
 
     // Complicated: When the user types "a<C-O>a" we don't want to do Insert

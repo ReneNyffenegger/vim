@@ -12,6 +12,7 @@
 
 const char *tq84_char_to_string(int c) {
    static char buf[100];
+   if (c == NUL             ) return "NUL"             ;
    if (c == Ctrl_C          ) return "Ctrl_C"          ;
    if (c == CSI             ) return "CSI"             ;
    if (c == KS_MODIFIER     ) return "KS_MODIFIER"     ;
@@ -316,7 +317,7 @@ TQ84_DEBUG("PROTO is not defined");
 	    break;
 	}
 #endif
-    TQ84_DEBUG("calling common_init");
+    TQ84_DEBUG("-> common_init");
     common_init(&params);
 
 #ifdef VIMDLL
@@ -1086,6 +1087,8 @@ vim_main2(void)
 common_init(mparm_T *paramp)
 {
     TQ84_DEBUG_INDENT();
+    TQ84_DEBUG("-> estack_init()");
+    estack_init();
     TQ84_DEBUG("-> cmdline_init()");
     cmdline_init();
 
@@ -1940,6 +1943,7 @@ getout(int exitval)
     static void
 init_locale(void)
 {
+    TQ84_DEBUG_INDENT();
     setlocale(LC_ALL, "");
 
 # ifdef FEAT_GUI_GTK
@@ -1965,6 +1969,7 @@ init_locale(void)
 
 #  ifdef DYNAMIC_GETTEXT
 	// Initialize the gettext library
+	TQ84_DEBUG("-> dyn_libintl_init");
 	dyn_libintl_init();
 #  endif
 	// expand_env() doesn't work yet, because g_chartab[] is not
@@ -1977,6 +1982,8 @@ init_locale(void)
 	}
 	if (mustfree)
 	    vim_free(p);
+
+	TQ84_DEBUG("-> textdomain");
 	textdomain(VIMPACKAGE);
     }
 # endif
@@ -3324,7 +3331,7 @@ exe_pre_commands(mparm_T *parmp)
     if (cnt > 0)
     {
 	curwin->w_cursor.lnum = 0; // just in case..
-	sourcing_name = (char_u *)_("pre-vimrc command line");
+	estack_push(ETYPE_ARGS, (char_u *)_("pre-vimrc command line"), 0);
 # ifdef FEAT_EVAL
 	current_sctx.sc_sid = SID_CMDARG;
 # endif
@@ -3333,7 +3340,7 @@ exe_pre_commands(mparm_T *parmp)
 	    TQ84_DEBUG("do_cmdline_cmd(cmds[%d])", i);
 	    do_cmdline_cmd(cmds[i]);
 	}
-	sourcing_name = NULL;
+	estack_pop();
 # ifdef FEAT_EVAL
 	current_sctx.sc_sid = 0;
 # endif
@@ -3357,7 +3364,7 @@ exe_commands(mparm_T *parmp)
     msg_scroll = TRUE;
     if (parmp->tagname == NULL && curwin->w_cursor.lnum <= 1)
 	curwin->w_cursor.lnum = 0;
-    sourcing_name = (char_u *)"command line";
+    estack_push(ETYPE_ARGS, (char_u *)"command line", 0);
 #ifdef FEAT_EVAL
     current_sctx.sc_sid = SID_CARG;
     current_sctx.sc_seq = 0;
@@ -3368,7 +3375,7 @@ exe_commands(mparm_T *parmp)
 	if (parmp->cmds_tofree[i])
 	    vim_free(parmp->commands[i]);
     }
-    sourcing_name = NULL;
+    estack_pop();
 #ifdef FEAT_EVAL
     current_sctx.sc_sid = 0;
 #endif
@@ -3585,8 +3592,6 @@ process_env(
     int		is_viminit) // when TRUE, called for VIMINIT
 {
     char_u	*initstr;
-    char_u	*save_sourcing_name;
-    linenr_T	save_sourcing_lnum;
 #ifdef FEAT_EVAL
     sctx_T	save_current_sctx;
 #endif
@@ -3595,10 +3600,7 @@ process_env(
     {
 	if (is_viminit)
 	    vimrc_found(NULL, NULL);
-	save_sourcing_name = sourcing_name;
-	save_sourcing_lnum = sourcing_lnum;
-	sourcing_name = env;
-	sourcing_lnum = 0;
+	estack_push(ETYPE_ENV, env, 0);
 #ifdef FEAT_EVAL
 	save_current_sctx = current_sctx;
 	current_sctx.sc_sid = SID_ENV;
@@ -3607,8 +3609,8 @@ process_env(
 	current_sctx.sc_version = 1;
 #endif
 	do_cmdline_cmd(initstr);
-	sourcing_name = save_sourcing_name;
-	sourcing_lnum = save_sourcing_lnum;
+
+	estack_pop();
 #ifdef FEAT_EVAL
 	current_sctx = save_current_sctx;
 #endif

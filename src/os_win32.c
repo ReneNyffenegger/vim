@@ -406,6 +406,7 @@ wait_for_single_object(
     static void
 get_exe_name(void)
 {
+    TQ84_DEBUG_INDENT();
     // Maximum length of $PATH is more than MAXPATHL.  8191 is often mentioned
     // as the maximum length that works (plus a NUL byte).
 #define MAX_ENV_PATH_LEN 8192
@@ -632,6 +633,7 @@ int (*dyn_libintl_wputenv)(const wchar_t *) = null_libintl_wputenv;
     int
 dyn_libintl_init(void)
 {
+    TQ84_DEBUG_INDENT();
     int i;
     static struct
     {

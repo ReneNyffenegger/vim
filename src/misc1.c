@@ -1719,6 +1719,7 @@ vim_getenv(char_u *name, int *mustfree)
 	    wp = NULL;
 	if (wp != NULL)
 	{
+	    TQ84_DEBUG("wp != NULL");
 	    char_u *q = utf16_to_enc(wp, NULL);
 	    if (q != NULL)
 	    {
@@ -1753,19 +1754,26 @@ vim_getenv(char_u *name, int *mustfree)
      */
     if (p == NULL)
     {
-        TQ84_DEBUG("p == NULL");
+        TQ84_DEBUG("p == NULL, p_hf = %s", p_hf);
 	if (p_hf != NULL && vim_strchr(p_hf, '$') == NULL)
+	{
+	    TQ84_DEBUG("set p = p_hf (%s)", p_hf);
 	    p = p_hf;
+	}
 #ifdef USE_EXE_NAME
 	/*
 	 * Use the name of the executable, obtained from argv[0].
 	 */
 	else
+	{
+	    TQ84_DEBUG("USE_EXE_NAME, p = exe_name (%s)", exe_name);
 	    p = exe_name;
+	}
 #endif
 	if (p != NULL)
 	{
 	    // remove the file name
+	    TQ84_DEBUG("p (%s) != NULL, remove the file name (gettail)", p);
 	    pend = gettail(p);
 
 	    // remove "doc/" from 'helpfile', if present
@@ -1796,12 +1804,16 @@ vim_getenv(char_u *name, int *mustfree)
 # endif
 	    // remove "src/" from exe_name, if present
 	    if (p == exe_name)
+	    {
+	        TQ84_DEBUG("p == exe_name (%s), remove src/ from exe_name", exe_name);
 		pend = remove_tail(p, pend, (char_u *)"src");
+	    }
 #endif
 
 	    // for $VIM, remove "runtime/" or "vim54/", if present
 	    if (!vimruntime)
 	    {
+	        TQ84_DEBUG("for $VIM, remove RUNTIME_DIRNAME(%s) and/or $VIM_VERSION_NODOT(%s), if present", RUNTIME_DIRNAME, VIM_VERSION_NODOT);
 		pend = remove_tail(p, pend, (char_u *)RUNTIME_DIRNAME);
 		pend = remove_tail(p, pend, (char_u *)VIM_VERSION_NODOT);
 	    }
@@ -1817,9 +1829,13 @@ vim_getenv(char_u *name, int *mustfree)
 		p = vim_strnsave(p, (int)(pend - p));
 
 	    if (p != NULL && !mch_isdir(p))
+	    {
+	        TQ84_DEBUG("p (%s) != NULL && mch_isdir(p)", p);
 		VIM_CLEAR(p);
+	    }
 	    else
 	    {
+	        TQ84_DEBUG("motor");
 #ifdef USE_EXE_NAME
 		// may add "/vim54" or "/runtime" if it exists
 		if (vimruntime && (pend = vim_version_dir(p)) != NULL)
@@ -1838,6 +1854,7 @@ vim_getenv(char_u *name, int *mustfree)
     // default_vimruntime_dir
     if (p == NULL)
     {
+        TQ84_DEBUG("HAVE_PATHDEF, p == NULL");
 	// Only use default_vimruntime_dir when it is not empty
 	if (vimruntime && *default_vimruntime_dir != NUL)
 	{
@@ -1866,7 +1883,7 @@ vim_getenv(char_u *name, int *mustfree)
         TQ84_DEBUG("p != NULL");
 	if (vimruntime)
 	{
-	    TQ84_DEBUG("-> vim_setenv(VIMRUNTIME)");
+	    TQ84_DEBUG("-> vim_setenv(VIMRUNTIME) %s", p);
 	    vim_setenv((char_u *)"VIMRUNTIME", p);
 	    didset_vimruntime = TRUE;
 	}
@@ -1877,6 +1894,7 @@ vim_getenv(char_u *name, int *mustfree)
 	    didset_vim = TRUE;
 	}
     }
+    TQ84_DEBUG("return %s", p);
     return p;
 }
 

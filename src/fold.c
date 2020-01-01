@@ -40,7 +40,7 @@ typedef struct
 #define FD_CLOSED	1	// fold is closed
 #define FD_LEVEL	2	// depends on 'foldlevel' (nested folds too)
 
-#define MAX_LEVEL	20	// maximum fold depth
+#define MAX_LEVEL	200	// maximum fold depth (TQ84: changed from 20 to 200)
 
 // static functions {{{2
 static void newFoldLevelWin(win_T *wp);
