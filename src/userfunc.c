@@ -552,7 +552,7 @@ fname_trans_sid(char_u *name, char_u *fname_buf, char_u **tofree, int *error)
 	if (eval_fname_sid(name))	// "<SID>" or "s:"
 	{
 	    if (current_sctx.sc_sid <= 0)
-		*error = ERROR_SCRIPT;
+		*error = FCERR_SCRIPT;
 	    else
 	    {
 		sprintf((char *)fname_buf + 3, "%ld_",
@@ -569,7 +569,7 @@ fname_trans_sid(char_u *name, char_u *fname_buf, char_u **tofree, int *error)
 	{
 	    fname = alloc(i + STRLEN(name + llen) + 1);
 	    if (fname == NULL)
-		*error = ERROR_OTHER;
+		*error = FCERR_OTHER;
 	    else
 	    {
 		*tofree = fname;
@@ -1487,7 +1487,7 @@ call_func(
     funcexe_T	*funcexe)	// more arguments
 {
     int		ret = FAIL;
-    int		error = ERROR_NONE;
+    int		error = FCERR_NONE;
     int		i;
     ufunc_T	*fp;
     char_u	fname_buf[FLEN_FIXED + 1];
@@ -1525,13 +1525,13 @@ call_func(
 	// When the dict was bound explicitly use the one from the partial.
 	if (partial->pt_dict != NULL && (selfdict == NULL || !partial->pt_auto))
 	    selfdict = partial->pt_dict;
-	if (error == ERROR_NONE && partial->pt_argc > 0)
+	if (error == FCERR_NONE && partial->pt_argc > 0)
 	{
 	    for (argv_clear = 0; argv_clear < partial->pt_argc; ++argv_clear)
 	    {
 		if (argv_clear + argcount_in >= MAX_FUNC_ARGS)
 		{
-		    error = ERROR_TOOMANY;
+		    error = FCERR_TOOMANY;
 		    goto theend;
 		}
 		copy_tv(&partial->pt_argv[argv_clear], &argv[argv_clear]);
@@ -1543,7 +1543,7 @@ call_func(
 	}
     }
 
-    if (error == ERROR_NONE && funcexe->evaluate)
+    if (error == FCERR_NONE && funcexe->evaluate)
     {
 	char_u *rfname = fname;
 
@@ -1553,7 +1553,7 @@ call_func(
 
 	rettv->v_type = VAR_NUMBER;	// default rettv is number zero
 	rettv->vval.v_number = 0;
-	error = ERROR_UNKNOWN;
+	error = FCERR_UNKNOWN;
 
 	if (!builtin_function(rfname, -1))
 	{
@@ -1582,7 +1582,7 @@ call_func(
 	    }
 
 	    if (fp != NULL && (fp->uf_flags & FC_DELETED))
-		error = ERROR_DELETED;
+		error = FCERR_DELETED;
 	    else if (fp != NULL)
 	    {
 		if (funcexe->argv_func != NULL)
@@ -1603,11 +1603,11 @@ call_func(
 		if (fp->uf_flags & FC_RANGE && funcexe->doesrange != NULL)
 		    *funcexe->doesrange = TRUE;
 		if (argcount < fp->uf_args.ga_len - fp->uf_def_args.ga_len)
-		    error = ERROR_TOOFEW;
+		    error = FCERR_TOOFEW;
 		else if (!fp->uf_varargs && argcount > fp->uf_args.ga_len)
-		    error = ERROR_TOOMANY;
+		    error = FCERR_TOOMANY;
 		else if ((fp->uf_flags & FC_DICT) && selfdict == NULL)
-		    error = ERROR_DICT;
+		    error = FCERR_DICT;
 		else
 		{
 		    int did_save_redo = FALSE;
@@ -1635,7 +1635,7 @@ call_func(
 		    if (did_save_redo)
 			restoreRedobuff(&save_redo);
 		    restore_search_patterns();
-		    error = ERROR_NONE;
+		    error = FCERR_NONE;
 		}
 	    }
 	}
@@ -1667,7 +1667,7 @@ call_func(
 	 */
 	update_force_abort();
     }
-    if (error == ERROR_NONE)
+    if (error == FCERR_NONE)
 	ret = OK;
 
 theend:
@@ -1679,31 +1679,31 @@ theend:
     {
 	switch (error)
 	{
-	    case ERROR_UNKNOWN:
+	    case FCERR_UNKNOWN:
 		    emsg_funcname(N_("E117: Unknown function: %s"), name);
 		    break;
-	    case ERROR_NOTMETHOD:
+	    case FCERR_NOTMETHOD:
 		    emsg_funcname(
 			       N_("E276: Cannot use function as a method: %s"),
 									 name);
 		    break;
-	    case ERROR_DELETED:
+	    case FCERR_DELETED:
 		    emsg_funcname(N_("E933: Function was deleted: %s"), name);
 		    break;
-	    case ERROR_TOOMANY:
+	    case FCERR_TOOMANY:
 		    emsg_funcname((char *)e_toomanyarg, name);
 		    break;
-	    case ERROR_TOOFEW:
+	    case FCERR_TOOFEW:
 		    emsg_funcname(
 			     N_("E119: Not enough arguments for function: %s"),
 									name);
 		    break;
-	    case ERROR_SCRIPT:
+	    case FCERR_SCRIPT:
 		    emsg_funcname(
 			   N_("E120: Using <SID> not in a script context: %s"),
 									name);
 		    break;
-	    case ERROR_DICT:
+	    case FCERR_DICT:
 		    emsg_funcname(
 		      N_("E725: Calling dict function without Dictionary: %s"),
 									name);
@@ -3852,7 +3852,7 @@ set_ref_in_func(char_u *name, ufunc_T *fp_in, int copyID)
 {
     ufunc_T	*fp = fp_in;
     funccall_T	*fc;
-    int		error = ERROR_NONE;
+    int		error = FCERR_NONE;
     char_u	fname_buf[FLEN_FIXED + 1];
     char_u	*tofree = NULL;
     char_u	*fname;
