@@ -322,10 +322,14 @@ inchar_loop(
 	// Only process messages when waiting.
 	if (wtime != 0)
 	{
+	    TQ84_DEBUG("wtime (%d) != 0 -> parse_queued_messages", wtime);
 	    parse_queued_messages();
 	    // If input was put directly in typeahead buffer bail out here.
 	    if (typebuf_changed(tb_change_cnt))
+	    {
+	        TQ84_DEBUG("typebuf changed, return 0");
 		return 0;
+	    }
 	}
 #endif
 	if (wtime < 0 && did_start_blocking)
@@ -414,7 +418,7 @@ inchar_loop(
 	// Wait for a character to be typed or another event, such as the winch
 	// signal or an event on the monitored file descriptors.
 	did_call_wait_func = TRUE;
-	TQ84_DEBUG("-> wait_func (function pointer)");
+	TQ84_DEBUG("-> wait_func (function pointer), wait_time = %d", wait_time);
 	if (wait_func(wait_time, &interrupted, FALSE))
 	{
 	    TQ84_DEBUG("wait_func just returned");
