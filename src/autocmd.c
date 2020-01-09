@@ -1830,6 +1830,7 @@ apply_autocmds_group(
     int		did_save_redobuff = FALSE;
     save_redo_T	save_redo;
     int		save_KeyTyped = KeyTyped;
+    ESTACK_CHECK_DECLARATION
 
     TQ84_DEBUG_INDENT_T("apply_autocmds_group, event = %s, fname = %s, fname_io = %s, group = %d", event_nr2name(event), fname, fname_io, group);
 
@@ -2046,6 +2047,7 @@ apply_autocmds_group(
 
     // name and lnum are filled in later
     estack_push(ETYPE_AUCMD, NULL, 0);
+    ESTACK_CHECK_SETUP
 
 #ifdef FEAT_EVAL
     save_current_sctx = current_sctx;
@@ -2152,6 +2154,7 @@ apply_autocmds_group(
     filechangeshell_busy = FALSE;
     autocmd_nested = save_autocmd_nested;
     vim_free(SOURCING_NAME);
+    ESTACK_CHECK_NOW
     estack_pop();
     vim_free(autocmd_fname);
     autocmd_fname = save_autocmd_fname;

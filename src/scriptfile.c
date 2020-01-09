@@ -100,10 +100,10 @@ estack_sfile(void)
 {
     estack_T	*entry;
 #ifdef FEAT_EVAL
-    int		len;
+    size_t	len;
     int		idx;
     char	*res;
-    int		done;
+    size_t	done;
 #endif
 
     entry = ((estack_T *)exestack.ga_data) + exestack.ga_len - 1;
@@ -129,7 +129,7 @@ estack_sfile(void)
 	len += STRLEN(entry->es_name) + 15;
     }
 
-    res = (char *)alloc(len);
+    res = (char *)alloc((int)len);
     if (res != NULL)
     {
 	STRCPY(res, "function ");
@@ -1111,6 +1111,7 @@ do_source(
     proftime_T		    wait_start;
 #endif
     int			    trigger_source_post = FALSE;
+    ESTACK_CHECK_DECLARATION
 
     TQ84_DEBUG_INDENT_T("fname = %s", fname);
 
@@ -1242,6 +1243,7 @@ do_source(
 
     // Keep the sourcing name/lnum, for recursive calls.
     estack_push(ETYPE_SCRIPT, fname_exp, 0);
+    ESTACK_CHECK_SETUP
 
 #ifdef STARTUPTIME
     if (time_fd != NULL)
@@ -1381,6 +1383,7 @@ do_source(
 
     if (got_int)
 	emsg(_(e_interr));
+    ESTACK_CHECK_NOW
     estack_pop();
     if (p_verbose > 1)
     {
