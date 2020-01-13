@@ -61,6 +61,10 @@ const char* tq84_WM_to_string(UINT wm) {
    if (wm == WM_NCPAINT              ) return "WM_NCPAINT"              ;
    if (wm == WM_PAINT                ) return "WM_PAINT"                ;
    if (wm == WM_SETTEXT              ) return "WM_SETTEXT"              ;
+   if (wm == WM_STYLECHANGED         ) return "WM_STYLECHANGED"         ;
+   if (wm == WM_PARENTNOTIFY         ) return "WM_PARENTNOTIFY"         ;
+   if (wm == WM_QUERYDRAGICON        ) return "WM_QUERYDRAGICON"        ;
+   if (wm == WM_QUERYUISTATE         ) return "WM_QUERYUISTATE"         ;
    if (wm == WM_QUIT                 ) return "WM_QUIT"                 ;
    if (wm == WM_SETCURSOR            ) return "WM_SETCURSOR"            ;
    if (wm == WM_SETFOCUS             ) return "WM_SETFOCUS"             ;
