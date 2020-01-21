@@ -323,7 +323,6 @@ static void	ex_setfiletype(exarg_T *eap);
 # define ex_diffupdate		ex_ni
 #endif
 static void	ex_digraphs(exarg_T *eap);
-static void	ex_set(exarg_T *eap);
 #ifdef FEAT_SEARCH_EXTRA
 static void	ex_nohlsearch(exarg_T *eap);
 #else
@@ -4637,6 +4636,9 @@ ex_bmodified(exarg_T *eap)
     static void
 ex_bnext(exarg_T *eap)
 {
+    if (ERROR_IF_POPUP_WINDOW)
+	return;
+
     goto_buffer(eap, DOBUF_CURRENT, FORWARD, (int)eap->line2);
     if (eap->do_ecmd_cmd != NULL)
 	do_cmdline_cmd(eap->do_ecmd_cmd);
@@ -4651,6 +4653,9 @@ ex_bnext(exarg_T *eap)
     static void
 ex_bprevious(exarg_T *eap)
 {
+    if (ERROR_IF_POPUP_WINDOW)
+	return;
+
     goto_buffer(eap, DOBUF_CURRENT, BACKWARD, (int)eap->line2);
     if (eap->do_ecmd_cmd != NULL)
 	do_cmdline_cmd(eap->do_ecmd_cmd);
@@ -4665,6 +4670,9 @@ ex_bprevious(exarg_T *eap)
     static void
 ex_brewind(exarg_T *eap)
 {
+    if (ERROR_IF_POPUP_WINDOW)
+	return;
+
     goto_buffer(eap, DOBUF_FIRST, FORWARD, 0);
     if (eap->do_ecmd_cmd != NULL)
 	do_cmdline_cmd(eap->do_ecmd_cmd);
@@ -4677,6 +4685,9 @@ ex_brewind(exarg_T *eap)
     static void
 ex_blast(exarg_T *eap)
 {
+    if (ERROR_IF_POPUP_WINDOW)
+	return;
+
     goto_buffer(eap, DOBUF_LAST, BACKWARD, 0);
     if (eap->do_ecmd_cmd != NULL)
 	do_cmdline_cmd(eap->do_ecmd_cmd);
@@ -5951,7 +5962,7 @@ ex_mode(exarg_T *eap)
     if (*eap->arg == NUL)
 	shell_resized();
     else
-	mch_screenmode(eap->arg);
+	emsg(_(e_screenmode));
 }
 
 /*
@@ -8507,27 +8518,6 @@ ex_digraphs(exarg_T *eap UNUSED)
 #else
     emsg(_("E196: No digraphs in this version"));
 #endif
-}
-
-    static void
-ex_set(exarg_T *eap)
-{
-    TQ84_DEBUG_INDENT();
-    int		flags = 0;
-
-    if (eap->cmdidx == CMD_setlocal)
-    {
-        TQ84_DEBUG("eap->cmdidx == CMD_setlocal");
-	flags = OPT_LOCAL;
-    }
-    else if (eap->cmdidx == CMD_setglobal)
-	flags = OPT_GLOBAL;
-#if defined(FEAT_EVAL) && defined(FEAT_BROWSE)
-    if (cmdmod.browse && flags == 0)
-	ex_options(eap);
-    else
-#endif
-	(void)do_set(eap->arg, flags);
 }
 
 #if defined(FEAT_SEARCH_EXTRA) || defined(PROTO)
